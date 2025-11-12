@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Panel - Malayali Store</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+</head>
+<body class="admin-body">
+    <div class="terminal-container admin-container">
+        <div class="scan-line"></div>
+        <div class="glow-effect"></div>
+        
+        <header class="terminal-header admin-header">
+            <div class="header-content">
+                <h1 class="glitch-text" data-text="ADMIN_CONTROL_PANEL">ADMIN_CONTROL_PANEL</h1>
+                <div class="terminal-prompt">
+                    <span class="prompt-user">admin@malayalistore</span>
+                    <span class="prompt-symbol">:#</span>
+                    <span class="prompt-command" id="admin-status">system_online</span>
+                </div>
+            </div>
+            <div class="admin-controls">
+                <button id="logout-btn" class="hack-btn-sm">
+                    <i class="fas fa-sign-out-alt"></i> LOGOUT
+                </button>
+            </div>
+        </header>
+
+        <main class="terminal-body admin-body-content">
+            <!-- Stats Section -->
+            <div class="admin-section">
+                <div class="section-header">
+                    <h2><i class="fas fa-chart-network"></i> SYSTEM_STATS</h2>
+                </div>
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-icon">
+                            <i class="fas fa-key-skeleton"></i>
+                        </div>
+                        <div class="stat-info">
+                            <div class="stat-number" id="total-keys">0</div>
+                            <div class="stat-label">TOTAL_KEYS</div>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon">
+                            <i class="fas fa-key"></i>
+                        </div>
+                        <div class="stat-info">
+                            <div class="stat-number" id="available-keys">0</div>
+                            <div class="stat-label">AVAILABLE</div>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon">
+                            <i class="fas fa-key-circle"></i>
+                        </div>
+                        <div class="stat-info">
+                            <div class="stat-number" id="sold-keys">0</div>
+                            <div class="stat-label">SOLD</div>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon">
+                            <i class="fas fa-coins"></i>
+                        </div>
+                        <div class="stat-info">
+                            <div class="stat-number" id="total-revenue">₹0</div>
+                            <div class="stat-label">REVENUE</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Applications Management -->
+            <div class="admin-section">
+                <div class="section-header">
+                    <h2><i class="fas fa-boxes"></i> APPLICATIONS</h2>
+                    <button id="add-app-btn" class="hack-btn-sm">
+                        <i class="fas fa-plus"></i> NEW_APP
+                    </button>
+                </div>
+                <div class="apps-grid" id="apps-grid">
+                    <!-- Apps will be loaded here -->
+                </div>
+            </div>
+
+            <!-- Keys Management -->
+            <div class="admin-section">
+                <div class="section-header">
+                    <h2><i class="fas fa-keyboard"></i> KEYS_MANAGEMENT</h2>
+                    <button id="add-key-btn" class="hack-btn-sm">
+                        <i class="fas fa-key"></i> ADD_KEY
+                    </button>
+                </div>
+                
+                <div class="filters">
+                    <div class="filter-group">
+                        <input type="text" id="key-search" class="terminal-input" placeholder="SEARCH_KEYS...">
+                    </div>
+                    <div class="filter-group">
+                        <select id="app-filter" class="terminal-select">
+                            <option value="">ALL_APPS</option>
+                        </select>
+                    </div>
+                    <div class="filter-group">
+                        <select id="status-filter" class="terminal-select">
+                            <option value="">ALL_STATUS</option>
+                            <option value="available">AVAILABLE</option>
+                            <option value="sold">SOLD</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="keys-table-container">
+                    <table class="terminal-table">
+                        <thead>
+                            <tr>
+                                <th>KEY</th>
+                                <th>APPLICATION</th>
+                                <th>DURATION</th>
+                                <th>STATUS</th>
+                                <th>ORDER_ID</th>
+                                <th>ACTIONS</th>
+                            </tr>
+                        </thead>
+                        <tbody id="keys-table-body">
+                            <!-- Keys will be loaded here -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </main>
+
+        <footer class="terminal-footer">
+            <div class="footer-content">
+                <div class="system-info">
+                    <span id="server-time">SYSTEM_TIME: LOADING...</span>
+                    <span id="active-users">ACTIVE_SESSIONS: 1</span>
+                </div>
+            </div>
+        </footer>
+    </div>
+
+    <!-- Add App Modal -->
+    <div id="add-app-modal" class="modal">
+        <div class="modal-content terminal-modal">
+            <div class="modal-header">
+                <h2 class="glitch-text-sm" data-text="NEW_APPLICATION">NEW_APPLICATION</h2>
+                <span class="close">&times;</span>
+            </div>
+            <form id="app-form" class="admin-form">
+                <div class="form-group">
+                    <label for="app-name" class="form-label">APPLICATION_NAME</label>
+                    <input type="text" id="app-name" class="terminal-input" placeholder="ENTER_APP_NAME" required>
+                </div>
+                <div class="form-group">
+                    <label for="app-description" class="form-label">DESCRIPTION</label>
+                    <textarea id="app-description" class="terminal-textarea" placeholder="ENTER_DESCRIPTION" rows="3"></textarea>
+                </div>
+                <button type="submit" class="hack-btn">
+                    <i class="fas fa-save"></i> CREATE_APPLICATION
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Add Key Modal -->
+    <div id="add-key-modal" class="modal">
+        <div class="modal-content terminal-modal">
+            <div class="modal-header">
+                <h2 class="glitch-text-sm" data-text="ADD_LICENSE_KEY">ADD_LICENSE_KEY</h2>
+                <span class="close">&times;</span>
+            </div>
+            <form id="key-form" class="admin-form">
+                <div class="form-group">
+                    <label for="key-app" class="form-label">APPLICATION</label>
+                    <select id="key-app" class="terminal-select" required>
+                        <option value="">SELECT_APPLICATION</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="key-duration" class="form-label">DURATION</label>
+                    <select id="key-duration" class="terminal-select" required>
+                        <option value="">SELECT_DURATION</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="key-code" class="form-label">LICENSE_KEY</label>
+                    <input type="text" id="key-code" class="terminal-input" placeholder="ENTER_LICENSE_KEY" required>
+                </div>
+                <button type="submit" class="hack-btn">
+                    <i class="fas fa-key"></i> ADD_KEY
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Add Duration Modal -->
+    <div id="add-duration-modal" class="modal">
+        <div class="modal-content terminal-modal">
+            <div class="modal-header">
+                <h2 class="glitch-text-sm" data-text="ADD_DURATION">ADD_DURATION</h2>
+                <span class="close">&times;</span>
+            </div>
+            <form id="duration-form" class="admin-form">
+                <div class="form-group">
+                    <label for="duration-app" class="form-label">APPLICATION</label>
+                    <select id="duration-app" class="terminal-select" required>
+                        <option value="">SELECT_APPLICATION</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="duration-name" class="form-label">DURATION_NAME</label>
+                    <input type="text" id="duration-name" class="terminal-input" placeholder="e.g., 1_MONTH" required>
+                </div>
+                <div class="form-group">
+                    <label for="duration-price" class="form-label">PRICE (₹)</label>
+                    <input type="number" id="duration-price" class="terminal-input" placeholder="ENTER_PRICE" min="0" step="0.01" required>
+                </div>
+                <button type="submit" class="hack-btn">
+                    <i class="fas fa-plus"></i> ADD_DURATION
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <script src="js/admin.js"></script>
+</body>
+</html>
