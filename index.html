@@ -3,77 +3,248 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Admin Access - Malayali Store</title>
+    <title>Malayali Key Store</title>
     <link rel="stylesheet" href="css/style.css">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
 </head>
-<body class="login-body">
-    <div class="terminal-container login-container">
+<body>
+    <div class="terminal-container">
         <div class="scan-line"></div>
         <div class="glow-effect"></div>
         
         <header class="terminal-header">
             <div class="header-content">
-                <h1 class="glitch-text" data-text="SYSTEM_ADMIN_ACCESS">SYSTEM_ADMIN_ACCESS</h1>
+                <h1 class="glitch-text" data-text="MALAYALI_KEY_STORE">MALAYALI_KEY_STORE</h1>
                 <div class="terminal-prompt">
-                    <span class="prompt-user">root@malayalistore</span>
-                    <span class="prompt-symbol">:#</span>
-                    <span class="prompt-command">login_required</span>
+                    <span class="prompt-user">user@malayalistore</span>
+                    <span class="prompt-symbol">:~$</span>
+                    <span class="prompt-command">access_granted</span>
                 </div>
             </div>
         </header>
 
-        <main class="terminal-body login-body-content">
+        <main class="terminal-body">
             <div class="command-line">
                 <span class="command-prefix">>></span>
-                <span class="command-text">AUTHENTICATION_REQUIRED</span>
+                <span class="command-text">SELECT_PRODUCT</span>
             </div>
 
-            <form id="login-form" class="login-form">
+            <div class="purchase-form">
                 <div class="form-group">
-                    <label for="username" class="form-label">
-                        <i class="fas fa-user-secret"></i> ADMIN_ID
+                    <label for="brand-select" class="form-label">
+                        <i class="fas fa-code-branch"></i> SELECT_APPLICATION
                     </label>
-                    <input type="text" id="username" class="terminal-input" placeholder="ENTER_ADMIN_ID" required>
+                    <select id="brand-select" class="terminal-select">
+                        <option value="">>> CHOOSE_APPLICATION</option>
+                    </select>
                 </div>
 
                 <div class="form-group">
-                    <label for="password" class="form-label">
-                        <i class="fas fa-key"></i> ACCESS_CODE
+                    <label for="plan-select" class="form-label">
+                        <i class="fas fa-clock"></i> DURATION_PARAMETER
                     </label>
-                    <input type="password" id="password" class="terminal-input" placeholder="ENTER_ACCESS_CODE" required>
-                    <div class="password-strength">
-                        <div class="strength-bar"></div>
-                    </div>
+                    <select id="plan-select" class="terminal-select" disabled>
+                        <option value="">>> SELECT_APPLICATION_FIRST</option>
+                    </select>
                 </div>
 
-                <button type="submit" class="hack-btn login-btn">
+                <div class="form-group">
+                    <label for="custom-code" class="form-label">
+                        <i class="fas fa-terminal"></i> CUSTOM_CODE_INPUT [OPTIONAL]
+                    </label>
+                    <input type="text" id="custom-code" class="terminal-input" placeholder="ENTER_CUSTOM_CODE_IF_REQUIRED">
+                </div>
+
+                <button id="purchase-btn" class="hack-btn" disabled>
                     <span class="btn-text">
-                        <i class="fas fa-fingerprint"></i> VERIFY_IDENTITY
+                        <i class="fas fa-bolt"></i> INITIATE_PURCHASE - ₹0
                     </span>
                     <div class="btn-glitch"></div>
                 </button>
-            </form>
+            </div>
 
-            <div class="security-warning">
-                <div class="warning-icon">
-                    <i class="fas fa-exclamation-triangle"></i>
+            <div class="status-output">
+                <div class="output-line">
+                    <span class="output-prefix">[STATUS]</span>
+                    <span class="output-text">SYSTEM_READY</span>
                 </div>
-                <div class="warning-text">
-                    UNAUTHORIZED_ACCESS_DETECTED_WILL_BE_LOGGED
+                <div class="output-line">
+                    <span class="output-prefix">[KEYS]</span>
+                    <span class="output-text" id="available-keys">CHECKING_INVENTORY...</span>
                 </div>
+            </div>
+
+            <!-- Admin Access Link -->
+            <div class="admin-access">
+                <a href="admin-login.html" class="admin-link">
+                    <i class="fas fa-user-secret"></i> ADMIN_ACCESS
+                </a>
             </div>
         </main>
 
         <footer class="terminal-footer">
             <div class="footer-content">
                 <div class="crypto-animation">
-                    <div class="crypto-text">SECURE_ADMIN_PORTAL</div>
+                    <div class="crypto-text">ENCRYPTED_TRANSACTION_SECURE</div>
                 </div>
+                <p class="copyright">&copy; 2025 MALAYALI_KEY_STORE // ALL_RIGHTS_RESERVED</p>
             </div>
         </footer>
     </div>
 
-    <script src="js/admin-login.js"></script>
+    <!-- Payment Modal -->
+    <div id="payment-modal" class="modal">
+        <div class="modal-content terminal-modal">
+            <div class="modal-header">
+                <h2 class="glitch-text-sm" data-text="PAYMENT_INTERFACE">PAYMENT_INTERFACE</h2>
+                <span class="close">&times;</span>
+            </div>
+            <div class="payment-details">
+                <div class="order-summary">
+                    <h3><i class="fas fa-list"></i> ORDER_SUMMARY</h3>
+                    <div class="summary-item">
+                        <span>ORDER_ID:</span>
+                        <span id="order-id">-</span>
+                    </div>
+                    <div class="summary-item">
+                        <span>APPLICATION:</span>
+                        <span id="summary-brand">-</span>
+                    </div>
+                    <div class="summary-item">
+                        <span>DURATION:</span>
+                        <span id="summary-plan">-</span>
+                    </div>
+                    <div class="summary-item">
+                        <span>AMOUNT:</span>
+                        <span id="summary-price">₹0</span>
+                    </div>
+                </div>
+                
+                <div class="payment-instructions">
+                    <h3><i class="fas fa-money-check"></i> AUTOMATIC_PAYMENT</h3>
+                    <div class="instruction-steps">
+                        <div class="step">
+                            <div class="step-number">1</div>
+                            <div class="step-content">
+                                <strong>Scan QR Code or Send ₹<span id="payment-amount">0</span> to:</strong>
+                                <div class="upi-id" id="upi-display">malayalistore@okaxis</div>
+                                <button id="copy-upi" class="copy-btn-terminal">
+                                    <i class="fas fa-copy"></i> COPY_UPI
+                                </button>
+                            </div>
+                        </div>
+                        <div class="step">
+                            <div class="step-number">2</div>
+                            <div class="step-content">
+                                <strong>Payment will be detected automatically</strong>
+                                <div class="note">System checks every 5 seconds</div>
+                            </div>
+                        </div>
+                        <div class="step">
+                            <div class="step-number">3</div>
+                            <div class="step-content">
+                                <strong>Key will be delivered automatically</strong>
+                                <div class="note">No manual verification needed</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="qr-section">
+                    <h3><i class="fas fa-qrcode"></i> SCAN_TO_PAY</h3>
+                    <div id="qr-code" class="qr-container"></div>
+                </div>
+
+                <div class="payment-status">
+                    <div class="status-container">
+                        <div id="status-message" class="status-text">
+                            <i class="fas fa-sync fa-spin"></i> AWAITING_PAYMENT
+                        </div>
+                        <div class="payment-steps">
+                            <div class="step active">ORDER_CREATED</div>
+                            <div class="step">AWAITING_PAYMENT</div>
+                            <div class="step">DELIVERING_KEY</div>
+                        </div>
+                    </div>
+                    <div class="payment-actions">
+                        <button id="cancel-payment" class="hack-btn cancel">
+                            <i class="fas fa-times"></i> CANCEL_ORDER
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Key Reveal Modal -->
+    <div id="key-modal" class="modal">
+        <div class="modal-content terminal-modal key-modal">
+            <div class="success-animation">
+                <div class="success-icon">
+                    <i class="fas fa-shield-check"></i>
+                </div>
+                <div class="success-text">PAYMENT_VERIFIED</div>
+            </div>
+            <h2 class="glitch-text-sm" data-text="ACCESS_GRANTED">ACCESS_GRANTED</h2>
+            <p>YOUR_LICENSE_KEY:</p>
+            <div class="key-display">
+                <code id="generated-key" class="key-code">DECRYPTING_KEY...</code>
+                <button id="copy-key" class="copy-btn-terminal">
+                    <i class="fas fa-copy"></i>
+                </button>
+            </div>
+            <div class="transaction-info">
+                <div class="info-item">
+                    <i class="fas fa-receipt"></i>
+                    <span>ORDER_ID: <span id="verified-order-id"></span></span>
+                </div>
+                <div class="info-item">
+                    <i class="fas fa-clock"></i>
+                    <span>TIME: <span id="purchase-time"></span></span>
+                </div>
+            </div>
+            <div class="key-info">
+                <div class="info-line">
+                    <i class="fas fa-exclamation-triangle"></i>
+                    STORE_KEY_SECURELY - SINGLE_USE_ONLY
+                </div>
+            </div>
+            <button id="close-modal" class="hack-btn">
+                <i class="fas fa-lock"></i> ACKNOWLEDGE
+            </button>
+        </div>
+    </div>
+
+    <!-- Contact Modal -->
+    <div id="contact-modal" class="modal">
+        <div class="modal-content terminal-modal">
+            <div class="modal-header">
+                <h2 class="glitch-text-sm" data-text="SUPPORT_SYSTEM">SUPPORT_SYSTEM</h2>
+                <span class="close">&times;</span>
+            </div>
+            <div class="contact-details">
+                <div class="contact-info">
+                    <div class="info-item">
+                        <i class="fas fa-envelope"></i>
+                        <span>support@malayalikeystore.com</span>
+                    </div>
+                    <div class="info-item">
+                        <i class="fab fa-telegram"></i>
+                        <span>@malayalisupport</span>
+                    </div>
+                    <div class="info-item">
+                        <i class="fas fa-clock"></i>
+                        <span>24/7_RESPONSE</span>
+                    </div>
+                </div>
+                <div class="security-notice">
+                    <i class="fas fa-shield-alt"></i>
+                    ALL_COMMUNICATIONS_ENCRYPTED
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="js/main.js"></script>
 </body>
 </html>
