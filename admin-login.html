@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Access - Malayali Store</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+</head>
+<body class="login-body">
+    <div class="terminal-container login-container">
+        <div class="scan-line"></div>
+        <div class="glow-effect"></div>
+        
+        <header class="terminal-header">
+            <div class="header-content">
+                <h1 class="glitch-text" data-text="SYSTEM_ADMIN_ACCESS">SYSTEM_ADMIN_ACCESS</h1>
+                <div class="terminal-prompt">
+                    <span class="prompt-user">root@malayalistore</span>
+                    <span class="prompt-symbol">:#</span>
+                    <span class="prompt-command">login_required</span>
+                </div>
+            </div>
+        </header>
+
+        <main class="terminal-body login-body-content">
+            <div class="command-line">
+                <span class="command-prefix">>></span>
+                <span class="command-text">AUTHENTICATION_REQUIRED</span>
+            </div>
+
+            <form id="login-form" class="login-form">
+                <div class="form-group">
+                    <label for="username" class="form-label">
+                        <i class="fas fa-user-secret"></i> ADMIN_ID
+                    </label>
+                    <input type="text" id="username" class="terminal-input" placeholder="ENTER_ADMIN_ID" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="password" class="form-label">
+                        <i class="fas fa-key"></i> ACCESS_CODE
+                    </label>
+                    <input type="password" id="password" class="terminal-input" placeholder="ENTER_ACCESS_CODE" required>
+                    <div class="password-strength">
+                        <div class="strength-bar"></div>
+                    </div>
+                </div>
+
+                <button type="submit" class="hack-btn login-btn">
+                    <span class="btn-text">
+                        <i class="fas fa-fingerprint"></i> VERIFY_IDENTITY
+                    </span>
+                    <div class="btn-glitch"></div>
+                </button>
+            </form>
+
+            <div class="security-warning">
+                <div class="warning-icon">
+                    <i class="fas fa-exclamation-triangle"></i>
+                </div>
+                <div class="warning-text">
+                    UNAUTHORIZED_ACCESS_DETECTED_WILL_BE_LOGGED
+                </div>
+            </div>
+        </main>
+
+        <footer class="terminal-footer">
+            <div class="footer-content">
+                <div class="crypto-animation">
+                    <div class="crypto-text">SECURE_ADMIN_PORTAL</div>
+                </div>
+            </div>
+        </footer>
+    </div>
+
+    <script src="js/admin-login.js"></script>
+</body>
+</html>
