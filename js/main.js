@@ -1,8 +1,8 @@
 // UPI ID for GPay payments (Replace with your UPI ID)
-const upiId = "malayalistore@okaxis"; // CHANGE THIS TO YOUR UPI ID
+const upiId = "Malayalihere@ybl"; // CHANGE THIS TO YOUR UPI ID
 
 // Webhook.site URL for payment verification (Replace with your webhook URL)
-const WEBHOOK_URL = "https://webhook.site/YOUR-UNIQUE-ID"; // CHANGE THIS
+const WEBHOOK_URL = "https://webhook.site/0770dd6b-4bc2-481e-848a-1c775e20daa6"; // CHANGE THIS
 
 // Sample data - Your apps
 let brandsData = [
