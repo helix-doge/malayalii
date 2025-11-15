@@ -1,0 +1,21 @@
+[file name]: malayalii-main/render.yaml
+[file content begin]
+services:
+  - type: web
+    name: malayali-store-backend
+    env: node
+    plan: free
+    buildCommand: npm install
+    startCommand: npm start
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: SUPABASE_URL
+        fromDatabase:
+          name: supabase
+          property: url
+      - key: SUPABASE_KEY
+        fromDatabase:
+          name: supabase
+          property: key
+[file content end]
