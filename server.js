@@ -7,13 +7,6 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-// Cashfree credentials
-const CASHFREE_APP_ID = process.env.CASHFREE_APP_ID;
-const CASHFREE_SECRET_KEY = process.env.CASHFREE_SECRET_KEY;
-const CASHFREE_BASE_URL = process.env.NODE_ENV === 'production' 
-    ? "https://api.cashfree.com" 
-    : "https://sandbox.cashfree.com";
-
 // Supabase Database
 const supabaseUrl = process.env.SUPABASE_URL;
 const supabaseKey = process.env.SUPABASE_KEY;
@@ -57,27 +50,21 @@ app.get('/api/keys/available/:brandId', async (req, res) => {
     }
 });
 
-// 3. Create Cashfree order
+// 3. Create order
 app.post('/api/create-order', async (req, res) => {
     try {
-        const { orderId, amount, brandName, planName, customerEmail } = req.body;
+        const { orderId, brandId, planName, amount, customerEmail } = req.body;
         
         // First, check if keys are available
-        const brandResponse = await supabase
-            .from('brands')
-            .select('id')
-            .eq('name', brandName)
-            .single();
-            
-        if (brandResponse.error) throw brandResponse.error;
-        
-        const { data: availableKeys } = await supabase
+        const { data: availableKeys, error: keysError } = await supabase
             .from('keys')
             .select('*')
-            .eq('brand_id', brandResponse.data.id)
+            .eq('brand_id', brandId)
             .eq('plan', planName)
             .eq('status', 'available')
             .limit(1);
+            
+        if (keysError) throw keysError;
             
         if (availableKeys.length === 0) {
             return res.status(400).json({ 
@@ -91,7 +78,7 @@ app.post('/api/create-order', async (req, res) => {
             .from('orders')
             .insert({
                 order_id: orderId,
-                brand_name: brandName,
+                brand_id: brandId,
                 plan_name: planName,
                 amount: amount,
                 customer_email: customerEmail,
@@ -100,36 +87,9 @@ app.post('/api/create-order', async (req, res) => {
             
         if (orderError) throw orderError;
 
-        // Create Cashfree order
-        const orderData = {
-            order_id: orderId,
-            order_amount: amount,
-            order_currency: "INR",
-            customer_details: {
-                customer_id: customerEmail || 'customer@malayali.store',
-                customer_name: "Customer",
-                customer_email: customerEmail || 'customer@malayali.store',
-                customer_phone: "9999999999"
-            },
-            order_note: `${brandName} - ${planName}`
-        };
-
-        const cashfreeResponse = await axios.post(
-            `${CASHFREE_BASE_URL}/pg/orders`,
-            orderData,
-            {
-                headers: {
-                    'Content-Type': 'application/json',
-                    'x-client-id': CASHFREE_APP_ID,
-                    'x-client-secret': CASHFREE_SECRET_KEY,
-                    'x-api-version': '2022-09-01'
-                }
-            }
-        );
-
         // Store temporarily as backup
         tempOrders.set(orderId, {
-            brandName,
+            brandId,
             planName,
             amount,
             customerEmail,
@@ -138,71 +98,20 @@ app.post('/api/create-order', async (req, res) => {
 
         res.json({ 
             success: true, 
-            payment_link: cashfreeResponse.data.payment_link 
+            message: 'Order created successfully'
         });
 
     } catch (error) {
-        console.error('Order creation error:', error.response?.data || error.message);
+        console.error('Order creation error:', error);
         res.status(500).json({ success: false, error: 'Failed to create order' });
     }
 });
 
-// 4. Check payment status
-app.post('/api/check-payment', async (req, res) => {
+// 4. Process payment and get key
+app.post('/api/process-payment', async (req, res) => {
     try {
         const { orderId } = req.body;
 
-        // Check with Cashfree
-        const cashfreeResponse = await axios.get(
-            `${CASHFREE_BASE_URL}/pg/orders/${orderId}`,
-            {
-                headers: {
-                    'Content-Type': 'application/json',
-                    'x-client-id': CASHFREE_APP_ID,
-                    'x-client-secret': CASHFREE_SECRET_KEY,
-                    'x-api-version': '2022-09-01'
-                }
-            }
-        );
-
-        const paymentStatus = cashfreeResponse.data.order_status;
-        
-        // Update database if paid
-        if (paymentStatus === 'PAID') {
-            await updateOrderStatus(orderId, 'paid', cashfreeResponse.data);
-        }
-
-        res.json({ success: true, status: paymentStatus });
-
-    } catch (error) {
-        console.error('Payment check error:', error.response?.data || error.message);
-        res.status(500).json({ success: false, error: 'Failed to check payment' });
-    }
-});
-
-// 5. Webhook for payment confirmation
-app.post('/api/webhook', async (req, res) => {
-    try {
-        const { data } = req.body;
-        const orderId = data.order.order_id;
-        const paymentStatus = data.order.order_status;
-        
-        if (paymentStatus === 'PAID') {
-            await updateOrderStatus(orderId, 'paid', data);
-        }
-        
-        res.json({ received: true });
-    } catch (error) {
-        console.error('Webhook error:', error);
-        res.status(500).json({ received: false });
-    }
-});
-
-// 6. Get key after successful payment
-app.post('/api/get-key', async (req, res) => {
-    try {
-        const { orderId } = req.body;
-        
         // Get order details
         const { data: order, error: orderError } = await supabase
             .from('orders')
@@ -212,28 +121,16 @@ app.post('/api/get-key', async (req, res) => {
             
         if (orderError) throw orderError;
         
-        if (order.status !== 'paid') {
-            return res.status(400).json({ 
-                success: false, 
-                error: 'PAYMENT_NOT_VERIFIED' 
-            });
-        }
-        
-        // Get brand ID
-        const { data: brand } = await supabase
-            .from('brands')
-            .select('id')
-            .eq('name', order.brand_name)
-            .single();
-            
         // Find available key
-        const { data: keys } = await supabase
+        const { data: keys, error: keysError } = await supabase
             .from('keys')
             .select('*')
-            .eq('brand_id', brand.id)
+            .eq('brand_id', order.brand_id)
             .eq('plan', order.plan_name)
             .eq('status', 'available')
             .limit(1);
+            
+        if (keysError) throw keysError;
             
         if (keys.length === 0) {
             return res.status(400).json({ 
@@ -242,7 +139,7 @@ app.post('/api/get-key', async (req, res) => {
             });
         }
         
-        // Assign key to order
+        // Assign key to order and mark as sold
         const key = keys[0];
         const { error: updateError } = await supabase
             .from('keys')
@@ -255,6 +152,17 @@ app.post('/api/get-key', async (req, res) => {
             
         if (updateError) throw updateError;
         
+        // Update order status
+        const { error: orderUpdateError } = await supabase
+            .from('orders')
+            .update({
+                status: 'completed',
+                completed_at: new Date().toISOString()
+            })
+            .eq('order_id', orderId);
+            
+        if (orderUpdateError) throw orderUpdateError;
+        
         res.json({ 
             success: true, 
             key: key.key_value,
@@ -262,35 +170,96 @@ app.post('/api/get-key', async (req, res) => {
         });
         
     } catch (error) {
-        console.error('Get key error:', error);
-        res.status(500).json({ success: false, error: 'Failed to get key' });
+        console.error('Process payment error:', error);
+        res.status(500).json({ success: false, error: 'Failed to process payment' });
     }
 });
 
-// Helper function to update order status
-async function updateOrderStatus(orderId, status, paymentData) {
+// 5. Admin - Get all keys
+app.get('/api/admin/keys', async (req, res) => {
     try {
-        const updateData = {
-            status: status,
-            cashfree_payment_id: paymentData.payment_id || null
-        };
+        const { data, error } = await supabase
+            .from('keys')
+            .select(`
+                *,
+                brands (name)
+            `)
+            .order('created_at', { ascending: false });
         
-        const { error } = await supabase
-            .from('orders')
-            .update(updateData)
-            .eq('order_id', orderId);
+        if (error) throw error;
+        res.json({ success: true, keys: data });
+    } catch (error) {
+        console.error('Admin keys error:', error);
+        res.status(500).json({ success: false, error: 'Failed to fetch keys' });
+    }
+});
+
+// 6. Admin - Add new key
+app.post('/api/admin/keys', async (req, res) => {
+    try {
+        const { brandId, plan, keyValue } = req.body;
+        
+        const { data, error } = await supabase
+            .from('keys')
+            .insert({
+                brand_id: brandId,
+                plan: plan,
+                key_value: keyValue,
+                status: 'available'
+            })
+            .select();
             
         if (error) throw error;
+        res.json({ success: true, key: data[0] });
+    } catch (error) {
+        console.error('Add key error:', error);
+        res.status(500).json({ success: false, error: 'Failed to add key' });
+    }
+});
+
+// 7. Admin - Get stats
+app.get('/api/admin/stats', async (req, res) => {
+    try {
+        // Total keys
+        const { data: totalKeys, error: totalError } = await supabase
+            .from('keys')
+            .select('*', { count: 'exact' });
+            
+        if (totalError) throw totalError;
         
-        // Also update temp storage
-        if (tempOrders.has(orderId)) {
-            tempOrders.get(orderId).status = status;
-        }
+        // Available keys
+        const { data: availableKeys, error: availableError } = await supabase
+            .from('keys')
+            .select('*', { count: 'exact' })
+            .eq('status', 'available');
+            
+        if (availableError) throw availableError;
+        
+        // Revenue from completed orders
+        const { data: orders, error: ordersError } = await supabase
+            .from('orders')
+            .select('amount')
+            .eq('status', 'completed');
+            
+        if (ordersError) throw ordersError;
+        
+        const revenue = orders.reduce((sum, order) => sum + order.amount, 0);
+        
+        res.json({
+            success: true,
+            stats: {
+                totalKeys: totalKeys.length,
+                availableKeys: availableKeys.length,
+                soldKeys: totalKeys.length - availableKeys.length,
+                revenue: revenue
+            }
+        });
         
     } catch (error) {
-        console.error('Update order error:', error);
+        console.error('Stats error:', error);
+        res.status(500).json({ success: false, error: 'Failed to fetch stats' });
     }
-}
+});
 
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
