@@ -86,29 +86,113 @@ app.post('/api/create-order', async (req, res) => {
         }
 
         // Create order
-        const { error: orderError } = await supabase
-            .from('orders')
-            .insert({
-                order_id: orderId,
-                brand_id: brandId,
-                plan_name: planName,
-                amount: amount,
-                status: 'pending'
-            });
-            
-        if (orderError) throw orderError;
+// In your server.js - replace the create-order endpoint with this:
 
+// 3. Create order - FIXED VERSION
+app.post('/api/create-order', async (req, res) => {
+    try {
+        const { orderId, brandId, planName, amount } = req.body;
+        
+        console.log('📨 Creating order with data:', { orderId, brandId, planName, amount });
+
+        // Validate input with detailed errors
+        if (!orderId) {
+            return res.status(400).json({ success: false, error: 'Order ID is required' });
+        }
+        if (!brandId) {
+            return res.status(400).json({ success: false, error: 'Brand ID is required' });
+        }
+        if (!planName) {
+            return res.status(400).json({ success: false, error: 'Plan name is required' });
+        }
+        if (!amount) {
+            return res.status(400).json({ success: false, error: 'Amount is required' });
+        }
+
+        // Convert to proper types
+        const brandIdInt = parseInt(brandId);
+        const amountFloat = parseFloat(amount);
+        
+        if (isNaN(brandIdInt)) {
+            return res.status(400).json({ success: false, error: 'Invalid brand ID format' });
+        }
+        if (isNaN(amountFloat)) {
+            return res.status(400).json({ success: false, error: 'Invalid amount format' });
+        }
+
+        // Check if keys are available
+        console.log(`🔑 Checking keys for brand ${brandIdInt}, plan ${planName}`);
+        const { data: availableKeys, error: keysError } = await supabase
+            .from('keys')
+            .select('*')
+            .eq('brand_id', brandIdInt)
+            .eq('plan', planName)
+            .eq('status', 'available')
+            .limit(1);
+            
+        if (keysError) {
+            console.error('❌ Keys check error:', keysError);
+            throw keysError;
+        }
+            
+        if (!availableKeys || availableKeys.length === 0) {
+            console.log(`❌ No keys available for brand ${brandIdInt}, plan ${planName}`);
+            return res.status(400).json({ 
+                success: false, 
+                error: 'NO_KEYS_AVAILABLE' 
+            });
+        }
+
+        console.log(`✅ Keys available, creating order: ${orderId}`);
+
+        // Create order with explicit data types
+        const orderData = {
+            order_id: orderId,
+            brand_id: brandIdInt,
+            plan_name: planName,
+            amount: amountFloat,
+            status: 'pending',
+            created_at: new Date().toISOString()
+        };
+
+        console.log('💾 Order data to insert:', orderData);
+
+        const { data: order, error: orderError } = await supabase
+            .from('orders')
+            .insert(orderData)
+            .select()
+            .single();
+            
+        if (orderError) {
+            console.error('❌ Order creation error:', orderError);
+            
+            // Check if it's a duplicate order ID error
+            if (orderError.code === '23505') { // Unique violation
+                return res.status(400).json({ 
+                    success: false, 
+                    error: 'Order ID already exists' 
+                });
+            }
+            
+            throw orderError;
+        }
+
+        console.log(`✅ Order created successfully: ${orderId}`);
         res.json({ 
             success: true, 
-            message: 'Order created successfully'
+            message: 'Order created successfully',
+            order: order
         });
 
     } catch (error) {
-        console.error('Order creation error:', error);
-        res.status(500).json({ success: false, error: 'Failed to create order' });
+        console.error('❌ Order creation error:', error);
+        res.status(500).json({ 
+            success: false, 
+            error: 'Failed to create order',
+            details: error.message 
+        });
     }
 });
-
 // 4. Process payment and get key
 app.post('/api/process-payment', async (req, res) => {
     try {
