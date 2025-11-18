@@ -220,7 +220,9 @@ async function updateAvailableKeys() {
     }
     
     try {
-        const response = await fetch(`${API_BASE_URL}/api/keys/available/${currentBrand.id}`);
+        // FIXED: Ensure brandId is a number
+        const brandId = parseInt(currentBrand.id);
+        const response = await fetch(`${API_BASE_URL}/api/keys/available/${brandId}`);
         const data = await response.json();
         
         if (data.success) {
@@ -239,7 +241,9 @@ async function checkAndOpenPayment() {
     try {
         showNotification('CHECKING_KEY_AVAILABILITY...', 'info');
         
-        const response = await fetch(`${API_BASE_URL}/api/keys/available/${currentBrand.id}`);
+        // FIXED: Ensure brandId is a number
+        const brandId = parseInt(currentBrand.id);
+        const response = await fetch(`${API_BASE_URL}/api/keys/available/${brandId}`);
         const data = await response.json();
         
         if (data.success && data.count > 0) {
@@ -253,25 +257,38 @@ async function checkAndOpenPayment() {
     }
 }
 
-// Open payment modal
+// Open payment modal - COMPLETELY FIXED VERSION
 async function openPaymentModal() {
     currentOrderId = 'ORD' + Date.now() + Math.random().toString(36).substr(2, 5).toUpperCase();
     
     try {
+        // FIXED: Ensure proper data types for API request
+        const orderData = {
+            orderId: currentOrderId,                    // string
+            brandId: parseInt(currentBrand.id),         // number (FIXED)
+            planName: currentPlan.name,                 // string
+            amount: parseFloat(currentPrice)            // number (FIXED)
+        };
+
+        console.log('📦 Sending order data to backend:', orderData);
+
+        // Create order in backend
         const response = await fetch(`${API_BASE_URL}/api/create-order`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
             },
-            body: JSON.stringify({
-                orderId: currentOrderId,
-                brandId: currentBrand.id,
-                planName: currentPlan.name,
-                amount: currentPrice
-            })
+            body: JSON.stringify(orderData)
         });
         
+        // Check if response is OK before parsing JSON
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        
         const data = await response.json();
+        
+        console.log('📨 Backend response:', data);
         
         if (!data.success) {
             showNotification(data.error || 'FAILED_TO_CREATE_ORDER', 'error');
@@ -290,8 +307,8 @@ async function openPaymentModal() {
         startPaymentChecking();
         
     } catch (error) {
-        console.error('Error creating order:', error);
-        showNotification('NETWORK_ERROR: CANNOT_CREATE_ORDER', 'error');
+        console.error('❌ Error creating order:', error);
+        showNotification('NETWORK_ERROR: CANNOT_CREATE_ORDER - ' + error.message, 'error');
     }
 }
 
