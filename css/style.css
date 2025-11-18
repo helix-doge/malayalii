@@ -379,6 +379,24 @@ body {
     opacity: 0.7;
 }
 
+.admin-access {
+    text-align: center;
+    margin-top: 30px;
+}
+
+.admin-link {
+    color: var(--terminal-cyan);
+    text-decoration: none;
+    border: 1px solid var(--terminal-cyan);
+    padding: 10px 20px;
+    transition: all 0.3s ease;
+}
+
+.admin-link:hover {
+    background: rgba(0, 255, 255, 0.1);
+    box-shadow: 0 0 15px var(--terminal-glow);
+}
+
 /* Modal Styles */
 .modal {
     display: none;
@@ -789,6 +807,8 @@ body {
     display: flex;
     justify-content: space-between;
     align-items: center;
+    flex-wrap: wrap;
+    gap: 15px;
 }
 
 .admin-controls {
@@ -814,6 +834,8 @@ body {
     margin-bottom: 20px;
     padding-bottom: 10px;
     border-bottom: 1px solid rgba(0, 255, 0, 0.2);
+    flex-wrap: wrap;
+    gap: 15px;
 }
 
 .section-header h2 {
@@ -965,39 +987,8 @@ body {
     justify-content: space-between;
     font-size: 0.8rem;
     opacity: 0.7;
-}
-
-/* Contact Styles */
-.contact-info {
-    padding: 20px;
-}
-
-.info-item {
-    display: flex;
-    align-items: center;
-    margin-bottom: 15px;
-    padding: 10px;
-    background: rgba(0, 255, 0, 0.05);
-    border: 1px solid var(--terminal-border);
-}
-
-.info-item i {
-    margin-right: 10px;
-    color: var(--terminal-cyan);
-    width: 20px;
-}
-
-.security-notice {
-    text-align: center;
-    padding: 15px;
-    background: rgba(0, 255, 0, 0.1);
-    border: 1px solid var(--terminal-green);
-    margin-top: 20px;
-    color: var(--terminal-cyan);
-}
-
-.security-notice i {
-    margin-right: 8px;
+    flex-wrap: wrap;
+    gap: 10px;
 }
 
 /* Login Styles */
@@ -1057,6 +1048,19 @@ body {
     letter-spacing: 1px;
 }
 
+/* Status badges */
+.status-available {
+    background: rgba(0, 255, 0, 0.1) !important;
+    border: 1px solid var(--terminal-green) !important;
+    color: var(--terminal-green) !important;
+}
+
+.status-sold {
+    background: rgba(255, 0, 0, 0.1) !important;
+    border: 1px solid var(--terminal-red) !important;
+    color: var(--terminal-red) !important;
+}
+
 /* Responsive Design */
 @media (max-width: 768px) {
     .terminal-container {
@@ -1089,13 +1093,16 @@ body {
     
     .admin-header {
         flex-direction: column;
-        gap: 15px;
         text-align: center;
+    }
+    
+    .section-header {
+        flex-direction: column;
+        align-items: flex-start;
     }
     
     .system-info {
         flex-direction: column;
-        gap: 5px;
         text-align: center;
     }
     
@@ -1121,6 +1128,15 @@ body {
     .payment-steps .step {
         min-width: 200px;
     }
+    
+    .terminal-table {
+        font-size: 0.8rem;
+    }
+    
+    .terminal-table th,
+    .terminal-table td {
+        padding: 8px 10px;
+    }
 }
 
 @media (max-width: 480px) {
@@ -1139,15 +1155,6 @@ body {
     
     .stats-grid {
         grid-template-columns: 1fr;
-    }
-    
-    .terminal-table {
-        font-size: 0.8rem;
-    }
-    
-    .terminal-table th,
-    .terminal-table td {
-        padding: 8px 10px;
     }
     
     .instruction-steps {
