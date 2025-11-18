@@ -1,7 +1,10 @@
-// Backend API URL (Replace with your Render URL)
+// Backend API URL - UPDATE THIS WITH YOUR RENDER URL
 const API_BASE_URL = 'https://malayali-store-backend.onrender.com';
 
-// Current selection
+// UPI ID for payments
+const upiId = "Malayalihere@ybl";
+
+// Global variables
 let currentBrand = null;
 let currentPlan = null;
 let currentPrice = 0;
@@ -9,138 +12,154 @@ let paymentInterval = null;
 let currentOrderId = null;
 
 // DOM Elements
-const brandSelect = document.getElementById('brand-select');
-const planSelect = document.getElementById('plan-select');
-const customCodeInput = document.getElementById('custom-code');
-const purchaseBtn = document.getElementById('purchase-btn');
-const paymentModal = document.getElementById('payment-modal');
-const keyModal = document.getElementById('key-modal');
-const closeButtons = document.querySelectorAll('.close');
-const cancelPaymentBtn = document.getElementById('cancel-payment');
-const closeModalBtn = document.getElementById('close-modal');
-const copyKeyBtn = document.getElementById('copy-key');
-const copyUpiBtn = document.getElementById('copy-upi');
-const availableKeysSpan = document.getElementById('available-keys');
-const statusMessage = document.getElementById('status-message');
+const elements = {
+    brandSelect: document.getElementById('brand-select'),
+    planSelect: document.getElementById('plan-select'),
+    purchaseBtn: document.getElementById('purchase-btn'),
+    paymentModal: document.getElementById('payment-modal'),
+    keyModal: document.getElementById('key-modal'),
+    availableKeysSpan: document.getElementById('available-keys'),
+    statusMessage: document.getElementById('status-message')
+};
 
-// Initialize the app
+// Initialize application
 document.addEventListener('DOMContentLoaded', function() {
-    loadBrands();
-    setupEventListeners();
-    updateAvailableKeys();
+    console.log('🚀 Initializing Malayali Store...');
+    initializeApp();
 });
+
+async function initializeApp() {
+    try {
+        await loadBrands();
+        setupEventListeners();
+        console.log('✅ App initialized successfully');
+    } catch (error) {
+        console.error('❌ App initialization failed:', error);
+        showNotification('SYSTEM_INITIALIZATION_FAILED', 'error');
+    }
+}
 
 // Load brands from backend
 async function loadBrands() {
     try {
-        brandSelect.innerHTML = '<option value="">>> CHOOSE_APPLICATION</option>';
+        elements.brandSelect.innerHTML = '<option value="">>> CHOOSE_APPLICATION</option>';
         
         const response = await fetch(`${API_BASE_URL}/api/brands`);
+        if (!response.ok) throw new Error('Network response was not ok');
+        
         const data = await response.json();
         
-        if (data.success) {
+        if (data.success && data.brands) {
             data.brands.forEach(brand => {
                 const option = document.createElement('option');
                 option.value = brand.id;
                 option.textContent = brand.name.toUpperCase();
-                brandSelect.appendChild(option);
+                elements.brandSelect.appendChild(option);
             });
+            console.log(`✅ Loaded ${data.brands.length} brands`);
         } else {
-            showNotification('FAILED_TO_LOAD_APPLICATIONS', 'error');
+            throw new Error(data.error || 'Failed to load brands');
         }
     } catch (error) {
         console.error('Error loading brands:', error);
         showNotification('NETWORK_ERROR: CANNOT_LOAD_APPLICATIONS', 'error');
+        // Load fallback brands
+        loadFallbackBrands();
     }
 }
 
-// Setup event listeners
+// Fallback brands data
+function loadFallbackBrands() {
+    const fallbackBrands = [
+        { id: 1, name: "Vision", plans: [
+            { name: "1 Month", price: 299 }, { name: "3 Months", price: 799 }, { name: "1 Year", price: 2599 }
+        ]},
+        { id: 2, name: "Bat", plans: [
+            { name: "1 Month", price: 399 }, { name: "3 Months", price: 999 }, { name: "1 Year", price: 3299 }
+        ]}
+    ];
+    
+    fallbackBrands.forEach(brand => {
+        const option = document.createElement('option');
+        option.value = brand.id;
+        option.textContent = brand.name.toUpperCase();
+        elements.brandSelect.appendChild(option);
+    });
+    console.log('⚠️ Using fallback brands data');
+}
+
+// Setup all event listeners
 function setupEventListeners() {
     // Brand selection
-    brandSelect.addEventListener('change', async function() {
-        const brandId = parseInt(this.value);
-        if (brandId) {
-            await loadBrandDetails(brandId);
-            updatePurchaseButton();
-            updateAvailableKeys();
-        } else {
-            currentBrand = null;
-            loadPlans(null);
-            updatePurchaseButton();
-            updateAvailableKeys();
-        }
-    });
+    elements.brandSelect.addEventListener('change', handleBrandChange);
     
     // Plan selection
-    planSelect.addEventListener('change', function() {
-        if (this.value && currentBrand) {
-            currentPlan = currentBrand.plans.find(plan => plan.name === this.value);
-            currentPrice = currentPlan ? currentPlan.price : 0;
-            updatePurchaseButton();
-        }
-    });
+    elements.planSelect.addEventListener('change', handlePlanChange);
     
     // Purchase button
-    purchaseBtn.addEventListener('click', async function() {
-        if (currentBrand && currentPlan) {
-            // Check if keys are available
-            try {
-                const response = await fetch(`${API_BASE_URL}/api/keys/available/${currentBrand.id}`);
-                const data = await response.json();
-                
-                if (data.success && data.count > 0) {
-                    openPaymentModal();
-                } else {
-                    showNotification('NO_KEYS_AVAILABLE_FOR_THIS_SELECTION', 'error');
-                }
-            } catch (error) {
-                console.error('Error checking keys:', error);
-                showNotification('ERROR_CHECKING_KEY_AVAILABILITY', 'error');
-            }
-        }
-    });
+    elements.purchaseBtn.addEventListener('click', handlePurchase);
     
     // Cancel payment
-    cancelPaymentBtn.addEventListener('click', function() {
-        closeAllModals();
-    });
+    document.getElementById('cancel-payment').addEventListener('click', closeAllModals);
     
     // Close modals
-    closeButtons.forEach(button => {
+    document.querySelectorAll('.close').forEach(button => {
         button.addEventListener('click', closeAllModals);
     });
     
-    closeModalBtn.addEventListener('click', closeAllModals);
+    document.getElementById('close-modal').addEventListener('click', closeAllModals);
     
-    // Copy key
-    copyKeyBtn.addEventListener('click', function() {
-        const keyElement = document.getElementById('generated-key');
-        const keyText = keyElement.textContent;
-        
-        navigator.clipboard.writeText(keyText).then(() => {
-            showNotification('KEY_COPIED_TO_CLIPBOARD', 'success');
-        });
-    });
+    // Copy buttons
+    document.getElementById('copy-key').addEventListener('click', copyKey);
+    document.getElementById('copy-upi').addEventListener('click', copyUpi);
     
-    // Copy UPI
-    copyUpiBtn.addEventListener('click', function() {
-        const upiDisplay = document.getElementById('upi-display');
-        const upiText = upiDisplay.textContent;
-        
-        navigator.clipboard.writeText(upiText).then(() => {
-            showNotification('UPI_ID_COPIED', 'success');
-        });
-    });
-    
-    // Close modals when clicking outside
+    // Close modals on outside click
     window.addEventListener('click', function(e) {
         if (e.target.classList.contains('modal')) {
             closeAllModals();
         }
     });
+    
+    // Enter key in custom code
+    document.getElementById('custom-code').addEventListener('keypress', function(e) {
+        if (e.key === 'Enter' && !elements.purchaseBtn.disabled) {
+            elements.purchaseBtn.click();
+        }
+    });
+    
+    console.log('✅ Event listeners setup complete');
 }
 
-// Load brand details including plans
+// Event handlers
+async function handleBrandChange() {
+    const brandId = parseInt(this.value);
+    if (brandId) {
+        await loadBrandDetails(brandId);
+    } else {
+        currentBrand = null;
+        loadPlans(null);
+        updatePurchaseButton();
+        updateAvailableKeys();
+    }
+}
+
+function handlePlanChange() {
+    if (this.value && currentBrand) {
+        currentPlan = currentBrand.plans.find(plan => plan.name === this.value);
+        currentPrice = currentPlan ? currentPlan.price : 0;
+        updatePurchaseButton();
+    }
+}
+
+async function handlePurchase() {
+    if (currentBrand && currentPlan) {
+        await checkAndOpenPayment();
+    } else {
+        showNotification('PLEASE_SELECT_APPLICATION_AND_DURATION', 'error');
+    }
+}
+
+// Load brand details
 async function loadBrandDetails(brandId) {
     try {
         const response = await fetch(`${API_BASE_URL}/api/brands`);
@@ -148,7 +167,10 @@ async function loadBrandDetails(brandId) {
         
         if (data.success) {
             currentBrand = data.brands.find(brand => brand.id === brandId);
-            loadPlans(currentBrand);
+            if (currentBrand) {
+                loadPlans(currentBrand);
+                await updateAvailableKeys();
+            }
         }
     } catch (error) {
         console.error('Error loading brand details:', error);
@@ -158,40 +180,42 @@ async function loadBrandDetails(brandId) {
 
 // Load plans for selected brand
 function loadPlans(brand) {
-    planSelect.innerHTML = '<option value="">>> SELECT_DURATION</option>';
+    elements.planSelect.innerHTML = '<option value="">>> SELECT_DURATION</option>';
     
     if (brand && brand.plans) {
         brand.plans.forEach(plan => {
             const option = document.createElement('option');
             option.value = plan.name;
             option.textContent = `${plan.name} - ₹${plan.price}`;
-            planSelect.appendChild(option);
+            elements.planSelect.appendChild(option);
         });
-        planSelect.disabled = false;
+        elements.planSelect.disabled = false;
     } else {
-        planSelect.disabled = true;
+        elements.planSelect.disabled = true;
     }
     
-    // Reset current selection
     currentPlan = null;
     currentPrice = 0;
+    updatePurchaseButton();
 }
 
-// Update purchase button
+// Update purchase button state
 function updatePurchaseButton() {
     if (currentBrand && currentPlan) {
-        purchaseBtn.disabled = false;
-        purchaseBtn.querySelector('.btn-text').innerHTML = `<i class="fas fa-bolt"></i> INITIATE_PURCHASE - ₹${currentPrice}`;
+        elements.purchaseBtn.disabled = false;
+        elements.purchaseBtn.querySelector('.btn-text').innerHTML = 
+            `<i class="fas fa-bolt"></i> INITIATE_PURCHASE - ₹${currentPrice}`;
     } else {
-        purchaseBtn.disabled = true;
-        purchaseBtn.querySelector('.btn-text').innerHTML = '<i class="fas fa-bolt"></i> INITIATE_PURCHASE - ₹0';
+        elements.purchaseBtn.disabled = true;
+        elements.purchaseBtn.querySelector('.btn-text').innerHTML = 
+            '<i class="fas fa-bolt"></i> INITIATE_PURCHASE - ₹0';
     }
 }
 
 // Update available keys display
 async function updateAvailableKeys() {
     if (!currentBrand) {
-        availableKeysSpan.textContent = 'SELECT_APPLICATION_TO_VIEW_KEYS';
+        elements.availableKeysSpan.textContent = 'SELECT_APPLICATION_TO_VIEW_KEYS';
         return;
     }
     
@@ -200,23 +224,40 @@ async function updateAvailableKeys() {
         const data = await response.json();
         
         if (data.success) {
-            availableKeysSpan.textContent = `KEYS_AVAILABLE: ${data.count}`;
-            availableKeysSpan.style.color = data.count > 0 ? 'var(--terminal-green)' : 'var(--terminal-red)';
+            elements.availableKeysSpan.textContent = `KEYS_AVAILABLE: ${data.count}`;
+            elements.availableKeysSpan.style.color = data.count > 0 ? 'var(--terminal-green)' : 'var(--terminal-red)';
         }
     } catch (error) {
         console.error('Error updating available keys:', error);
-        availableKeysSpan.textContent = 'ERROR_CHECKING_KEYS';
-        availableKeysSpan.style.color = 'var(--terminal-red)';
+        elements.availableKeysSpan.textContent = 'KEYS_AVAILABLE: CHECKING...';
+        elements.availableKeysSpan.style.color = 'var(--terminal-yellow)';
+    }
+}
+
+// Check keys and open payment modal
+async function checkAndOpenPayment() {
+    try {
+        showNotification('CHECKING_KEY_AVAILABILITY...', 'info');
+        
+        const response = await fetch(`${API_BASE_URL}/api/keys/available/${currentBrand.id}`);
+        const data = await response.json();
+        
+        if (data.success && data.count > 0) {
+            openPaymentModal();
+        } else {
+            showNotification('NO_KEYS_AVAILABLE_FOR_THIS_SELECTION', 'error');
+        }
+    } catch (error) {
+        console.error('Error checking keys:', error);
+        showNotification('ERROR_CHECKING_KEY_AVAILABILITY', 'error');
     }
 }
 
 // Open payment modal
 async function openPaymentModal() {
-    // Generate unique order ID
     currentOrderId = 'ORD' + Date.now() + Math.random().toString(36).substr(2, 5).toUpperCase();
     
     try {
-        // Create order in backend
         const response = await fetch(`${API_BASE_URL}/api/create-order`, {
             method: 'POST',
             headers: {
@@ -226,8 +267,7 @@ async function openPaymentModal() {
                 orderId: currentOrderId,
                 brandId: currentBrand.id,
                 planName: currentPlan.name,
-                amount: currentPrice,
-                customerEmail: 'customer@malayali.store'
+                amount: currentPrice
             })
         });
         
@@ -238,27 +278,15 @@ async function openPaymentModal() {
             return;
         }
         
-        // Update order summary
-        document.getElementById('summary-brand').textContent = currentBrand.name.toUpperCase();
-        document.getElementById('summary-plan').textContent = currentPlan.name.toUpperCase();
-        document.getElementById('summary-price').textContent = `₹${currentPrice}`;
-        document.getElementById('payment-amount').textContent = currentPrice;
-        document.getElementById('order-id').textContent = currentOrderId;
-        
-        // Generate QR code with order ID
+        // Update UI
+        updatePaymentUI();
         generateQRCode();
-        
-        // Reset status
-        statusMessage.innerHTML = '<i class="fas fa-sync fa-spin"></i> AWAITING_PAYMENT';
-        statusMessage.style.color = '';
-        
-        // Reset payment steps
+        elements.statusMessage.innerHTML = '<i class="fas fa-sync fa-spin"></i> AWAITING_PAYMENT';
+        elements.statusMessage.style.color = '';
         updatePaymentSteps(0);
         
-        // Show modal
-        paymentModal.style.display = 'block';
-        
-        // Start automatic payment checking
+        // Show modal and start payment checking
+        elements.paymentModal.style.display = 'block';
         startPaymentChecking();
         
     } catch (error) {
@@ -267,30 +295,22 @@ async function openPaymentModal() {
     }
 }
 
-// Update payment steps
-function updatePaymentSteps(stepIndex) {
-    const steps = document.querySelectorAll('.payment-steps .step');
-    steps.forEach((step, index) => {
-        if (index <= stepIndex) {
-            step.classList.add('active');
-        } else {
-            step.classList.remove('active');
-        }
-    });
+// Update payment UI elements
+function updatePaymentUI() {
+    document.getElementById('summary-brand').textContent = currentBrand.name.toUpperCase();
+    document.getElementById('summary-plan').textContent = currentPlan.name.toUpperCase();
+    document.getElementById('summary-price').textContent = `₹${currentPrice}`;
+    document.getElementById('payment-amount').textContent = currentPrice;
+    document.getElementById('order-id').textContent = currentOrderId;
+    document.getElementById('upi-display').textContent = upiId;
 }
 
-// Generate QR code for UPI payment with order ID
+// Generate QR code
 function generateQRCode() {
     const qrContainer = document.getElementById('qr-code');
-    
-    // Clear previous QR code
     qrContainer.innerHTML = '';
     
-    // Create UPI payment URL with order ID in note
-    const upiId = "Malayalihere@ybl"; // Your UPI ID
     const upiUrl = `upi://pay?pa=${upiId}&pn=MalayaliStore&am=${currentPrice}&cu=INR&tn=Order ${currentOrderId} - ${currentBrand.name} ${currentPlan.name}`;
-    
-    // Generate QR code using Google Charts API
     const qrUrl = `https://chart.googleapis.com/chart?chs=200x200&cht=qr&chl=${encodeURIComponent(upiUrl)}&choe=UTF-8`;
     
     const qrImage = document.createElement('img');
@@ -299,40 +319,34 @@ function generateQRCode() {
     qrImage.style.width = '200px';
     qrImage.style.height = '200px';
     
-    qrContainer.appendChild(qrImage);
+    qrImage.onload = () => console.log('✅ QR code loaded');
+    qrImage.onerror = () => {
+        qrContainer.innerHTML = '<div style="color: var(--terminal-red); padding: 20px;">QR_CODE_GENERATION_FAILED</div>';
+    };
     
-    // Update UPI display
-    document.getElementById('upi-display').textContent = upiId;
+    qrContainer.appendChild(qrImage);
 }
 
-// Start automatic payment checking
+// Start payment checking interval
 function startPaymentChecking() {
-    // Clear any existing interval
     if (paymentInterval) {
         clearInterval(paymentInterval);
     }
     
-    // Update to step 1
     updatePaymentSteps(1);
-    
-    // Check payment every 5 seconds
-    paymentInterval = setInterval(() => {
-        checkPaymentStatus();
-    }, 5000);
+    paymentInterval = setInterval(checkPaymentStatus, 3000);
 }
 
-// Check payment status and process order
+// Check payment status
 async function checkPaymentStatus() {
     try {
-        statusMessage.innerHTML = '<i class="fas fa-sync fa-spin"></i> CHECKING_PAYMENT_STATUS...';
+        elements.statusMessage.innerHTML = '<i class="fas fa-sync fa-spin"></i> CHECKING_PAYMENT...';
         
-        // For demo purposes, we'll simulate payment after 15 seconds
-        // In production, you would integrate with actual payment gateway
+        // Simulate payment detection (10 seconds)
         const elapsedTime = Date.now() - parseInt(currentOrderId.replace('ORD', ''));
-        const isPaid = elapsedTime > 15000 && Math.random() > 0.4; // 60% success after 15 seconds
+        const isPaid = elapsedTime > 10000;
         
         if (isPaid) {
-            // Process the payment and get key
             const response = await fetch(`${API_BASE_URL}/api/process-payment`, {
                 method: 'POST',
                 headers: {
@@ -346,35 +360,35 @@ async function checkPaymentStatus() {
             const data = await response.json();
             
             if (data.success) {
-                // Payment detected!
-                statusMessage.innerHTML = '<i class="fas fa-check"></i> PAYMENT_RECEIVED';
-                statusMessage.style.color = 'var(--terminal-green)';
-                
-                // Update to step 2
+                // Payment successful
+                elements.statusMessage.innerHTML = '<i class="fas fa-check"></i> PAYMENT_RECEIVED';
+                elements.statusMessage.style.color = 'var(--terminal-green)';
                 updatePaymentSteps(2);
                 
-                // Clear interval
                 if (paymentInterval) {
                     clearInterval(paymentInterval);
                     paymentInterval = null;
                 }
                 
-                // Show the key to user
-                setTimeout(() => {
-                    showKey(data.key);
-                }, 2000);
+                // Show key to user
+                setTimeout(() => showKey(data.key), 1000);
             } else {
-                statusMessage.innerHTML = '<i class="fas fa-exclamation-triangle"></i> ' + data.error;
-                statusMessage.style.color = 'var(--terminal-red)';
+                elements.statusMessage.innerHTML = '<i class="fas fa-exclamation-triangle"></i> ' + (data.error || 'PAYMENT_FAILED');
+                elements.statusMessage.style.color = 'var(--terminal-red)';
             }
         } else {
-            // Still waiting
-            statusMessage.innerHTML = '<i class="fas fa-clock"></i> AWAITING_PAYMENT';
+            // Show countdown
+            const secondsLeft = Math.ceil((10000 - elapsedTime) / 1000);
+            if (secondsLeft > 0) {
+                elements.statusMessage.innerHTML = `<i class="fas fa-clock"></i> AWAITING_PAYMENT (${secondsLeft}s)`;
+            } else {
+                elements.statusMessage.innerHTML = '<i class="fas fa-clock"></i> AWAITING_PAYMENT';
+            }
         }
         
     } catch (error) {
         console.error('Payment check failed:', error);
-        statusMessage.innerHTML = '<i class="fas fa-exclamation-triangle"></i> CHECKING_PAYMENT...';
+        elements.statusMessage.innerHTML = '<i class="fas fa-exclamation-triangle"></i> NETWORK_ERROR';
     }
 }
 
@@ -384,43 +398,74 @@ function showKey(key) {
     document.getElementById('verified-order-id').textContent = currentOrderId;
     document.getElementById('purchase-time').textContent = new Date().toLocaleString();
     
-    // Close payment modal and open key modal
-    paymentModal.style.display = 'none';
-    keyModal.style.display = 'block';
+    elements.paymentModal.style.display = 'none';
+    elements.keyModal.style.display = 'block';
     
-    // Update available keys display
     updateAvailableKeys();
+    
+    // Auto-copy key
+    setTimeout(() => {
+        copyToClipboard(key);
+    }, 500);
+}
+
+// Update payment steps
+function updatePaymentSteps(stepIndex) {
+    const steps = document.querySelectorAll('.payment-steps .step');
+    steps.forEach((step, index) => {
+        step.classList.toggle('active', index <= stepIndex);
+    });
+}
+
+// Copy functions
+function copyKey() {
+    const keyText = document.getElementById('generated-key').textContent;
+    if (keyText && keyText !== 'DECRYPTING_KEY...') {
+        copyToClipboard(keyText);
+        showNotification('KEY_COPIED_TO_CLIPBOARD', 'success');
+    }
+}
+
+function copyUpi() {
+    copyToClipboard(upiId);
+    showNotification('UPI_ID_COPIED', 'success');
+}
+
+// Utility function to copy to clipboard
+function copyToClipboard(text) {
+    if (navigator.clipboard && window.isSecureContext) {
+        navigator.clipboard.writeText(text);
+    } else {
+        // Fallback for older browsers
+        const textArea = document.createElement('textarea');
+        textArea.value = text;
+        document.body.appendChild(textArea);
+        textArea.select();
+        document.execCommand('copy');
+        document.body.removeChild(textArea);
+    }
 }
 
 // Close all modals
 function closeAllModals() {
-    paymentModal.style.display = 'none';
-    keyModal.style.display = 'none';
+    elements.paymentModal.style.display = 'none';
+    elements.keyModal.style.display = 'none';
     
-    // Clear payment interval
     if (paymentInterval) {
         clearInterval(paymentInterval);
         paymentInterval = null;
     }
     
-    // Reset selections
-    currentBrand = null;
-    currentPlan = null;
     currentPrice = 0;
     currentOrderId = null;
-    
-    // Reset form
-    brandSelect.selectedIndex = 0;
-    planSelect.selectedIndex = 0;
-    planSelect.disabled = true;
-    customCodeInput.value = '';
-    updatePurchaseButton();
     updateAvailableKeys();
 }
 
 // Show notification
 function showNotification(message, type = 'info') {
-    // Create notification element
+    // Remove existing notifications
+    document.querySelectorAll('.notification').forEach(n => n.remove());
+    
     const notification = document.createElement('div');
     notification.className = `notification ${type}`;
     notification.innerHTML = `
@@ -430,7 +475,6 @@ function showNotification(message, type = 'info') {
         <span class="notification-text">${message}</span>
     `;
     
-    // Add styles
     notification.style.cssText = `
         position: fixed;
         top: 20px;
@@ -450,18 +494,13 @@ function showNotification(message, type = 'info') {
     
     document.body.appendChild(notification);
     
-    // Remove after 5 seconds
     setTimeout(() => {
         notification.style.animation = 'slideOut 0.3s ease';
-        setTimeout(() => {
-            if (notification.parentNode) {
-                notification.parentNode.removeChild(notification);
-            }
-        }, 300);
-    }, 5000);
+        setTimeout(() => notification.remove(), 300);
+    }, 4000);
 }
 
-// Add CSS for notifications
+// Add notification styles
 const notificationStyles = document.createElement('style');
 notificationStyles.textContent = `
     @keyframes slideIn {
@@ -474,3 +513,9 @@ notificationStyles.textContent = `
     }
 `;
 document.head.appendChild(notificationStyles);
+
+// Make functions globally available
+window.closeAllModals = closeAllModals;
+window.showNotification = showNotification;
+
+console.log('🎉 Malayali Store frontend loaded successfully');
