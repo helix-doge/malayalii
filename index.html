@@ -216,5 +216,83 @@
     </div>
 
     <script src="js/main.js"></script>
+
+    <!-- Payment Verification Modal -->
+<div id="verification-modal" class="modal">
+    <div class="modal-content terminal-modal">
+        <div class="modal-header">
+            <h2 class="glitch-text-sm" data-text="VERIFY_PAYMENT">VERIFY_PAYMENT</h2>
+            <span class="close">&times;</span>
+        </div>
+        <div class="payment-details">
+            <div class="order-summary">
+                <h3><i class="fas fa-receipt"></i> ORDER_DETAILS</h3>
+                <div class="summary-item">
+                    <span>ORDER_ID:</span>
+                    <span id="verification-order-id">-</span>
+                </div>
+                <div class="summary-item">
+                    <span>AMOUNT_PAID:</span>
+                    <span id="verification-amount">₹0</span>
+                </div>
+            </div>
+            
+            <div class="payment-instructions">
+                <h3><i class="fas fa-check-circle"></i> PAYMENT_VERIFICATION</h3>
+                <div class="instruction-steps">
+                    <div class="step">
+                        <div class="step-number">1</div>
+                        <div class="step-content">
+                            <strong>Send ₹<span id="verification-amount-display">0</span> to UPI ID:</strong>
+                            <div class="upi-id">malayalihere@ybl</div>
+                        </div>
+                    </div>
+                    <div class="step">
+                        <div class="step-number">2</div>
+                        <div class="step-content">
+                            <strong>After payment, find UTR Number in your bank app</strong>
+                            <div class="note">UTR is a 12-digit transaction reference number</div>
+                        </div>
+                    </div>
+                    <div class="step">
+                        <div class="step-number">3</div>
+                        <div class="step-content">
+                            <strong>Enter UTR Number below to get your key</strong>
+                            <div class="note">Verification is manual and may take few minutes</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="verification-form">
+                <div class="form-group">
+                    <label for="utr-number" class="form-label">
+                        <i class="fas fa-hashtag"></i> UTR_NUMBER
+                    </label>
+                    <input type="text" id="utr-number" class="terminal-input" 
+                           placeholder="ENTER_12_DIGIT_UTR_NUMBER" maxlength="12">
+                </div>
+                
+                <div class="form-group">
+                    <label for="transaction-amount" class="form-label">
+                        <i class="fas fa-rupee-sign"></i> TRANSACTION_AMOUNT
+                    </label>
+                    <input type="number" id="transaction-amount" class="terminal-input" 
+                           placeholder="ENTER_AMOUNT_YOU_PAID" value="">
+                </div>
+                
+                <div class="payment-actions">
+                    <button id="cancel-verification" class="hack-btn cancel">
+                        <i class="fas fa-times"></i> CANCEL
+                    </button>
+                    <button id="verify-payment-btn" class="hack-btn">
+                        <i class="fas fa-check"></i> VERIFY_PAYMENT
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+    
 </body>
 </html>
