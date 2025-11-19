@@ -2,7 +2,7 @@
 const API_BASE_URL = 'https://malayali-store-backend.onrender.com';
 
 // UPI ID for payments
-const upiId = "Malayalihere@ybl";
+const upiId = "malayalihere@ybl";
 
 // Global variables
 let currentBrand = null;
