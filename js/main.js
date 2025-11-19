@@ -18,7 +18,8 @@ const elements = {
     paymentModal: document.getElementById('payment-modal'),
     keyModal: document.getElementById('key-modal'),
     verificationModal: document.getElementById('verification-modal'),
-    availableKeysSpan: document.getElementById('available-keys')
+    availableKeysSpan: document.getElementById('available-keys'),
+    statusMessage: document.getElementById('status-message')
 };
 
 // Initialize application
@@ -55,22 +56,52 @@ async function loadBrands() {
                 option.textContent = brand.name.toUpperCase();
                 elements.brandSelect.appendChild(option);
             });
+            console.log(`✅ Loaded ${data.brands.length} brands`);
+        } else {
+            throw new Error(data.error || 'Failed to load brands');
         }
     } catch (error) {
         console.error('Error loading brands:', error);
         showNotification('NETWORK_ERROR: CANNOT_LOAD_APPLICATIONS', 'error');
+        loadFallbackBrands();
     }
 }
 
-// Setup event listeners
+// Fallback brands data
+function loadFallbackBrands() {
+    const fallbackBrands = [
+        { id: 1, name: "Vision", plans: [
+            { name: "1 Month", price: 299 }, { name: "3 Months", price: 799 }, { name: "1 Year", price: 2599 }
+        ]},
+        { id: 2, name: "Bat", plans: [
+            { name: "1 Month", price: 399 }, { name: "3 Months", price: 999 }, { name: "1 Year", price: 3299 }
+        ]}
+    ];
+    
+    fallbackBrands.forEach(brand => {
+        const option = document.createElement('option');
+        option.value = brand.id;
+        option.textContent = brand.name.toUpperCase();
+        elements.brandSelect.appendChild(option);
+    });
+    console.log('⚠️ Using fallback brands data');
+}
+
+// Setup all event listeners
 function setupEventListeners() {
+    console.log('Setting up event listeners...');
+    
+    // Brand selection
     elements.brandSelect.addEventListener('change', handleBrandChange);
+    
+    // Plan selection
     elements.planSelect.addEventListener('change', handlePlanChange);
+    
+    // Purchase button
     elements.purchaseBtn.addEventListener('click', handlePurchase);
     
-    // Payment verification
-    document.getElementById('verify-payment-btn').addEventListener('click', verifyPayment);
-    document.getElementById('cancel-verification').addEventListener('click', closeVerificationModal);
+    // Cancel payment
+    document.getElementById('cancel-payment').addEventListener('click', closeAllModals);
     
     // Close modals
     document.querySelectorAll('.close').forEach(button => {
@@ -79,9 +110,32 @@ function setupEventListeners() {
     
     document.getElementById('close-modal').addEventListener('click', closeAllModals);
     
+    // Payment verification
+    document.getElementById('verify-payment-btn').addEventListener('click', verifyPayment);
+    document.getElementById('cancel-verification').addEventListener('click', closeVerificationModal);
+    
     // Copy buttons
     document.getElementById('copy-key').addEventListener('click', copyKey);
     document.getElementById('copy-upi').addEventListener('click', copyUpi);
+    
+    // I have paid button
+    document.getElementById('i-have-paid-btn').addEventListener('click', openVerificationModal);
+    
+    // Close modals on outside click
+    window.addEventListener('click', function(e) {
+        if (e.target.classList.contains('modal')) {
+            closeAllModals();
+        }
+    });
+    
+    // Enter key in custom code
+    document.getElementById('custom-code').addEventListener('keypress', function(e) {
+        if (e.key === 'Enter' && !elements.purchaseBtn.disabled) {
+            elements.purchaseBtn.click();
+        }
+    });
+    
+    console.log('✅ Event listeners setup complete');
 }
 
 // Event handlers
@@ -153,7 +207,7 @@ function loadPlans(brand) {
     updatePurchaseButton();
 }
 
-// Update purchase button
+// Update purchase button state
 function updatePurchaseButton() {
     if (currentBrand && currentPlan) {
         elements.purchaseBtn.disabled = false;
@@ -166,7 +220,7 @@ function updatePurchaseButton() {
     }
 }
 
-// Update available keys
+// Update available keys display
 async function updateAvailableKeys() {
     if (!currentBrand) {
         elements.availableKeysSpan.textContent = 'SELECT_APPLICATION_TO_VIEW_KEYS';
@@ -184,6 +238,7 @@ async function updateAvailableKeys() {
     } catch (error) {
         console.error('Error updating available keys:', error);
         elements.availableKeysSpan.textContent = 'KEYS_AVAILABLE: CHECKING...';
+        elements.availableKeysSpan.style.color = 'var(--terminal-yellow)';
     }
 }
 
@@ -211,6 +266,7 @@ async function openPaymentModal() {
     currentOrderId = 'ORD' + Date.now() + Math.random().toString(36).substr(2, 5).toUpperCase();
     
     try {
+        // Ensure proper data types
         const orderData = {
             orderId: currentOrderId,
             brandId: parseInt(currentBrand.id),
@@ -218,13 +274,24 @@ async function openPaymentModal() {
             amount: parseFloat(currentPrice)
         };
 
+        console.log('📦 Sending order data:', orderData);
+
         const response = await fetch(`${API_BASE_URL}/api/create-order`, {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
+            headers: {
+                'Content-Type': 'application/json',
+            },
             body: JSON.stringify(orderData)
         });
         
+        // Check if response is OK before parsing JSON
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        
         const data = await response.json();
+        
+        console.log('📨 Backend response:', data);
         
         if (!data.success) {
             showNotification(data.error || 'FAILED_TO_CREATE_ORDER', 'error');
@@ -235,16 +302,16 @@ async function openPaymentModal() {
         updatePaymentUI();
         generateQRCode();
         
-        // Show payment modal
+        // Show modal
         elements.paymentModal.style.display = 'block';
         
     } catch (error) {
-        console.error('Error creating order:', error);
-        showNotification('NETWORK_ERROR: CANNOT_CREATE_ORDER', 'error');
+        console.error('❌ Error creating order:', error);
+        showNotification('NETWORK_ERROR: CANNOT_CREATE_ORDER - ' + error.message, 'error');
     }
 }
 
-// Update payment UI
+// Update payment UI elements
 function updatePaymentUI() {
     document.getElementById('summary-brand').textContent = currentBrand.name.toUpperCase();
     document.getElementById('summary-plan').textContent = currentPlan.name.toUpperCase();
@@ -252,17 +319,23 @@ function updatePaymentUI() {
     document.getElementById('payment-amount').textContent = currentPrice;
     document.getElementById('order-id').textContent = currentOrderId;
     document.getElementById('upi-display').textContent = UPI_ID;
+    
+    // Update verification modal too
+    document.getElementById('verification-order-id').textContent = currentOrderId;
+    document.getElementById('verification-amount').textContent = `₹${currentPrice}`;
+    document.getElementById('verification-amount-display').textContent = currentPrice;
+    document.getElementById('transaction-amount').value = currentPrice;
 }
 
-// Generate QR code - FIXED VERSION
+// Generate QR code - WORKING VERSION
 function generateQRCode() {
     const qrContainer = document.getElementById('qr-code');
     qrContainer.innerHTML = '';
     
     // Create UPI payment URL
-    const upiUrl = `upi://pay?pa=${UPI_ID}&pn=MalayaliStore&am=${currentPrice}&cu=INR&tn=Order ${currentOrderId}`;
+    const upiUrl = `upi://pay?pa=${UPI_ID}&pn=MalayaliStore&am=${currentPrice}&cu=INR&tn=Order${currentOrderId}`;
     
-    // Use QR Server API (more reliable)
+    // Use reliable QR code service
     const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(upiUrl)}`;
     
     const qrImage = document.createElement('img');
@@ -271,30 +344,42 @@ function generateQRCode() {
     qrImage.style.width = '200px';
     qrImage.style.height = '200px';
     qrImage.style.border = '2px solid var(--terminal-cyan)';
+    qrImage.style.background = 'white';
+    qrImage.style.padding = '10px';
     
-    qrImage.onload = () => console.log('✅ QR code loaded successfully');
+    qrImage.onload = () => {
+        console.log('✅ QR code loaded successfully');
+        qrContainer.innerHTML = '';
+        qrContainer.appendChild(qrImage);
+    };
+    
     qrImage.onerror = () => {
         console.error('❌ QR code failed to load');
         qrContainer.innerHTML = `
             <div style="color: var(--terminal-red); padding: 20px; text-align: center;">
                 <i class="fas fa-exclamation-triangle" style="font-size: 2rem; margin-bottom: 10px;"></i>
                 <div>QR_CODE_GENERATION_FAILED</div>
-                <div style="font-size: 0.8rem; margin-top: 10px;">Please use UPI ID manually</div>
+                <div style="font-size: 0.8rem; margin-top: 10px; color: var(--terminal-cyan);">
+                    Please use UPI ID: ${UPI_ID}
+                </div>
             </div>
         `;
     };
-    
-    qrContainer.appendChild(qrImage);
 }
 
 // Open verification modal
 function openVerificationModal() {
-    document.getElementById('verification-order-id').textContent = currentOrderId;
-    document.getElementById('verification-amount').textContent = currentPrice;
-    document.getElementById('utr-number').value = '';
-    
+    // Close payment modal and open verification modal
     elements.paymentModal.style.display = 'none';
     document.getElementById('verification-modal').style.display = 'block';
+    
+    // Clear previous UTR number
+    document.getElementById('utr-number').value = '';
+    
+    // Focus on UTR input
+    setTimeout(() => {
+        document.getElementById('utr-number').focus();
+    }, 300);
 }
 
 // Close verification modal
@@ -309,15 +394,30 @@ async function verifyPayment() {
     
     if (!utrNumber) {
         showNotification('PLEASE_ENTER_UTR_NUMBER', 'error');
+        document.getElementById('utr-number').focus();
         return;
     }
     
     if (!transactionAmount) {
         showNotification('PLEASE_ENTER_TRANSACTION_AMOUNT', 'error');
+        document.getElementById('transaction-amount').focus();
+        return;
+    }
+    
+    // Validate UTR format (12 digits)
+    if (utrNumber.length < 8 || utrNumber.length > 16) {
+        showNotification('INVALID_UTR_NUMBER_FORMAT', 'error');
+        document.getElementById('utr-number').focus();
         return;
     }
     
     try {
+        // Show loading state
+        const verifyBtn = document.getElementById('verify-payment-btn');
+        const originalText = verifyBtn.innerHTML;
+        verifyBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> VERIFYING...';
+        verifyBtn.disabled = true;
+        
         showNotification('VERIFYING_PAYMENT...', 'info');
         
         const response = await fetch(`${API_BASE_URL}/api/verify-payment`, {
@@ -332,15 +432,25 @@ async function verifyPayment() {
         
         const data = await response.json();
         
+        // Reset button state
+        verifyBtn.innerHTML = originalText;
+        verifyBtn.disabled = false;
+        
         if (data.success) {
             showKey(data.key);
-            showNotification('PAYMENT_VERIFIED_SUCCESSFULLY', 'success');
+            showNotification('PAYMENT_VERIFIED_SUCCESSFULLY!', 'success');
         } else {
             showNotification(data.error || 'PAYMENT_VERIFICATION_FAILED', 'error');
         }
         
     } catch (error) {
         console.error('Payment verification error:', error);
+        
+        // Reset button state
+        const verifyBtn = document.getElementById('verify-payment-btn');
+        verifyBtn.innerHTML = '<i class="fas fa-check"></i> VERIFY_PAYMENT';
+        verifyBtn.disabled = false;
+        
         showNotification('NETWORK_ERROR: CANNOT_VERIFY_PAYMENT', 'error');
     }
 }
@@ -351,17 +461,27 @@ function showKey(key) {
     document.getElementById('verified-order-id').textContent = currentOrderId;
     document.getElementById('purchase-time').textContent = new Date().toLocaleString();
     
+    // Close verification modal and open key modal
     document.getElementById('verification-modal').style.display = 'none';
     elements.keyModal.style.display = 'block';
     
+    // Update available keys count
     updateAvailableKeys();
+    
+    // Auto-copy key to clipboard
+    setTimeout(() => {
+        copyToClipboard(key);
+        showNotification('KEY_AUTO_COPIED_TO_CLIPBOARD', 'success');
+    }, 1000);
 }
 
 // Copy functions
 function copyKey() {
     const keyText = document.getElementById('generated-key').textContent;
-    copyToClipboard(keyText);
-    showNotification('KEY_COPIED_TO_CLIPBOARD', 'success');
+    if (keyText && keyText !== 'DECRYPTING_KEY...') {
+        copyToClipboard(keyText);
+        showNotification('KEY_COPIED_TO_CLIPBOARD', 'success');
+    }
 }
 
 function copyUpi() {
@@ -374,6 +494,7 @@ function copyToClipboard(text) {
     if (navigator.clipboard && window.isSecureContext) {
         navigator.clipboard.writeText(text);
     } else {
+        // Fallback for older browsers
         const textArea = document.createElement('textarea');
         textArea.value = text;
         document.body.appendChild(textArea);
@@ -389,6 +510,10 @@ function closeAllModals() {
     elements.keyModal.style.display = 'none';
     document.getElementById('verification-modal').style.display = 'none';
     
+    // Reset form fields
+    document.getElementById('utr-number').value = '';
+    document.getElementById('transaction-amount').value = '';
+    
     currentPrice = 0;
     currentOrderId = null;
     updateAvailableKeys();
@@ -396,6 +521,7 @@ function closeAllModals() {
 
 // Show notification
 function showNotification(message, type = 'info') {
+    // Remove existing notifications
     document.querySelectorAll('.notification').forEach(n => n.remove());
     
     const notification = document.createElement('div');
@@ -445,5 +571,9 @@ notificationStyles.textContent = `
     }
 `;
 document.head.appendChild(notificationStyles);
+
+// Make functions globally available
+window.closeAllModals = closeAllModals;
+window.showNotification = showNotification;
 
 console.log('🎉 Malayali Store frontend loaded successfully');
