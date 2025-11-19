@@ -84,7 +84,7 @@ app.post('/api/create-order', async (req, res) => {
             });
         }
 
-        // Create order
+        // Create order - using existing columns only
         const { data: order, error: orderError } = await supabase
             .from('orders')
             .insert({
@@ -92,9 +92,7 @@ app.post('/api/create-order', async (req, res) => {
                 brand_id: parseInt(brandId),
                 plan_name: planName,
                 amount: parseFloat(amount),
-                status: 'pending',
-                upi_id: UPI_ID,
-                created_at: new Date().toISOString()
+                status: 'pending'
             })
             .select()
             .single();
@@ -177,13 +175,11 @@ app.post('/api/verify-payment', async (req, res) => {
             
         if (updateError) throw updateError;
         
-        // Update order status with UTR
+        // Update order status - using only existing columns
         const { error: orderUpdateError } = await supabase
             .from('orders')
             .update({
-                status: 'completed',
-                utr_number: utrNumber,
-                completed_at: new Date().toISOString()
+                status: 'completed'
             })
             .eq('order_id', orderId);
             
@@ -194,8 +190,7 @@ app.post('/api/verify-payment', async (req, res) => {
             key: key.key_value,
             order: {
                 ...order,
-                status: 'completed',
-                utr_number: utrNumber
+                status: 'completed'
             },
             message: 'Payment verified successfully! Key delivered.'
         });
@@ -228,12 +223,12 @@ app.get('/api/admin/pending-orders', async (req, res) => {
 // 6. Admin - Manually verify payment
 app.post('/api/admin/verify-order', async (req, res) => {
     try {
-        const { orderId, utrNumber } = req.body;
+        const { orderId } = req.body;
 
-        if (!orderId || !utrNumber) {
+        if (!orderId) {
             return res.status(400).json({ 
                 success: false, 
-                error: 'Order ID and UTR Number are required' 
+                error: 'Order ID is required' 
             });
         }
 
@@ -278,13 +273,11 @@ app.post('/api/admin/verify-order', async (req, res) => {
             })
             .eq('id', key.id);
         
-        // Update order
+        // Update order - simple status update only
         await supabase
             .from('orders')
             .update({
-                status: 'completed',
-                utr_number: utrNumber,
-                completed_at: new Date().toISOString()
+                status: 'completed'
             })
             .eq('order_id', orderId);
 
@@ -333,8 +326,7 @@ app.post('/api/admin/keys', async (req, res) => {
                 brand_id: parseInt(brandId),
                 plan: plan,
                 key_value: keyValue,
-                status: 'available',
-                created_at: new Date().toISOString()
+                status: 'available'
             })
             .select();
             
