@@ -261,7 +261,9 @@ async function checkAndOpenPayment() {
     }
 }
 
-// Open payment modal
+// ... existing code ...
+
+// Open payment modal - FIXED
 async function openPaymentModal() {
     currentOrderId = 'ORD' + Date.now() + Math.random().toString(36).substr(2, 5).toUpperCase();
     
@@ -284,18 +286,13 @@ async function openPaymentModal() {
             body: JSON.stringify(orderData)
         });
         
-        // Check if response is OK before parsing JSON
-        if (!response.ok) {
-            throw new Error(`HTTP error! status: ${response.status}`);
-        }
-        
+        // Parse response first
         const data = await response.json();
         
         console.log('📨 Backend response:', data);
         
-        if (!data.success) {
-            showNotification(data.error || 'FAILED_TO_CREATE_ORDER', 'error');
-            return;
+        if (!response.ok || !data.success) {
+            throw new Error(data.error || `HTTP error! status: ${response.status}`);
         }
         
         // Update UI
@@ -307,87 +304,11 @@ async function openPaymentModal() {
         
     } catch (error) {
         console.error('❌ Error creating order:', error);
-        showNotification('NETWORK_ERROR: CANNOT_CREATE_ORDER - ' + error.message, 'error');
+        showNotification('ORDER_CREATION_FAILED: ' + error.message, 'error');
     }
 }
 
-// Update payment UI elements
-function updatePaymentUI() {
-    document.getElementById('summary-brand').textContent = currentBrand.name.toUpperCase();
-    document.getElementById('summary-plan').textContent = currentPlan.name.toUpperCase();
-    document.getElementById('summary-price').textContent = `₹${currentPrice}`;
-    document.getElementById('payment-amount').textContent = currentPrice;
-    document.getElementById('order-id').textContent = currentOrderId;
-    document.getElementById('upi-display').textContent = UPI_ID;
-    
-    // Update verification modal too
-    document.getElementById('verification-order-id').textContent = currentOrderId;
-    document.getElementById('verification-amount').textContent = `₹${currentPrice}`;
-    document.getElementById('verification-amount-display').textContent = currentPrice;
-    document.getElementById('transaction-amount').value = currentPrice;
-}
-
-// Generate QR code - WORKING VERSION
-function generateQRCode() {
-    const qrContainer = document.getElementById('qr-code');
-    qrContainer.innerHTML = '';
-    
-    // Create UPI payment URL
-    const upiUrl = `upi://pay?pa=${UPI_ID}&pn=MalayaliStore&am=${currentPrice}&cu=INR&tn=Order${currentOrderId}`;
-    
-    // Use reliable QR code service
-    const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(upiUrl)}`;
-    
-    const qrImage = document.createElement('img');
-    qrImage.src = qrUrl;
-    qrImage.alt = 'UPI Payment QR Code';
-    qrImage.style.width = '200px';
-    qrImage.style.height = '200px';
-    qrImage.style.border = '2px solid var(--terminal-cyan)';
-    qrImage.style.background = 'white';
-    qrImage.style.padding = '10px';
-    
-    qrImage.onload = () => {
-        console.log('✅ QR code loaded successfully');
-        qrContainer.innerHTML = '';
-        qrContainer.appendChild(qrImage);
-    };
-    
-    qrImage.onerror = () => {
-        console.error('❌ QR code failed to load');
-        qrContainer.innerHTML = `
-            <div style="color: var(--terminal-red); padding: 20px; text-align: center;">
-                <i class="fas fa-exclamation-triangle" style="font-size: 2rem; margin-bottom: 10px;"></i>
-                <div>QR_CODE_GENERATION_FAILED</div>
-                <div style="font-size: 0.8rem; margin-top: 10px; color: var(--terminal-cyan);">
-                    Please use UPI ID: ${UPI_ID}
-                </div>
-            </div>
-        `;
-    };
-}
-
-// Open verification modal
-function openVerificationModal() {
-    // Close payment modal and open verification modal
-    elements.paymentModal.style.display = 'none';
-    document.getElementById('verification-modal').style.display = 'block';
-    
-    // Clear previous UTR number
-    document.getElementById('utr-number').value = '';
-    
-    // Focus on UTR input
-    setTimeout(() => {
-        document.getElementById('utr-number').focus();
-    }, 300);
-}
-
-// Close verification modal
-function closeVerificationModal() {
-    document.getElementById('verification-modal').style.display = 'none';
-}
-
-// Verify payment with UTR number
+// Verify payment with UTR number - FIXED
 async function verifyPayment() {
     const utrNumber = document.getElementById('utr-number').value.trim();
     const transactionAmount = document.getElementById('transaction-amount').value.trim();
@@ -401,13 +322,6 @@ async function verifyPayment() {
     if (!transactionAmount) {
         showNotification('PLEASE_ENTER_TRANSACTION_AMOUNT', 'error');
         document.getElementById('transaction-amount').focus();
-        return;
-    }
-    
-    // Validate UTR format (12 digits)
-    if (utrNumber.length < 8 || utrNumber.length > 16) {
-        showNotification('INVALID_UTR_NUMBER_FORMAT', 'error');
-        document.getElementById('utr-number').focus();
         return;
     }
     
@@ -432,29 +346,25 @@ async function verifyPayment() {
         
         const data = await response.json();
         
-        // Reset button state
-        verifyBtn.innerHTML = originalText;
-        verifyBtn.disabled = false;
-        
-        if (data.success) {
-            showKey(data.key);
-            showNotification('PAYMENT_VERIFIED_SUCCESSFULLY!', 'success');
-        } else {
-            showNotification(data.error || 'PAYMENT_VERIFICATION_FAILED', 'error');
+        if (!response.ok || !data.success) {
+            throw new Error(data.error || 'Verification failed');
         }
+        
+        showKey(data.key);
+        showNotification('PAYMENT_VERIFIED_SUCCESSFULLY!', 'success');
         
     } catch (error) {
         console.error('Payment verification error:', error);
+        showNotification('VERIFICATION_FAILED: ' + error.message, 'error');
         
         // Reset button state
         const verifyBtn = document.getElementById('verify-payment-btn');
         verifyBtn.innerHTML = '<i class="fas fa-check"></i> VERIFY_PAYMENT';
         verifyBtn.disabled = false;
-        
-        showNotification('NETWORK_ERROR: CANNOT_VERIFY_PAYMENT', 'error');
     }
 }
 
+// ... rest of existing code ...
 // Show key to user
 function showKey(key) {
     document.getElementById('generated-key').textContent = key;
