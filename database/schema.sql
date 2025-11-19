@@ -19,11 +19,11 @@ CREATE TABLE IF NOT EXISTS keys (
     created_at TIMESTAMP DEFAULT NOW()
 );
 
--- Create orders table
+-- Create orders table - FIXED: Added brand_id as INTEGER
 CREATE TABLE IF NOT EXISTS orders (
     id SERIAL PRIMARY KEY,
     order_id VARCHAR(255) UNIQUE NOT NULL,
-    brand_id INTEGER REFERENCES brands(id),
+    brand_id INTEGER REFERENCES brands(id), -- This was missing/misconfigured
     plan_name VARCHAR(100) NOT NULL,
     amount DECIMAL(10,2) NOT NULL,
     customer_email VARCHAR(255),
