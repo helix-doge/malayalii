@@ -3,12 +3,19 @@ const cors = require('cors');
 const { createClient } = require('@supabase/supabase-js');
 const app = express();
 
+// Middleware
 app.use(cors());
 app.use(express.json());
 
 // Supabase Configuration
 const supabaseUrl = process.env.SUPABASE_URL;
 const supabaseKey = process.env.SUPABASE_KEY;
+
+if (!supabaseUrl || !supabaseKey) {
+    console.error('❌ Missing Supabase environment variables');
+    process.exit(1);
+}
+
 const supabase = createClient(supabaseUrl, supabaseKey);
 
 // UPI ID
@@ -16,7 +23,7 @@ const UPI_ID = "malayalihere@ybl";
 
 // Enhanced logging middleware
 app.use((req, res, next) => {
-    console.log(`[${new Date().toISOString()}] ${req.method} ${req.path}`, req.body);
+    console.log(`[${new Date().toISOString()}] ${req.method} ${req.path}`, req.body || '');
     next();
 });
 
@@ -30,26 +37,83 @@ const handleError = (res, error, customMessage = 'Operation failed') => {
     });
 };
 
-// 1. Health check with database connection test
+// Test database connection and table structure
+const testDatabaseConnection = async () => {
+    try {
+        console.log('🔍 Testing database connection...');
+        
+        // Test brands table
+        const { data: brands, error: brandsError } = await supabase
+            .from('brands')
+            .select('*')
+            .limit(1);
+        
+        if (brandsError) throw new Error(`Brands table error: ${brandsError.message}`);
+        
+        // Test keys table
+        const { data: keys, error: keysError } = await supabase
+            .from('keys')
+            .select('*')
+            .limit(1);
+        
+        if (keysError) throw new Error(`Keys table error: ${keysError.message}`);
+        
+        // Test orders table
+        const { data: orders, error: ordersError } = await supabase
+            .from('orders')
+            .select('*')
+            .limit(1);
+        
+        if (ordersError) throw new Error(`Orders table error: ${ordersError.message}`);
+        
+        console.log('✅ All database tables are accessible');
+        return true;
+    } catch (error) {
+        console.error('❌ Database connection test failed:', error.message);
+        return false;
+    }
+};
+
+// 1. Health check with comprehensive database testing
 app.get('/api/health', async (req, res) => {
     try {
-        // Test database connection
-        const { data, error } = await supabase.from('brands').select('count').limit(1);
+        const dbConnected = await testDatabaseConnection();
         
-        if (error) throw error;
-        
+        if (!dbConnected) {
+            return res.status(500).json({
+                success: false,
+                message: 'API is running but database connection failed',
+                database: 'Disconnected ❌',
+                upiId: UPI_ID,
+                timestamp: new Date().toISOString()
+            });
+        }
+
+        // Get some stats
+        const { count: brandsCount } = await supabase
+            .from('brands')
+            .select('*', { count: 'exact', head: true });
+
+        const { count: keysCount } = await supabase
+            .from('keys')
+            .select('*', { count: 'exact', head: true });
+
         res.json({ 
             success: true, 
             message: '🚀 Malayali Store API is RUNNING!',
             database: 'Connected ✅',
             upiId: UPI_ID,
+            stats: {
+                brands: brandsCount || 0,
+                keys: keysCount || 0
+            },
             timestamp: new Date().toISOString()
         });
     } catch (error) {
         res.status(500).json({ 
             success: false, 
             message: '🚀 Malayali Store API is RUNNING!',
-            database: 'Disconnected ❌',
+            database: 'Connection Error ❌',
             error: error.message,
             timestamp: new Date().toISOString()
         });
@@ -60,21 +124,27 @@ app.get('/api/health', async (req, res) => {
 app.post('/api/init-db', async (req, res) => {
     try {
         console.log('🔄 Initializing database...');
-        
-        // Check if brands exist
+
+        // Check if we already have data
         const { data: existingBrands, error: checkError } = await supabase
             .from('brands')
             .select('*');
             
-        if (checkError) throw checkError;
+        if (checkError) {
+            console.error('❌ Error checking existing data:', checkError);
+            throw checkError;
+        }
         
         if (existingBrands && existingBrands.length > 0) {
+            console.log('✅ Database already has data, skipping initialization');
             return res.json({ 
                 success: true, 
                 message: '✅ Database already initialized',
                 brands: existingBrands 
             });
         }
+        
+        console.log('🔄 Setting up default data...');
         
         // Insert default brands
         const defaultBrands = [
@@ -110,30 +180,35 @@ app.post('/api/init-db', async (req, res) => {
         
         console.log('✅ Default brands added');
         
-        // Add some sample keys
+        // Add sample keys
         const sampleKeys = [
-            { brand_id: 1, plan: "1 Month", key_value: "VISION-1M-ABC123XYZ", status: "available" },
-            { brand_id: 1, plan: "1 Month", key_value: "VISION-1M-DEF456UVW", status: "available" },
-            { brand_id: 1, plan: "3 Months", key_value: "VISION-3M-GHI789RST", status: "available" },
-            { brand_id: 2, plan: "1 Month", key_value: "BAT-1M-JKL012MNO", status: "available" },
-            { brand_id: 2, plan: "1 Month", key_value: "BAT-1M-PQR345STU", status: "available" }
+            { brand_id: 1, plan: "1 Month", key_value: "VISION-1M-" + Math.random().toString(36).substr(2, 9).toUpperCase(), status: "available" },
+            { brand_id: 1, plan: "1 Month", key_value: "VISION-1M-" + Math.random().toString(36).substr(2, 9).toUpperCase(), status: "available" },
+            { brand_id: 1, plan: "3 Months", key_value: "VISION-3M-" + Math.random().toString(36).substr(2, 9).toUpperCase(), status: "available" },
+            { brand_id: 1, plan: "1 Year", key_value: "VISION-1Y-" + Math.random().toString(36).substr(2, 9).toUpperCase(), status: "available" },
+            { brand_id: 2, plan: "1 Month", key_value: "BAT-1M-" + Math.random().toString(36).substr(2, 9).toUpperCase(), status: "available" },
+            { brand_id: 2, plan: "1 Month", key_value: "BAT-1M-" + Math.random().toString(36).substr(2, 9).toUpperCase(), status: "available" },
+            { brand_id: 2, plan: "3 Months", key_value: "BAT-3M-" + Math.random().toString(36).substr(2, 9).toUpperCase(), status: "available" },
+            { brand_id: 2, plan: "1 Year", key_value: "BAT-1Y-" + Math.random().toString(36).substr(2, 9).toUpperCase(), status: "available" }
         ];
 
-        const { error: keysError } = await supabase
+        const { data: keys, error: keysError } = await supabase
             .from('keys')
-            .insert(sampleKeys);
+            .insert(sampleKeys)
+            .select();
             
         if (keysError) {
             console.error('❌ Keys insert error:', keysError);
             // Continue even if keys fail
+        } else {
+            console.log('✅ Sample keys added');
         }
-        
-        console.log('✅ Sample keys added');
         
         res.json({ 
             success: true, 
             message: '🎉 Database initialized successfully!',
-            brands: brands 
+            brands: brands,
+            keysAdded: keys ? keys.length : 0
         });
         
     } catch (error) {
@@ -188,7 +263,7 @@ app.get('/api/keys/available/:brandId', async (req, res) => {
     }
 });
 
-// 5. Create order - COMPLETELY FIXED
+// 5. Create order
 app.post('/api/create-order', async (req, res) => {
     try {
         const { orderId, brandId, planName, amount } = req.body;
@@ -235,7 +310,7 @@ app.post('/api/create-order', async (req, res) => {
             });
         }
 
-        // Check if keys are available for this brand and plan
+        // Check if keys are available
         const { data: availableKeys, error: keysError } = await supabase
             .from('keys')
             .select('*')
@@ -259,7 +334,7 @@ app.post('/api/create-order', async (req, res) => {
             });
         }
 
-        // Create order data
+        // Create order
         const orderData = {
             order_id: orderId,
             brand_id: brandIdInt,
@@ -401,7 +476,8 @@ app.post('/api/verify-payment', async (req, res) => {
             .from('orders')
             .update({
                 status: 'completed',
-                completed_at: new Date().toISOString()
+                completed_at: new Date().toISOString(),
+                utr_number: utrNumber
             })
             .eq('order_id', orderId);
             
@@ -426,6 +502,8 @@ app.post('/api/verify-payment', async (req, res) => {
         handleError(res, error, 'Payment verification failed');
     }
 });
+
+// ADMIN ENDPOINTS
 
 // 7. Admin - Get all keys
 app.get('/api/admin/keys', async (req, res) => {
@@ -547,18 +625,18 @@ app.delete('/api/admin/keys/:keyId', async (req, res) => {
 app.get('/api/admin/stats', async (req, res) => {
     try {
         // Total keys
-        const { count: totalKeys, error: totalError } = await supabase
+        const { count: totalKeys } = await supabase
             .from('keys')
             .select('*', { count: 'exact', head: true });
         
         // Available keys
-        const { count: availableKeys, error: availableError } = await supabase
+        const { count: availableKeys } = await supabase
             .from('keys')
             .select('*', { count: 'exact', head: true })
             .eq('status', 'available');
         
         // Total orders and revenue
-        const { data: orders, error: ordersError } = await supabase
+        const { data: orders } = await supabase
             .from('orders')
             .select('amount, status');
         
@@ -682,8 +760,7 @@ app.post('/api/admin/brands/:brandId/plans', async (req, res) => {
         const { error: updateError } = await supabase
             .from('brands')
             .update({ 
-                plans: updatedPlans,
-                updated_at: new Date().toISOString()
+                plans: updatedPlans
             })
             .eq('id', parseInt(brandId));
             
@@ -706,60 +783,27 @@ app.post('/api/admin/brands/:brandId/plans', async (req, res) => {
     }
 });
 
-// 13. Admin - Get pending orders
-app.get('/api/admin/pending-orders', async (req, res) => {
-    try {
-        const { data, error } = await supabase
-            .from('orders')
-            .select(`
-                *,
-                brands (name)
-            `)
-            .eq('status', 'pending')
-            .order('created_at', { ascending: false });
-        
-        if (error) {
-            console.error('❌ Pending orders error:', error);
-            return res.json({ success: true, orders: [] });
-        }
-        
-        res.json({ success: true, orders: data || [] });
-    } catch (error) {
-        console.error('❌ Pending orders error:', error);
-        res.json({ success: true, orders: [] });
-    }
-});
-
-// 14. Test endpoint to check database structure
+// 13. Debug endpoint to check database structure
 app.get('/api/debug/tables', async (req, res) => {
     try {
-        // This is a simple check - in production you might want to use information_schema
         const { data: brands, error: brandsError } = await supabase
             .from('brands')
-            .select('*')
-            .limit(1);
+            .select('*');
             
         const { data: keys, error: keysError } = await supabase
             .from('keys')
-            .select('*')
-            .limit(1);
+            .select('*');
             
         const { data: orders, error: ordersError } = await supabase
             .from('orders')
-            .select('*')
-            .limit(1);
+            .select('*');
         
         res.json({
             success: true,
             tables: {
-                brands: brandsError ? 'Error: ' + brandsError.message : 'Connected ✅',
-                keys: keysError ? 'Error: ' + keysError.message : 'Connected ✅',
-                orders: ordersError ? 'Error: ' + ordersError.message : 'Connected ✅'
-            },
-            counts: {
-                brands: brands?.length || 0,
-                keys: keys?.length || 0,
-                orders: orders?.length || 0
+                brands: brandsError ? { error: brandsError.message } : { count: brands?.length || 0, sample: brands?.[0] },
+                keys: keysError ? { error: keysError.message } : { count: keys?.length || 0, sample: keys?.[0] },
+                orders: ordersError ? { error: ordersError.message } : { count: orders?.length || 0, sample: orders?.[0] }
             }
         });
     } catch (error) {
@@ -767,11 +811,41 @@ app.get('/api/debug/tables', async (req, res) => {
     }
 });
 
+// 404 handler
+app.use('*', (req, res) => {
+    res.status(404).json({
+        success: false,
+        error: 'Endpoint not found',
+        availableEndpoints: [
+            'GET /api/health',
+            'POST /api/init-db', 
+            'GET /api/brands',
+            'GET /api/keys/available/:brandId',
+            'POST /api/create-order',
+            'POST /api/verify-payment',
+            'GET /api/admin/keys',
+            'POST /api/admin/keys',
+            'GET /api/admin/stats'
+        ]
+    });
+});
+
 const PORT = process.env.PORT || 3000;
+
+// Test connection on startup
+testDatabaseConnection().then(success => {
+    if (success) {
+        console.log('✅ Database connection established on startup');
+    } else {
+        console.log('⚠️ Database connection failed on startup, but server will continue');
+    }
+});
+
 app.listen(PORT, () => {
-    console.log(`🚀 Malayali Store Backend running on port ${PORT}`);
+    console.log(`\n🚀 Malayali Store Backend running on port ${PORT}`);
     console.log(`📱 UPI ID: ${UPI_ID}`);
     console.log(`🏥 Health: http://localhost:${PORT}/api/health`);
     console.log(`🔄 Init DB: http://localhost:${PORT}/api/init-db`);
     console.log(`🐛 Debug: http://localhost:${PORT}/api/debug/tables`);
+    console.log(`\n⚠️ Make sure your Supabase environment variables are set correctly!`);
 });
