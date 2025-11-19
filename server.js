@@ -166,7 +166,7 @@ app.get('/api/keys/available/:brandId', async (req, res) => {
     }
 });
 
-// 5. Create order - FIXED AND SIMPLE
+// 5. Create order - FIXED: Better error handling and validation
 app.post('/api/create-order', async (req, res) => {
     try {
         const { orderId, brandId, planName, amount } = req.body;
@@ -175,7 +175,7 @@ app.post('/api/create-order', async (req, res) => {
 
         // Simple validation
         if (!orderId || !brandId || !planName || !amount) {
-            return res.json({ 
+            return res.status(400).json({ 
                 success: false, 
                 error: 'Please fill all fields' 
             });
@@ -184,6 +184,13 @@ app.post('/api/create-order', async (req, res) => {
         // Convert to proper types
         const brandIdInt = parseInt(brandId);
         const amountFloat = parseFloat(amount);
+
+        if (isNaN(brandIdInt)) {
+            return res.status(400).json({ 
+                success: false, 
+                error: 'Invalid brand ID' 
+            });
+        }
 
         // Check if keys are available
         const { data: availableKeys, error: keysError } = await supabase
@@ -196,13 +203,13 @@ app.post('/api/create-order', async (req, res) => {
             
         if (keysError) {
             console.error('❌ Keys check error:', keysError);
-            return res.json({ success: false, error: 'Error checking keys' });
+            return res.status(500).json({ success: false, error: 'Error checking keys' });
         }
             
         if (!availableKeys || availableKeys.length === 0) {
-            return res.json({ 
+            return res.status(400).json({ 
                 success: false, 
-                error: 'No keys available for this selection' 
+                error: 'NO_KEYS_AVAILABLE' 
             });
         }
 
@@ -212,8 +219,11 @@ app.post('/api/create-order', async (req, res) => {
             brand_id: brandIdInt,
             plan_name: planName,
             amount: amountFloat,
-            status: 'pending'
+            status: 'pending',
+            created_at: new Date().toISOString()
         };
+
+        console.log('💾 Inserting order:', orderData);
 
         const { data: order, error: orderError } = await supabase
             .from('orders')
@@ -223,7 +233,27 @@ app.post('/api/create-order', async (req, res) => {
             
         if (orderError) {
             console.error('❌ Order creation error:', orderError);
-            return res.json({ success: false, error: 'Failed to create order' });
+            
+            // Handle specific error cases
+            if (orderError.code === '23505') { // Unique violation
+                return res.status(400).json({ 
+                    success: false, 
+                    error: 'Order ID already exists' 
+                });
+            }
+            
+            if (orderError.code === '23503') { // Foreign key violation
+                return res.status(400).json({ 
+                    success: false, 
+                    error: 'Invalid brand ID' 
+                });
+            }
+            
+            return res.status(500).json({ 
+                success: false, 
+                error: 'Failed to create order',
+                details: orderError.message 
+            });
         }
 
         console.log(`✅ Order created: ${orderId}`);
@@ -236,9 +266,10 @@ app.post('/api/create-order', async (req, res) => {
 
     } catch (error) {
         console.error('❌ Order creation error:', error);
-        res.json({ 
+        res.status(500).json({ 
             success: false, 
-            error: 'Server error creating order' 
+            error: 'Server error creating order',
+            details: error.message 
         });
     }
 });
@@ -251,7 +282,7 @@ app.post('/api/verify-payment', async (req, res) => {
         console.log('💰 Verifying payment:', { orderId, utrNumber, transactionAmount });
 
         if (!orderId || !utrNumber || !transactionAmount) {
-            return res.json({ 
+            return res.status(400).json({ 
                 success: false, 
                 error: 'Order ID, UTR Number, and Amount are required' 
             });
@@ -265,12 +296,12 @@ app.post('/api/verify-payment', async (req, res) => {
             .single();
             
         if (orderError || !order) {
-            return res.json({ success: false, error: 'Order not found' });
+            return res.status(404).json({ success: false, error: 'Order not found' });
         }
 
         // Check if amount matches
         if (parseFloat(transactionAmount) !== parseFloat(order.amount)) {
-            return res.json({ 
+            return res.status(400).json({ 
                 success: false, 
                 error: 'Transaction amount does not match order amount' 
             });
@@ -285,10 +316,15 @@ app.post('/api/verify-payment', async (req, res) => {
             .eq('status', 'available')
             .limit(1);
             
-        if (keysError || !keys || keys.length === 0) {
-            return res.json({ 
+        if (keysError) {
+            console.error('❌ Keys fetch error:', keysError);
+            return res.status(500).json({ success: false, error: 'Error finding available key' });
+        }
+            
+        if (!keys || keys.length === 0) {
+            return res.status(400).json({ 
                 success: false, 
-                error: 'No keys available' 
+                error: 'NO_KEYS_AVAILABLE' 
             });
         }
         
@@ -298,25 +334,28 @@ app.post('/api/verify-payment', async (req, res) => {
             .from('keys')
             .update({
                 status: 'sold',
-                order_id: orderId
+                order_id: orderId,
+                sold_at: new Date().toISOString()
             })
             .eq('id', key.id);
             
         if (updateError) {
             console.error('❌ Key update error:', updateError);
-            return res.json({ success: false, error: 'Failed to assign key' });
+            return res.status(500).json({ success: false, error: 'Failed to assign key' });
         }
         
         // Update order status
         const { error: orderUpdateError } = await supabase
             .from('orders')
             .update({
-                status: 'completed'
+                status: 'completed',
+                completed_at: new Date().toISOString()
             })
             .eq('order_id', orderId);
             
         if (orderUpdateError) {
             console.error('❌ Order update error:', orderUpdateError);
+            return res.status(500).json({ success: false, error: 'Failed to update order status' });
         }
 
         console.log(`✅ Payment verified: ${orderId}`);
@@ -329,7 +368,7 @@ app.post('/api/verify-payment', async (req, res) => {
         
     } catch (error) {
         console.error('❌ Payment verification error:', error);
-        res.json({ success: false, error: 'Server error verifying payment' });
+        res.status(500).json({ success: false, error: 'Server error verifying payment' });
     }
 });
 
@@ -364,7 +403,7 @@ app.post('/api/admin/keys', async (req, res) => {
         console.log('➕ Adding key:', { brandId, plan, keyValue });
 
         if (!brandId || !plan || !keyValue) {
-            return res.json({ success: false, error: 'Please fill all fields' });
+            return res.status(400).json({ success: false, error: 'Please fill all fields' });
         }
 
         const { data, error } = await supabase
@@ -379,14 +418,14 @@ app.post('/api/admin/keys', async (req, res) => {
             
         if (error) {
             console.error('❌ Add key error:', error);
-            return res.json({ success: false, error: 'Failed to add key' });
+            return res.status(500).json({ success: false, error: 'Failed to add key' });
         }
         
         console.log('✅ Key added successfully');
         res.json({ success: true, key: data[0] });
     } catch (error) {
         console.error('❌ Add key error:', error);
-        res.json({ success: false, error: 'Server error adding key' });
+        res.status(500).json({ success: false, error: 'Server error adding key' });
     }
 });
 
@@ -400,10 +439,14 @@ app.delete('/api/admin/keys/:keyId', async (req, res) => {
             .delete()
             .eq('id', parseInt(keyId));
             
-        if (error) throw error;
+        if (error) {
+            console.error('❌ Delete key error:', error);
+            return res.status(500).json({ success: false, error: 'Failed to delete key' });
+        }
+        
         res.json({ success: true, message: 'Key deleted successfully' });
     } catch (error) {
-        console.error('Delete key error:', error);
+        console.error('❌ Delete key error:', error);
         res.status(500).json({ success: false, error: 'Failed to delete key' });
     }
 });
@@ -462,7 +505,7 @@ app.post('/api/admin/brands', async (req, res) => {
         console.log('🏪 Adding brand:', { name, description });
 
         if (!name) {
-            return res.json({ success: false, error: 'Brand name is required' });
+            return res.status(400).json({ success: false, error: 'Brand name is required' });
         }
 
         const { data, error } = await supabase
@@ -476,14 +519,14 @@ app.post('/api/admin/brands', async (req, res) => {
             
         if (error) {
             console.error('❌ Add brand error:', error);
-            return res.json({ success: false, error: 'Failed to add brand' });
+            return res.status(500).json({ success: false, error: 'Failed to add brand' });
         }
         
         console.log('✅ Brand added successfully');
         res.json({ success: true, brand: data[0] });
     } catch (error) {
         console.error('❌ Add brand error:', error);
-        res.json({ success: false, error: 'Server error adding brand' });
+        res.status(500).json({ success: false, error: 'Server error adding brand' });
     }
 });
 
@@ -496,7 +539,7 @@ app.post('/api/admin/brands/:brandId/plans', async (req, res) => {
         console.log('📅 Adding plan:', { brandId, name, price });
 
         if (!name || !price) {
-            return res.json({ success: false, error: 'Plan name and price are required' });
+            return res.status(400).json({ success: false, error: 'Plan name and price are required' });
         }
 
         // Get current brand
@@ -507,7 +550,7 @@ app.post('/api/admin/brands/:brandId/plans', async (req, res) => {
             .single();
             
         if (brandError || !brand) {
-            return res.json({ success: false, error: 'Brand not found' });
+            return res.status(404).json({ success: false, error: 'Brand not found' });
         }
         
         // Update plans array
@@ -523,14 +566,14 @@ app.post('/api/admin/brands/:brandId/plans', async (req, res) => {
             
         if (updateError) {
             console.error('❌ Add plan error:', updateError);
-            return res.json({ success: false, error: 'Failed to add plan' });
+            return res.status(500).json({ success: false, error: 'Failed to add plan' });
         }
         
         console.log('✅ Plan added successfully');
         res.json({ success: true, message: 'Plan added successfully' });
     } catch (error) {
         console.error('❌ Add plan error:', error);
-        res.json({ success: false, error: 'Server error adding plan' });
+        res.status(500).json({ success: false, error: 'Server error adding plan' });
     }
 });
 
