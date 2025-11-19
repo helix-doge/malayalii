@@ -217,7 +217,7 @@
 
     <script src="js/main.js"></script>
 
-    <!-- Payment Verification Modal -->
+<!-- Payment Verification Modal -->
 <div id="verification-modal" class="modal">
     <div class="modal-content terminal-modal">
         <div class="modal-header">
@@ -245,6 +245,9 @@
                         <div class="step-content">
                             <strong>Send ₹<span id="verification-amount-display">0</span> to UPI ID:</strong>
                             <div class="upi-id">malayalihere@ybl</div>
+                            <button class="copy-btn-terminal" onclick="copyUpi()">
+                                <i class="fas fa-copy"></i> COPY_UPI
+                            </button>
                         </div>
                     </div>
                     <div class="step">
@@ -252,13 +255,16 @@
                         <div class="step-content">
                             <strong>After payment, find UTR Number in your bank app</strong>
                             <div class="note">UTR is a 12-digit transaction reference number</div>
+                            <div class="note" style="color: var(--terminal-yellow);">
+                                <i class="fas fa-info-circle"></i> Look in your bank statement or UPI app
+                            </div>
                         </div>
                     </div>
                     <div class="step">
                         <div class="step-number">3</div>
                         <div class="step-content">
                             <strong>Enter UTR Number below to get your key</strong>
-                            <div class="note">Verification is manual and may take few minutes</div>
+                            <div class="note">Verification is manual and instant</div>
                         </div>
                     </div>
                 </div>
@@ -270,7 +276,11 @@
                         <i class="fas fa-hashtag"></i> UTR_NUMBER
                     </label>
                     <input type="text" id="utr-number" class="terminal-input" 
-                           placeholder="ENTER_12_DIGIT_UTR_NUMBER" maxlength="12">
+                           placeholder="ENTER_12_DIGIT_UTR_NUMBER" maxlength="16"
+                           style="font-family: monospace; letter-spacing: 1px;">
+                    <div class="note" style="font-size: 0.7rem; margin-top: 5px;">
+                        <i class="fas fa-key"></i> Example: 823479123456
+                    </div>
                 </div>
                 
                 <div class="form-group">
@@ -278,7 +288,10 @@
                         <i class="fas fa-rupee-sign"></i> TRANSACTION_AMOUNT
                     </label>
                     <input type="number" id="transaction-amount" class="terminal-input" 
-                           placeholder="ENTER_AMOUNT_YOU_PAID" value="">
+                           placeholder="ENTER_EXACT_AMOUNT_YOU_PAID">
+                    <div class="note" style="font-size: 0.7rem; margin-top: 5px;">
+                        <i class="fas fa-exclamation-triangle"></i> Must match order amount exactly
+                    </div>
                 </div>
                 
                 <div class="payment-actions">
