@@ -500,4 +500,436 @@ async function handleAddApp(e) {
 async function handleAddKey(e) {
     e.preventDefault();
     
-    const appId = parseInt(document.getElementById('key
+    const appId = parseInt(document.getElementById('key-app').value);
+    const duration = document.getElementById('key-duration').value;
+    const keyCode = document.getElementById('key-code').value.trim();
+    
+    if (!appId || !duration || !keyCode) {
+        showNotification('PLEASE_FILL_ALL_FIELDS', 'error');
+        return;
+    }
+    
+    try {
+        const response = await fetch(`${API_BASE_URL}/api/admin/keys`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                brandId: appId,
+                plan: duration,
+                keyValue: keyCode
+            })
+        });
+        
+        if (!response.ok) throw new Error('Network response was not ok');
+        
+        const data = await response.json();
+        
+        if (data.success) {
+            document.getElementById('add-key-modal').style.display = 'none';
+            showNotification('KEY_ADDED_SUCCESSFULLY', 'success');
+            await loadAdminData(); // Reload all data
+        } else {
+            throw new Error(data.error || 'Failed to add key');
+        }
+    } catch (error) {
+        console.error('Error adding key:', error);
+        showNotification('NETWORK_ERROR: CANNOT_ADD_KEY', 'error');
+    }
+}
+
+async function handleAddDuration(e) {
+    e.preventDefault();
+    
+    const appId = parseInt(document.getElementById('duration-app').value);
+    const name = document.getElementById('duration-name').value.trim();
+    const price = parseFloat(document.getElementById('duration-price').value);
+    
+    if (!appId || !name || !price || price < 0) {
+        showNotification('PLEASE_FILL_ALL_FIELDS_CORRECTLY', 'error');
+        return;
+    }
+    
+    try {
+        const response = await fetch(`${API_BASE_URL}/api/admin/brands/${appId}/plans`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                name: name,
+                price: price
+            })
+        });
+        
+        if (!response.ok) throw new Error('Network response was not ok');
+        
+        const data = await response.json();
+        
+        if (data.success) {
+            document.getElementById('add-duration-modal').style.display = 'none';
+            showNotification('DURATION_ADDED_SUCCESSFULLY', 'success');
+            await loadAdminData(); // Reload all data
+        } else {
+            throw new Error(data.error || 'Failed to add duration');
+        }
+    } catch (error) {
+        console.error('Error adding duration:', error);
+        showNotification('NETWORK_ERROR: CANNOT_ADD_DURATION', 'error');
+    }
+}
+
+async function handleEditDuration(e) {
+    e.preventDefault();
+    
+    const appId = parseInt(document.getElementById('edit-duration-app-id').value);
+    const index = parseInt(document.getElementById('edit-duration-index').value);
+    const name = document.getElementById('edit-duration-name').value.trim();
+    const price = parseFloat(document.getElementById('edit-duration-price').value);
+    
+    if (!appId || !name || !price || price < 0) {
+        showNotification('PLEASE_FILL_ALL_FIELDS_CORRECTLY', 'error');
+        return;
+    }
+    
+    try {
+        const brand = brandsData.find(b => b.id === appId);
+        if (!brand) {
+            showNotification('APPLICATION_NOT_FOUND', 'error');
+            return;
+        }
+        
+        // Update the plan locally first
+        const updatedPlans = [...brand.plans];
+        updatedPlans[index] = { name: name, price: price };
+        
+        const response = await fetch(`${API_BASE_URL}/api/admin/brands/${appId}/plans`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                name: name,
+                price: price
+            })
+        });
+        
+        if (!response.ok) throw new Error('Network response was not ok');
+        
+        const data = await response.json();
+        
+        if (data.success) {
+            document.getElementById('edit-duration-modal').style.display = 'none';
+            showNotification('DURATION_UPDATED_SUCCESSFULLY', 'success');
+            await loadAdminData(); // Reload all data
+        } else {
+            throw new Error(data.error || 'Failed to update duration');
+        }
+    } catch (error) {
+        console.error('Error updating duration:', error);
+        showNotification('NETWORK_ERROR: CANNOT_UPDATE_DURATION', 'error');
+    }
+}
+
+async function handleDeleteDuration() {
+    const appId = parseInt(document.getElementById('edit-duration-app-id').value);
+    const index = parseInt(document.getElementById('edit-duration-index').value);
+    
+    if (!appId || isNaN(index)) {
+        showNotification('INVALID_DURATION_SELECTION', 'error');
+        return;
+    }
+    
+    if (!confirm('CONFIRM_DURATION_DELETION?\nTHIS_ACTION_CANNOT_BE_UNDONE.')) {
+        return;
+    }
+    
+    try {
+        const brand = brandsData.find(b => b.id === appId);
+        if (!brand || !brand.plans || !brand.plans[index]) {
+            showNotification('DURATION_NOT_FOUND', 'error');
+            return;
+        }
+        
+        // Remove the plan from the array
+        const updatedPlans = brand.plans.filter((_, i) => i !== index);
+        
+        // Update the brand with the new plans array
+        const response = await fetch(`${API_BASE_URL}/api/admin/brands/${appId}`, {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                plans: updatedPlans
+            })
+        });
+        
+        if (!response.ok) throw new Error('Network response was not ok');
+        
+        const data = await response.json();
+        
+        if (data.success) {
+            document.getElementById('edit-duration-modal').style.display = 'none';
+            showNotification('DURATION_DELETED_SUCCESSFULLY', 'success');
+            await loadAdminData(); // Reload all data
+        } else {
+            throw new Error(data.error || 'Failed to delete duration');
+        }
+    } catch (error) {
+        console.error('Error deleting duration:', error);
+        showNotification('NETWORK_ERROR: CANNOT_DELETE_DURATION', 'error');
+    }
+}
+
+async function handleAddCoupon() {
+    const code = document.getElementById('coupon-code').value.trim();
+    const discount = parseInt(document.getElementById('coupon-discount').value);
+    const validity = document.getElementById('coupon-validity').value;
+    
+    if (!code || !discount || discount < 1 || discount > 100) {
+        showNotification('PLEASE_ENTER_VALID_COUPON_DETAILS', 'error');
+        return;
+    }
+    
+    try {
+        // For now, we'll store coupons in localStorage since we don't have a backend endpoint
+        const coupon = {
+            id: Date.now(),
+            code: code.toUpperCase(),
+            discount: discount,
+            validity: validity,
+            created_at: new Date().toISOString(),
+            status: 'active'
+        };
+        
+        couponsData.push(coupon);
+        localStorage.setItem('admin_coupons', JSON.stringify(couponsData));
+        
+        document.getElementById('coupon-code').value = '';
+        document.getElementById('coupon-discount').value = '';
+        document.getElementById('coupon-validity').value = '';
+        
+        showNotification('COUPON_ADDED_SUCCESSFULLY', 'success');
+        await loadCoupons();
+        
+    } catch (error) {
+        console.error('Error adding coupon:', error);
+        showNotification('FAILED_TO_ADD_COUPON', 'error');
+    }
+}
+
+async function loadCoupons() {
+    try {
+        // Load coupons from localStorage
+        const storedCoupons = localStorage.getItem('admin_coupons');
+        couponsData = storedCoupons ? JSON.parse(storedCoupons) : [];
+        
+        const couponsList = document.getElementById('coupons-list');
+        
+        if (couponsData.length === 0) {
+            couponsList.innerHTML = `
+                <div style="text-align: center; padding: 20px; color: var(--terminal-cyan);">
+                    <i class="fas fa-tag" style="font-size: 2rem; margin-bottom: 10px; display: block;"></i>
+                    NO_COUPONS_CONFIGURED
+                </div>
+            `;
+            return;
+        }
+        
+        couponsList.innerHTML = `
+            <h3 style="color: var(--terminal-cyan); margin-bottom: 15px;">ACTIVE_COUPONS (${couponsData.length})</h3>
+            <div class="coupons-grid">
+                ${couponsData.map(coupon => `
+                    <div class="coupon-item" style="background: rgba(0,255,0,0.1); border: 1px solid var(--terminal-green); padding: 15px; margin-bottom: 10px;">
+                        <div style="display: flex; justify-content: between; align-items: center;">
+                            <div>
+                                <strong style="color: var(--terminal-cyan);">${coupon.code}</strong>
+                                <div style="font-size: 0.8rem; color: var(--terminal-text);">
+                                    ${coupon.discount}% OFF • Valid until: ${coupon.validity || 'No expiry'}
+                                </div>
+                            </div>
+                            <button class="delete-coupon-btn hack-btn-sm" data-coupon-id="${coupon.id}">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </div>
+                    </div>
+                `).join('')}
+            </div>
+        `;
+        
+        // Add event listeners to delete coupon buttons
+        document.querySelectorAll('.delete-coupon-btn').forEach(button => {
+            button.addEventListener('click', function() {
+                const couponId = parseInt(this.getAttribute('data-coupon-id'));
+                deleteCoupon(couponId);
+            });
+        });
+        
+    } catch (error) {
+        console.error('Error loading coupons:', error);
+    }
+}
+
+async function deleteCoupon(couponId) {
+    if (!confirm('CONFIRM_COUPON_DELETION?')) {
+        return;
+    }
+    
+    try {
+        couponsData = couponsData.filter(coupon => coupon.id !== couponId);
+        localStorage.setItem('admin_coupons', JSON.stringify(couponsData));
+        
+        showNotification('COUPON_DELETED_SUCCESSFULLY', 'success');
+        await loadCoupons();
+        
+    } catch (error) {
+        console.error('Error deleting coupon:', error);
+        showNotification('FAILED_TO_DELETE_COUPON', 'error');
+    }
+}
+
+async function deleteApp(appId) {
+    if (!confirm('CONFIRM_APPLICATION_DELETION?\nTHIS_WILL_ALSO_DELETE_ALL_ASSOCIATED_KEYS.\nTHIS_ACTION_CANNOT_BE_UNDONE.')) {
+        return;
+    }
+    
+    try {
+        // First, check if there are any keys associated with this app
+        const keysResponse = await fetch(`${API_BASE_URL}/api/admin/keys`);
+        if (keysResponse.ok) {
+            const keysData = await keysResponse.json();
+            const appKeys = keysData.keys ? keysData.keys.filter(key => key.brand_id === appId) : [];
+            
+            if (appKeys.length > 0) {
+                if (!confirm(`WARNING: This application has ${appKeys.length} keys associated with it. Deleting the application will also delete all these keys. Continue?`)) {
+                    return;
+                }
+            }
+        }
+        
+        // Delete the application
+        const response = await fetch(`${API_BASE_URL}/api/admin/brands/${appId}`, {
+            method: 'DELETE'
+        });
+        
+        if (!response.ok) throw new Error('Network response was not ok');
+        
+        const data = await response.json();
+        
+        if (data.success) {
+            showNotification('APPLICATION_DELETED_SUCCESSFULLY', 'success');
+            await loadAdminData(); // Reload all data
+        } else {
+            throw new Error(data.error || 'Failed to delete application');
+        }
+    } catch (error) {
+        console.error('Error deleting application:', error);
+        showNotification('NETWORK_ERROR: CANNOT_DELETE_APPLICATION', 'error');
+    }
+}
+
+async function deleteKey(keyId) {
+    if (!confirm('CONFIRM_KEY_DELETION?\nTHIS_ACTION_CANNOT_BE_UNDONE.')) {
+        return;
+    }
+    
+    try {
+        const response = await fetch(`${API_BASE_URL}/api/admin/keys/${keyId}`, {
+            method: 'DELETE'
+        });
+        
+        if (!response.ok) throw new Error('Network response was not ok');
+        
+        const data = await response.json();
+        
+        if (data.success) {
+            showNotification('KEY_DELETED_SUCCESSFULLY', 'success');
+            await loadAdminData(); // Reload all data
+        } else {
+            throw new Error(data.error || 'Failed to delete key');
+        }
+    } catch (error) {
+        console.error('Error deleting key:', error);
+        showNotification('NETWORK_ERROR: CANNOT_DELETE_KEY', 'error');
+    }
+}
+
+function startServerTime() {
+    function updateTime() {
+        const now = new Date();
+        const timeString = now.toLocaleString('en-US', {
+            year: 'numeric',
+            month: '2-digit',
+            day: '2-digit',
+            hour: '2-digit',
+            minute: '2-digit',
+            second: '2-digit',
+            hour12: false
+        }).replace(',', '');
+        
+        document.getElementById('server-time').textContent = `SYSTEM_TIME: ${timeString}`;
+    }
+    
+    updateTime();
+    setInterval(updateTime, 1000);
+}
+
+function showNotification(message, type = 'info') {
+    // Remove existing notifications
+    document.querySelectorAll('.notification').forEach(n => n.remove());
+    
+    const notification = document.createElement('div');
+    notification.className = `notification ${type}`;
+    notification.innerHTML = `
+        <span class="notification-icon">
+            <i class="fas fa-${type === 'success' ? 'check' : type === 'error' ? 'exclamation-triangle' : 'info'}"></i>
+        </span>
+        <span class="notification-text">${message}</span>
+    `;
+    
+    notification.style.cssText = `
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        background: ${type === 'success' ? 'rgba(0,255,0,0.1)' : type === 'error' ? 'rgba(255,0,0,0.1)' : 'rgba(0,255,255,0.1)'};
+        border: 1px solid ${type === 'success' ? 'var(--terminal-green)' : type === 'error' ? 'var(--terminal-red)' : 'var(--terminal-cyan)'};
+        color: var(--terminal-text);
+        padding: 15px 20px;
+        font-family: 'Share Tech Mono', monospace;
+        z-index: 10000;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        max-width: 400px;
+        animation: slideIn 0.3s ease;
+    `;
+    
+    document.body.appendChild(notification);
+    
+    setTimeout(() => {
+        notification.style.animation = 'slideOut 0.3s ease';
+        setTimeout(() => notification.remove(), 300);
+    }, 4000);
+}
+
+// Utility function to copy to clipboard
+function copyToClipboard(text) {
+    if (navigator.clipboard && window.isSecureContext) {
+        navigator.clipboard.writeText(text);
+    } else {
+        // Fallback for older browsers
+        const textArea = document.createElement('textarea');
+        textArea.value = text;
+        document.body.appendChild(textArea);
+        textArea.select();
+        document.execCommand('copy');
+        document.body.removeChild(textArea);
+    }
+}
+
+// Make functions globally available
+window.showNotification = showNotification;
+
+console.log('🎉 Admin panel loaded successfully');
