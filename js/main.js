@@ -128,8 +128,8 @@ function setupEventListeners() {
         }
     });
     
-    // Enter key in custom code
-    document.getElementById('custom-code').addEventListener('keypress', function(e) {
+    // Enter key in coupon code (changed from custom code)
+    document.getElementById('coupon-code').addEventListener('keypress', function(e) {
         if (e.key === 'Enter' && !elements.purchaseBtn.disabled) {
             elements.purchaseBtn.click();
         }
@@ -207,16 +207,16 @@ function loadPlans(brand) {
     updatePurchaseButton();
 }
 
-// Update purchase button state
+// Update purchase button state (changed from INITIATE_PURCHASE to PURCHASE)
 function updatePurchaseButton() {
     if (currentBrand && currentPlan) {
         elements.purchaseBtn.disabled = false;
         elements.purchaseBtn.querySelector('.btn-text').innerHTML = 
-            `<i class="fas fa-bolt"></i> INITIATE_PURCHASE - ₹${currentPrice}`;
+            `<i class="fas fa-shopping-cart"></i> PURCHASE - ₹${currentPrice}`;
     } else {
         elements.purchaseBtn.disabled = true;
         elements.purchaseBtn.querySelector('.btn-text').innerHTML = 
-            '<i class="fas fa-bolt"></i> INITIATE_PURCHASE - ₹0';
+            '<i class="fas fa-shopping-cart"></i> PURCHASE - ₹0';
     }
 }
 
@@ -306,7 +306,7 @@ async function openPaymentModal() {
     }
 }
 
-// Update payment UI elements - THIS WAS MISSING
+// Update payment UI elements
 function updatePaymentUI() {
     document.getElementById('summary-brand').textContent = currentBrand.name.toUpperCase();
     document.getElementById('summary-plan').textContent = currentPlan.name.toUpperCase();
