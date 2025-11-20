@@ -1,19 +1,18 @@
-// Backend API URL - UPDATE THIS WITH YOUR RENDER URL
+// Backend API URL
 const API_BASE_URL = 'https://malayali-store-backend.onrender.com';
 
 // Global variables
 let brandsData = [];
 let keysData = [];
+let couponsData = [];
 
 // Admin authentication check
 document.addEventListener('DOMContentLoaded', function() {
-    // Check if user is logged in
     if (localStorage.getItem('adminLoggedIn') !== 'true') {
         window.location.href = 'admin-login.html';
         return;
     }
 
-    // Check session timeout (24 hours)
     const loginTime = localStorage.getItem('adminLoginTime');
     const currentTime = new Date().getTime();
     const hoursSinceLogin = (currentTime - new Date(loginTime).getTime()) / (1000 * 60 * 60);
@@ -47,6 +46,7 @@ async function loadAdminData() {
     await loadAppsGrid();
     await loadFilters();
     await loadKeysTable();
+    await loadCoupons();
 }
 
 async function loadBrands() {
@@ -83,6 +83,9 @@ function setupAdminEvents() {
     // Add app button
     document.getElementById('add-app-btn').addEventListener('click', openAddAppModal);
     
+    // Manage coupons button
+    document.getElementById('manage-coupons-btn').addEventListener('click', openCouponsModal);
+    
     // Add key button
     document.getElementById('add-key-btn').addEventListener('click', openAddKeyModal);
     
@@ -90,6 +93,11 @@ function setupAdminEvents() {
     document.getElementById('app-form').addEventListener('submit', handleAddApp);
     document.getElementById('key-form').addEventListener('submit', handleAddKey);
     document.getElementById('duration-form').addEventListener('submit', handleAddDuration);
+    document.getElementById('edit-duration-form').addEventListener('submit', handleEditDuration);
+    document.getElementById('add-coupon-btn').addEventListener('click', handleAddCoupon);
+    
+    // Delete duration button
+    document.getElementById('delete-duration-btn').addEventListener('click', handleDeleteDuration);
     
     // Search and filter events
     document.getElementById('key-search').addEventListener('input', debounce(loadKeysTable, 300));
@@ -198,10 +206,13 @@ async function loadAppsGrid() {
                     </div>
                 </div>
                 <div class="app-durations">
-                    ${(brand.plans || []).map(plan => `
+                    ${(brand.plans || []).map((plan, index) => `
                         <div class="duration-item">
                             <span>${plan.name}</span>
                             <span>₹${plan.price}</span>
+                            <button class="edit-duration-btn" data-app-id="${brand.id}" data-index="${index}">
+                                <i class="fas fa-edit"></i>
+                            </button>
                         </div>
                     `).join('')}
                 </div>
@@ -209,17 +220,35 @@ async function loadAppsGrid() {
                     <button class="hack-btn-sm add-duration-btn" data-app-id="${brand.id}">
                         <i class="fas fa-plus"></i> ADD_DURATION
                     </button>
+                    <button class="hack-btn-sm delete-app-btn" data-app-id="${brand.id}">
+                        <i class="fas fa-trash"></i> DELETE_APP
+                    </button>
                 </div>
             `;
             
             appsGrid.appendChild(appCard);
         }
         
-        // Add event listeners to duration buttons
+        // Add event listeners
         document.querySelectorAll('.add-duration-btn').forEach(button => {
             button.addEventListener('click', function() {
                 const appId = parseInt(this.getAttribute('data-app-id'));
                 openAddDurationModal(appId);
+            });
+        });
+        
+        document.querySelectorAll('.edit-duration-btn').forEach(button => {
+            button.addEventListener('click', function() {
+                const appId = parseInt(this.getAttribute('data-app-id'));
+                const index = parseInt(this.getAttribute('data-index'));
+                openEditDurationModal(appId, index);
+            });
+        });
+        
+        document.querySelectorAll('.delete-app-btn').forEach(button => {
+            button.addEventListener('click', function() {
+                const appId = parseInt(this.getAttribute('data-app-id'));
+                deleteApp(appId);
             });
         });
         
@@ -405,6 +434,28 @@ function openAddDurationModal(appId = null) {
     document.getElementById('duration-name').focus();
 }
 
+function openEditDurationModal(appId, index) {
+    const brand = brandsData.find(b => b.id === appId);
+    if (!brand || !brand.plans || !brand.plans[index]) {
+        showNotification('DURATION_NOT_FOUND', 'error');
+        return;
+    }
+    
+    const plan = brand.plans[index];
+    
+    document.getElementById('edit-duration-app-id').value = appId;
+    document.getElementById('edit-duration-index').value = index;
+    document.getElementById('edit-duration-name').value = plan.name;
+    document.getElementById('edit-duration-price').value = plan.price;
+    
+    document.getElementById('edit-duration-modal').style.display = 'block';
+}
+
+function openCouponsModal() {
+    document.getElementById('coupons-modal').style.display = 'block';
+    document.getElementById('coupon-code').focus();
+}
+
 // Form handlers
 async function handleAddApp(e) {
     e.preventDefault();
@@ -449,189 +500,4 @@ async function handleAddApp(e) {
 async function handleAddKey(e) {
     e.preventDefault();
     
-    const appId = parseInt(document.getElementById('key-app').value);
-    const duration = document.getElementById('key-duration').value;
-    const keyCode = document.getElementById('key-code').value.trim();
-    
-    if (!appId || !duration || !keyCode) {
-        showNotification('PLEASE_FILL_ALL_FIELDS', 'error');
-        return;
-    }
-    
-    try {
-        const response = await fetch(`${API_BASE_URL}/api/admin/keys`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-                brandId: appId,
-                plan: duration,
-                keyValue: keyCode
-            })
-        });
-        
-        if (!response.ok) throw new Error('Network response was not ok');
-        
-        const data = await response.json();
-        
-        if (data.success) {
-            document.getElementById('add-key-modal').style.display = 'none';
-            showNotification('KEY_ADDED_SUCCESSFULLY', 'success');
-            await loadAdminData(); // Reload all data
-        } else {
-            throw new Error(data.error || 'Failed to add key');
-        }
-    } catch (error) {
-        console.error('Error adding key:', error);
-        showNotification('NETWORK_ERROR: CANNOT_ADD_KEY', 'error');
-    }
-}
-
-async function handleAddDuration(e) {
-    e.preventDefault();
-    
-    const appId = parseInt(document.getElementById('duration-app').value);
-    const name = document.getElementById('duration-name').value.trim();
-    const price = parseFloat(document.getElementById('duration-price').value);
-    
-    if (!appId || !name || !price || price < 0) {
-        showNotification('PLEASE_FILL_ALL_FIELDS_CORRECTLY', 'error');
-        return;
-    }
-    
-    try {
-        const response = await fetch(`${API_BASE_URL}/api/admin/brands/${appId}/plans`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-                name: name,
-                price: price
-            })
-        });
-        
-        if (!response.ok) throw new Error('Network response was not ok');
-        
-        const data = await response.json();
-        
-        if (data.success) {
-            document.getElementById('add-duration-modal').style.display = 'none';
-            showNotification('DURATION_ADDED_SUCCESSFULLY', 'success');
-            await loadAdminData(); // Reload all data
-        } else {
-            throw new Error(data.error || 'Failed to add duration');
-        }
-    } catch (error) {
-        console.error('Error adding duration:', error);
-        showNotification('NETWORK_ERROR: CANNOT_ADD_DURATION', 'error');
-    }
-}
-
-async function deleteKey(keyId) {
-    if (!confirm('CONFIRM_KEY_DELETION?\nTHIS_ACTION_CANNOT_BE_UNDONE.')) {
-        return;
-    }
-    
-    try {
-        const response = await fetch(`${API_BASE_URL}/api/admin/keys/${keyId}`, {
-            method: 'DELETE'
-        });
-        
-        if (!response.ok) throw new Error('Network response was not ok');
-        
-        const data = await response.json();
-        
-        if (data.success) {
-            showNotification('KEY_DELETED_SUCCESSFULLY', 'success');
-            await loadAdminData(); // Reload all data
-        } else {
-            throw new Error(data.error || 'Failed to delete key');
-        }
-    } catch (error) {
-        console.error('Error deleting key:', error);
-        showNotification('NETWORK_ERROR: CANNOT_DELETE_KEY', 'error');
-    }
-}
-
-function startServerTime() {
-    function updateTime() {
-        const now = new Date();
-        const timeString = now.toLocaleString('en-US', {
-            year: 'numeric',
-            month: '2-digit',
-            day: '2-digit',
-            hour: '2-digit',
-            minute: '2-digit',
-            second: '2-digit',
-            hour12: false
-        }).replace(',', '');
-        
-        document.getElementById('server-time').textContent = `SYSTEM_TIME: ${timeString}`;
-    }
-    
-    updateTime();
-    setInterval(updateTime, 1000);
-}
-
-function showNotification(message, type = 'info') {
-    // Remove existing notifications
-    document.querySelectorAll('.notification').forEach(n => n.remove());
-    
-    const notification = document.createElement('div');
-    notification.className = `notification ${type}`;
-    notification.innerHTML = `
-        <span class="notification-icon">
-            <i class="fas fa-${type === 'success' ? 'check' : type === 'error' ? 'exclamation-triangle' : 'info'}"></i>
-        </span>
-        <span class="notification-text">${message}</span>
-    `;
-    
-    notification.style.cssText = `
-        position: fixed;
-        top: 20px;
-        right: 20px;
-        background: ${type === 'success' ? 'rgba(0,255,0,0.1)' : type === 'error' ? 'rgba(255,0,0,0.1)' : 'rgba(0,255,255,0.1)'};
-        border: 1px solid ${type === 'success' ? 'var(--terminal-green)' : type === 'error' ? 'var(--terminal-red)' : 'var(--terminal-cyan)'};
-        color: var(--terminal-text);
-        padding: 15px 20px;
-        font-family: 'Share Tech Mono', monospace;
-        z-index: 10000;
-        display: flex;
-        align-items: center;
-        gap: 10px;
-        max-width: 400px;
-        animation: slideIn 0.3s ease;
-    `;
-    
-    document.body.appendChild(notification);
-    
-    setTimeout(() => {
-        notification.style.animation = 'slideOut 0.3s ease';
-        setTimeout(() => notification.remove(), 300);
-    }, 4000);
-}
-
-// Make functions globally available
-window.showNotification = showNotification;
-
-// Utility function to copy to clipboard
-function copyToClipboard(text) {
-    if (navigator.clipboard && window.isSecureContext) {
-        navigator.clipboard.writeText(text);
-    } else {
-        // Fallback for older browsers
-        const textArea = document.createElement('textarea');
-        textArea.value = text;
-        document.body.appendChild(textArea);
-        textArea.select();
-        document.execCommand('copy');
-        document.body.removeChild(textArea);
-    }
-}
-
-// Make functions globally available
-window.showNotification = showNotification;
-
-console.log('🎉 Admin panel loaded successfully');
+    const appId = parseInt(document.getElementById('key
