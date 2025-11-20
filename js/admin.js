@@ -1,18 +1,19 @@
-// Backend API URL
+// Backend API URL - UPDATE THIS WITH YOUR RENDER URL
 const API_BASE_URL = 'https://malayali-store-backend.onrender.com';
 
 // Global variables
 let brandsData = [];
 let keysData = [];
-let couponsData = [];
 
 // Admin authentication check
 document.addEventListener('DOMContentLoaded', function() {
+    // Check if user is logged in
     if (localStorage.getItem('adminLoggedIn') !== 'true') {
         window.location.href = 'admin-login.html';
         return;
     }
 
+    // Check session timeout (24 hours)
     const loginTime = localStorage.getItem('adminLoginTime');
     const currentTime = new Date().getTime();
     const hoursSinceLogin = (currentTime - new Date(loginTime).getTime()) / (1000 * 60 * 60);
@@ -46,7 +47,6 @@ async function loadAdminData() {
     await loadAppsGrid();
     await loadFilters();
     await loadKeysTable();
-    await loadCoupons();
 }
 
 async function loadBrands() {
@@ -83,9 +83,6 @@ function setupAdminEvents() {
     // Add app button
     document.getElementById('add-app-btn').addEventListener('click', openAddAppModal);
     
-    // Manage coupons button
-    document.getElementById('manage-coupons-btn').addEventListener('click', openCouponsModal);
-    
     // Add key button
     document.getElementById('add-key-btn').addEventListener('click', openAddKeyModal);
     
@@ -93,11 +90,6 @@ function setupAdminEvents() {
     document.getElementById('app-form').addEventListener('submit', handleAddApp);
     document.getElementById('key-form').addEventListener('submit', handleAddKey);
     document.getElementById('duration-form').addEventListener('submit', handleAddDuration);
-    document.getElementById('edit-duration-form').addEventListener('submit', handleEditDuration);
-    document.getElementById('add-coupon-btn').addEventListener('click', handleAddCoupon);
-    
-    // Delete duration button
-    document.getElementById('delete-duration-btn').addEventListener('click', handleDeleteDuration);
     
     // Search and filter events
     document.getElementById('key-search').addEventListener('input', debounce(loadKeysTable, 300));
@@ -206,13 +198,10 @@ async function loadAppsGrid() {
                     </div>
                 </div>
                 <div class="app-durations">
-                    ${(brand.plans || []).map((plan, index) => `
+                    ${(brand.plans || []).map(plan => `
                         <div class="duration-item">
                             <span>${plan.name}</span>
                             <span>₹${plan.price}</span>
-                            <button class="edit-duration-btn" data-app-id="${brand.id}" data-index="${index}">
-                                <i class="fas fa-edit"></i>
-                            </button>
                         </div>
                     `).join('')}
                 </div>
@@ -220,35 +209,17 @@ async function loadAppsGrid() {
                     <button class="hack-btn-sm add-duration-btn" data-app-id="${brand.id}">
                         <i class="fas fa-plus"></i> ADD_DURATION
                     </button>
-                    <button class="hack-btn-sm delete-app-btn" data-app-id="${brand.id}">
-                        <i class="fas fa-trash"></i> DELETE_APP
-                    </button>
                 </div>
             `;
             
             appsGrid.appendChild(appCard);
         }
         
-        // Add event listeners
+        // Add event listeners to duration buttons
         document.querySelectorAll('.add-duration-btn').forEach(button => {
             button.addEventListener('click', function() {
                 const appId = parseInt(this.getAttribute('data-app-id'));
                 openAddDurationModal(appId);
-            });
-        });
-        
-        document.querySelectorAll('.edit-duration-btn').forEach(button => {
-            button.addEventListener('click', function() {
-                const appId = parseInt(this.getAttribute('data-app-id'));
-                const index = parseInt(this.getAttribute('data-index'));
-                openEditDurationModal(appId, index);
-            });
-        });
-        
-        document.querySelectorAll('.delete-app-btn').forEach(button => {
-            button.addEventListener('click', function() {
-                const appId = parseInt(this.getAttribute('data-app-id'));
-                deleteApp(appId);
             });
         });
         
@@ -434,28 +405,6 @@ function openAddDurationModal(appId = null) {
     document.getElementById('duration-name').focus();
 }
 
-function openEditDurationModal(appId, index) {
-    const brand = brandsData.find(b => b.id === appId);
-    if (!brand || !brand.plans || !brand.plans[index]) {
-        showNotification('DURATION_NOT_FOUND', 'error');
-        return;
-    }
-    
-    const plan = brand.plans[index];
-    
-    document.getElementById('edit-duration-app-id').value = appId;
-    document.getElementById('edit-duration-index').value = index;
-    document.getElementById('edit-duration-name').value = plan.name;
-    document.getElementById('edit-duration-price').value = plan.price;
-    
-    document.getElementById('edit-duration-modal').style.display = 'block';
-}
-
-function openCouponsModal() {
-    document.getElementById('coupons-modal').style.display = 'block';
-    document.getElementById('coupon-code').focus();
-}
-
 // Form handlers
 async function handleAddApp(e) {
     e.preventDefault();
@@ -580,256 +529,6 @@ async function handleAddDuration(e) {
     }
 }
 
-async function handleEditDuration(e) {
-    e.preventDefault();
-    
-    const appId = parseInt(document.getElementById('edit-duration-app-id').value);
-    const index = parseInt(document.getElementById('edit-duration-index').value);
-    const name = document.getElementById('edit-duration-name').value.trim();
-    const price = parseFloat(document.getElementById('edit-duration-price').value);
-    
-    if (!appId || !name || !price || price < 0) {
-        showNotification('PLEASE_FILL_ALL_FIELDS_CORRECTLY', 'error');
-        return;
-    }
-    
-    try {
-        const brand = brandsData.find(b => b.id === appId);
-        if (!brand) {
-            showNotification('APPLICATION_NOT_FOUND', 'error');
-            return;
-        }
-        
-        // Update the plan locally first
-        const updatedPlans = [...brand.plans];
-        updatedPlans[index] = { name: name, price: price };
-        
-        const response = await fetch(`${API_BASE_URL}/api/admin/brands/${appId}/plans`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-                name: name,
-                price: price
-            })
-        });
-        
-        if (!response.ok) throw new Error('Network response was not ok');
-        
-        const data = await response.json();
-        
-        if (data.success) {
-            document.getElementById('edit-duration-modal').style.display = 'none';
-            showNotification('DURATION_UPDATED_SUCCESSFULLY', 'success');
-            await loadAdminData(); // Reload all data
-        } else {
-            throw new Error(data.error || 'Failed to update duration');
-        }
-    } catch (error) {
-        console.error('Error updating duration:', error);
-        showNotification('NETWORK_ERROR: CANNOT_UPDATE_DURATION', 'error');
-    }
-}
-
-async function handleDeleteDuration() {
-    const appId = parseInt(document.getElementById('edit-duration-app-id').value);
-    const index = parseInt(document.getElementById('edit-duration-index').value);
-    
-    if (!appId || isNaN(index)) {
-        showNotification('INVALID_DURATION_SELECTION', 'error');
-        return;
-    }
-    
-    if (!confirm('CONFIRM_DURATION_DELETION?\nTHIS_ACTION_CANNOT_BE_UNDONE.')) {
-        return;
-    }
-    
-    try {
-        const brand = brandsData.find(b => b.id === appId);
-        if (!brand || !brand.plans || !brand.plans[index]) {
-            showNotification('DURATION_NOT_FOUND', 'error');
-            return;
-        }
-        
-        // Remove the plan from the array
-        const updatedPlans = brand.plans.filter((_, i) => i !== index);
-        
-        // Update the brand with the new plans array
-        const response = await fetch(`${API_BASE_URL}/api/admin/brands/${appId}`, {
-            method: 'PUT',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-                plans: updatedPlans
-            })
-        });
-        
-        if (!response.ok) throw new Error('Network response was not ok');
-        
-        const data = await response.json();
-        
-        if (data.success) {
-            document.getElementById('edit-duration-modal').style.display = 'none';
-            showNotification('DURATION_DELETED_SUCCESSFULLY', 'success');
-            await loadAdminData(); // Reload all data
-        } else {
-            throw new Error(data.error || 'Failed to delete duration');
-        }
-    } catch (error) {
-        console.error('Error deleting duration:', error);
-        showNotification('NETWORK_ERROR: CANNOT_DELETE_DURATION', 'error');
-    }
-}
-
-async function handleAddCoupon() {
-    const code = document.getElementById('coupon-code').value.trim();
-    const discount = parseInt(document.getElementById('coupon-discount').value);
-    const validity = document.getElementById('coupon-validity').value;
-    
-    if (!code || !discount || discount < 1 || discount > 100) {
-        showNotification('PLEASE_ENTER_VALID_COUPON_DETAILS', 'error');
-        return;
-    }
-    
-    try {
-        // For now, we'll store coupons in localStorage since we don't have a backend endpoint
-        const coupon = {
-            id: Date.now(),
-            code: code.toUpperCase(),
-            discount: discount,
-            validity: validity,
-            created_at: new Date().toISOString(),
-            status: 'active'
-        };
-        
-        couponsData.push(coupon);
-        localStorage.setItem('admin_coupons', JSON.stringify(couponsData));
-        
-        document.getElementById('coupon-code').value = '';
-        document.getElementById('coupon-discount').value = '';
-        document.getElementById('coupon-validity').value = '';
-        
-        showNotification('COUPON_ADDED_SUCCESSFULLY', 'success');
-        await loadCoupons();
-        
-    } catch (error) {
-        console.error('Error adding coupon:', error);
-        showNotification('FAILED_TO_ADD_COUPON', 'error');
-    }
-}
-
-async function loadCoupons() {
-    try {
-        // Load coupons from localStorage
-        const storedCoupons = localStorage.getItem('admin_coupons');
-        couponsData = storedCoupons ? JSON.parse(storedCoupons) : [];
-        
-        const couponsList = document.getElementById('coupons-list');
-        
-        if (couponsData.length === 0) {
-            couponsList.innerHTML = `
-                <div style="text-align: center; padding: 20px; color: var(--terminal-cyan);">
-                    <i class="fas fa-tag" style="font-size: 2rem; margin-bottom: 10px; display: block;"></i>
-                    NO_COUPONS_CONFIGURED
-                </div>
-            `;
-            return;
-        }
-        
-        couponsList.innerHTML = `
-            <h3 style="color: var(--terminal-cyan); margin-bottom: 15px;">ACTIVE_COUPONS (${couponsData.length})</h3>
-            <div class="coupons-grid">
-                ${couponsData.map(coupon => `
-                    <div class="coupon-item" style="background: rgba(0,255,0,0.1); border: 1px solid var(--terminal-green); padding: 15px; margin-bottom: 10px;">
-                        <div style="display: flex; justify-content: between; align-items: center;">
-                            <div>
-                                <strong style="color: var(--terminal-cyan);">${coupon.code}</strong>
-                                <div style="font-size: 0.8rem; color: var(--terminal-text);">
-                                    ${coupon.discount}% OFF • Valid until: ${coupon.validity || 'No expiry'}
-                                </div>
-                            </div>
-                            <button class="delete-coupon-btn hack-btn-sm" data-coupon-id="${coupon.id}">
-                                <i class="fas fa-trash"></i>
-                            </button>
-                        </div>
-                    </div>
-                `).join('')}
-            </div>
-        `;
-        
-        // Add event listeners to delete coupon buttons
-        document.querySelectorAll('.delete-coupon-btn').forEach(button => {
-            button.addEventListener('click', function() {
-                const couponId = parseInt(this.getAttribute('data-coupon-id'));
-                deleteCoupon(couponId);
-            });
-        });
-        
-    } catch (error) {
-        console.error('Error loading coupons:', error);
-    }
-}
-
-async function deleteCoupon(couponId) {
-    if (!confirm('CONFIRM_COUPON_DELETION?')) {
-        return;
-    }
-    
-    try {
-        couponsData = couponsData.filter(coupon => coupon.id !== couponId);
-        localStorage.setItem('admin_coupons', JSON.stringify(couponsData));
-        
-        showNotification('COUPON_DELETED_SUCCESSFULLY', 'success');
-        await loadCoupons();
-        
-    } catch (error) {
-        console.error('Error deleting coupon:', error);
-        showNotification('FAILED_TO_DELETE_COUPON', 'error');
-    }
-}
-
-async function deleteApp(appId) {
-    if (!confirm('CONFIRM_APPLICATION_DELETION?\nTHIS_WILL_ALSO_DELETE_ALL_ASSOCIATED_KEYS.\nTHIS_ACTION_CANNOT_BE_UNDONE.')) {
-        return;
-    }
-    
-    try {
-        // First, check if there are any keys associated with this app
-        const keysResponse = await fetch(`${API_BASE_URL}/api/admin/keys`);
-        if (keysResponse.ok) {
-            const keysData = await keysResponse.json();
-            const appKeys = keysData.keys ? keysData.keys.filter(key => key.brand_id === appId) : [];
-            
-            if (appKeys.length > 0) {
-                if (!confirm(`WARNING: This application has ${appKeys.length} keys associated with it. Deleting the application will also delete all these keys. Continue?`)) {
-                    return;
-                }
-            }
-        }
-        
-        // Delete the application
-        const response = await fetch(`${API_BASE_URL}/api/admin/brands/${appId}`, {
-            method: 'DELETE'
-        });
-        
-        if (!response.ok) throw new Error('Network response was not ok');
-        
-        const data = await response.json();
-        
-        if (data.success) {
-            showNotification('APPLICATION_DELETED_SUCCESSFULLY', 'success');
-            await loadAdminData(); // Reload all data
-        } else {
-            throw new Error(data.error || 'Failed to delete application');
-        }
-    } catch (error) {
-        console.error('Error deleting application:', error);
-        showNotification('NETWORK_ERROR: CANNOT_DELETE_APPLICATION', 'error');
-    }
-}
-
 async function deleteKey(keyId) {
     if (!confirm('CONFIRM_KEY_DELETION?\nTHIS_ACTION_CANNOT_BE_UNDONE.')) {
         return;
@@ -913,6 +612,9 @@ function showNotification(message, type = 'info') {
         setTimeout(() => notification.remove(), 300);
     }, 4000);
 }
+
+// Make functions globally available
+window.showNotification = showNotification;
 
 // Utility function to copy to clipboard
 function copyToClipboard(text) {
