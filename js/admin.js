@@ -616,4 +616,22 @@ function showNotification(message, type = 'info') {
 // Make functions globally available
 window.showNotification = showNotification;
 
+// Utility function to copy to clipboard
+function copyToClipboard(text) {
+    if (navigator.clipboard && window.isSecureContext) {
+        navigator.clipboard.writeText(text);
+    } else {
+        // Fallback for older browsers
+        const textArea = document.createElement('textarea');
+        textArea.value = text;
+        document.body.appendChild(textArea);
+        textArea.select();
+        document.execCommand('copy');
+        document.body.removeChild(textArea);
+    }
+}
+
+// Make functions globally available
+window.showNotification = showNotification;
+
 console.log('🎉 Admin panel loaded successfully');
