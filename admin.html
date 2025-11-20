@@ -78,9 +78,14 @@
             <div class="admin-section">
                 <div class="section-header">
                     <h2><i class="fas fa-boxes"></i> APPLICATIONS</h2>
-                    <button id="add-app-btn" class="hack-btn-sm">
-                        <i class="fas fa-plus"></i> NEW_APP
-                    </button>
+                    <div>
+                        <button id="add-app-btn" class="hack-btn-sm">
+                            <i class="fas fa-plus"></i> NEW_APP
+                        </button>
+                        <button id="manage-coupons-btn" class="hack-btn-sm">
+                            <i class="fas fa-tag"></i> COUPONS
+                        </button>
+                    </div>
                 </div>
                 <div class="apps-grid" id="apps-grid">
                     <!-- Apps will be loaded here -->
@@ -224,6 +229,68 @@
                     <i class="fas fa-plus"></i> ADD_DURATION
                 </button>
             </form>
+        </div>
+    </div>
+
+    <!-- Edit Duration Modal -->
+    <div id="edit-duration-modal" class="modal">
+        <div class="modal-content terminal-modal">
+            <div class="modal-header">
+                <h2 class="glitch-text-sm" data-text="EDIT_DURATION">EDIT_DURATION</h2>
+                <span class="close">&times;</span>
+            </div>
+            <form id="edit-duration-form" class="admin-form">
+                <input type="hidden" id="edit-duration-app-id">
+                <input type="hidden" id="edit-duration-index">
+                <div class="form-group">
+                    <label for="edit-duration-name" class="form-label">DURATION_NAME</label>
+                    <input type="text" id="edit-duration-name" class="terminal-input" required>
+                </div>
+                <div class="form-group">
+                    <label for="edit-duration-price" class="form-label">PRICE (₹)</label>
+                    <input type="number" id="edit-duration-price" class="terminal-input" min="0" step="0.01" required>
+                </div>
+                <div class="form-actions">
+                    <button type="button" id="delete-duration-btn" class="hack-btn cancel">
+                        <i class="fas fa-trash"></i> DELETE_DURATION
+                    </button>
+                    <button type="submit" class="hack-btn">
+                        <i class="fas fa-save"></i> UPDATE_DURATION
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Manage Coupons Modal -->
+    <div id="coupons-modal" class="modal">
+        <div class="modal-content terminal-modal">
+            <div class="modal-header">
+                <h2 class="glitch-text-sm" data-text="COUPON_MANAGEMENT">COUPON_MANAGEMENT</h2>
+                <span class="close">&times;</span>
+            </div>
+            <div class="admin-form">
+                <div class="form-group">
+                    <label for="coupon-code" class="form-label">COUPON_CODE</label>
+                    <input type="text" id="coupon-code" class="terminal-input" placeholder="ENTER_COUPON_CODE">
+                </div>
+                <div class="form-group">
+                    <label for="coupon-discount" class="form-label">DISCOUNT_PERCENTAGE</label>
+                    <input type="number" id="coupon-discount" class="terminal-input" placeholder="DISCOUNT_%" min="1" max="100">
+                </div>
+                <div class="form-group">
+                    <label for="coupon-validity" class="form-label">VALID_UNTIL</label>
+                    <input type="date" id="coupon-validity" class="terminal-input">
+                </div>
+                <button id="add-coupon-btn" class="hack-btn">
+                    <i class="fas fa-tag"></i> ADD_COUPON
+                </button>
+                
+                <div class="coupons-list" id="coupons-list" style="margin-top: 20px;">
+                    <h3 style="color: var(--terminal-cyan); margin-bottom: 15px;">ACTIVE_COUPONS</h3>
+                    <!-- Coupons will be listed here -->
+                </div>
+            </div>
         </div>
     </div>
 
