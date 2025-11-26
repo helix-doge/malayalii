@@ -56,7 +56,7 @@
         <div id="dev-console" class="developer-console" style="display: none;">
             <main class="terminal-body developer-body-content">
                 
-                <!-- System Console -->
+                <!-- System Console with Input -->
                 <div class="developer-section">
                     <div class="section-header">
                         <h2><i class="fas fa-terminal"></i> SYSTEM_CONSOLE</h2>
@@ -72,12 +72,16 @@
                     <div class="console-output" id="system-console">
                         <div class="console-line">
                             <span class="console-prefix">[SYSTEM]</span>
-                            <span class="console-text">Developer console initialized...</span>
+                            <span class="console-text">Developer console initialized. Type "help" for available commands.</span>
                         </div>
+                    </div>
+                    <div class="console-input-container">
+                        <span class="console-prompt">dev@malayalistore:~$</span>
+                        <input type="text" id="console-input" class="console-input" placeholder="Type commands here...">
                     </div>
                 </div>
 
-                <!-- System Controls -->
+                <!-- Enhanced System Controls -->
                 <div class="developer-section">
                     <div class="section-header">
                         <h2><i class="fas fa-cogs"></i> SYSTEM_CONTROLS</h2>
@@ -91,6 +95,9 @@
                             <p>Create complete system backup</p>
                             <button id="backup-btn" class="hack-btn-sm">
                                 <i class="fas fa-download"></i> CREATE_BACKUP
+                            </button>
+                            <button id="view-backups-btn" class="hack-btn-sm" style="margin-top: 8px;">
+                                <i class="fas fa-eye"></i> VIEW_BACKUPS
                             </button>
                         </div>
                         
@@ -110,6 +117,9 @@
                                 <button class="hack-btn-sm reset-btn" data-type="all">
                                     RESET_ALL
                                 </button>
+                                <button id="reset-sold-btn" class="hack-btn-sm" style="background: rgba(255,0,0,0.1); border-color: var(--terminal-red); color: var(--terminal-red);">
+                                    RESET_SOLD_KEYS
+                                </button>
                             </div>
                         </div>
                         
@@ -126,43 +136,56 @@
                     </div>
                 </div>
 
-                <!-- Statistics Dashboard -->
+                <!-- Enhanced Statistics Dashboard -->
                 <div class="developer-section">
                     <div class="section-header">
                         <h2><i class="fas fa-chart-bar"></i> SYSTEM_STATISTICS</h2>
                     </div>
-                    <div class="stats-dashboard">
-                        <div class="stat-cards">
-                            <div class="stat-card">
-                                <div class="stat-value" id="total-visitors">0</div>
-                                <div class="stat-label">TOTAL_VISITORS</div>
-                            </div>
-                            <div class="stat-card">
-                                <div class="stat-value" id="unique-visitors">0</div>
-                                <div class="stat-label">UNIQUE_VISITORS</div>
-                            </div>
-                            <div class="stat-card">
-                                <div class="stat-value" id="total-orders">0</div>
-                                <div class="stat-label">TOTAL_ORDERS</div>
-                            </div>
-                            <div class="stat-card">
-                                <div class="stat-value" id="system-revenue">₹0</div>
-                                <div class="stat-label">TOTAL_REVENUE</div>
-                            </div>
+                    <div class="stats-grid">
+                        <div class="stat-card">
+                            <div class="stat-value" id="total-visitors">0</div>
+                            <div class="stat-label">TOTAL_VISITORS</div>
                         </div>
-                        
-                        <div class="charts-container">
-                            <div class="chart-wrapper">
-                                <canvas id="visitors-chart"></canvas>
-                            </div>
-                            <div class="chart-wrapper">
-                                <canvas id="orders-chart"></canvas>
-                            </div>
+                        <div class="stat-card">
+                            <div class="stat-value" id="unique-visitors">0</div>
+                            <div class="stat-label">UNIQUE_VISITORS</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-value" id="total-orders">0</div>
+                            <div class="stat-label">TOTAL_ORDERS</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-value" id="system-revenue">₹0</div>
+                            <div class="stat-label">TOTAL_REVENUE</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-value" id="total-keys">0</div>
+                            <div class="stat-label">TOTAL_KEYS</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-value" id="available-keys">0</div>
+                            <div class="stat-label">AVAILABLE_KEYS</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-value" id="sold-keys">0</div>
+                            <div class="stat-label">SOLD_KEYS</div>
+                        </div>
+                    </div>
+                    
+                    <div class="charts-container">
+                        <div class="chart-container">
+                            <canvas id="visitors-chart"></canvas>
+                        </div>
+                        <div class="chart-container">
+                            <canvas id="sales-chart"></canvas>
+                        </div>
+                        <div class="chart-container">
+                            <canvas id="revenue-chart"></canvas>
                         </div>
                     </div>
                 </div>
 
-                <!-- Admin Activity Monitor -->
+                <!-- Enhanced Admin Activity Monitor -->
                 <div class="developer-section">
                     <div class="section-header">
                         <h2><i class="fas fa-user-shield"></i> ADMIN_ACTIVITY_MONITOR</h2>
@@ -174,23 +197,55 @@
                     </div>
                 </div>
 
-                <!-- Security Panel -->
+                <!-- Enhanced Security Panel -->
                 <div class="developer-section" id="security-panel" style="display: none;">
                     <div class="section-header">
                         <h2><i class="fas fa-lock"></i> SECURITY_CONTROL_PANEL</h2>
                     </div>
                     <div class="security-controls">
                         <div class="security-section">
-                            <h3>BLOCKED_DEVICES</h3>
+                            <h3><i class="fas fa-ban"></i> BLOCKED_DEVICES</h3>
                             <div class="blocked-list" id="blocked-devices-list">
-                                <!-- Blocked devices will be listed here -->
+                                <div class="blocked-item">
+                                    <div class="blocked-info">
+                                        <strong>IP:</strong> 192.168.1.100
+                                    </div>
+                                    <div class="blocked-reason">
+                                        <strong>Reason:</strong> Multiple failed login attempts
+                                    </div>
+                                    <div class="blocked-actions">
+                                        <button class="hack-btn-sm" style="background: rgba(0,255,0,0.1);">
+                                            <i class="fas fa-check"></i> UNBLOCK
+                                        </button>
+                                    </div>
+                                </div>
+                                <div class="blocked-item">
+                                    <div class="blocked-info">
+                                        <strong>IP:</strong> 10.0.0.55
+                                    </div>
+                                    <div class="blocked-reason">
+                                        <strong>Reason:</strong> Suspicious activity detected
+                                    </div>
+                                    <div class="blocked-actions">
+                                        <button class="hack-btn-sm" style="background: rgba(0,255,0,0.1);">
+                                            <i class="fas fa-check"></i> UNBLOCK
+                                        </button>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                         
                         <div class="security-section">
-                            <h3>ACTIVE_SESSIONS</h3>
-                            <div class="sessions-list" id="active-sessions-list">
-                                <!-- Active sessions will be listed here -->
+                            <h3><i class="fas fa-users"></i> VISITOR_INFORMATION</h3>
+                            <div class="visitor-list" id="visitor-list">
+                                <!-- Visitor information will be loaded here -->
+                            </div>
+                        </div>
+                        
+                        <div class="security-section">
+                            <h3><i class="fas fa-database"></i> SYSTEM_BACKUPS</h3>
+                            <div class="backups-list" id="backups-list">
+                                <!-- Backups will be loaded here -->
                             </div>
                         </div>
                     </div>
@@ -261,14 +316,43 @@
         
         .console-line {
             margin-bottom: 5px;
+            font-family: 'Courier New', monospace;
         }
         
         .console-prefix {
             color: var(--terminal-cyan);
+            font-weight: bold;
         }
         
         .console-text {
             color: var(--terminal-text);
+        }
+        
+        .console-input-container {
+            display: flex;
+            align-items: center;
+            background: rgba(0, 255, 0, 0.05);
+            border: 1px solid var(--terminal-border);
+            padding: 10px;
+            margin-top: 10px;
+            font-family: 'Courier New', monospace;
+        }
+        
+        .console-prompt {
+            color: var(--terminal-cyan);
+            margin-right: 10px;
+            font-family: 'Courier New', monospace;
+            font-weight: bold;
+        }
+        
+        .console-input {
+            background: transparent;
+            border: none;
+            color: var(--terminal-text);
+            font-family: 'Courier New', monospace;
+            flex: 1;
+            outline: none;
+            font-size: 0.9rem;
         }
         
         .controls-grid {
@@ -283,6 +367,12 @@
             border: 1px solid var(--terminal-border);
             padding: 20px;
             text-align: center;
+            transition: all 0.3s ease;
+        }
+        
+        .control-card:hover {
+            border-color: var(--terminal-cyan);
+            box-shadow: 0 0 15px var(--terminal-glow);
         }
         
         .control-icon {
@@ -294,6 +384,7 @@
         .control-card h3 {
             color: var(--terminal-cyan);
             margin-bottom: 10px;
+            font-size: 1rem;
         }
         
         .control-card p {
@@ -309,11 +400,7 @@
             gap: 8px;
         }
         
-        .stats-dashboard {
-            margin-top: 20px;
-        }
-        
-        .stat-cards {
+        .stats-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
             gap: 15px;
@@ -325,6 +412,12 @@
             border: 1px solid var(--terminal-border);
             padding: 20px;
             text-align: center;
+            transition: all 0.3s ease;
+        }
+        
+        .stat-card:hover {
+            border-color: var(--terminal-cyan);
+            box-shadow: 0 0 10px var(--terminal-glow);
         }
         
         .stat-value {
@@ -338,6 +431,7 @@
             color: var(--terminal-text);
             font-size: 0.8rem;
             text-transform: uppercase;
+            letter-spacing: 1px;
         }
         
         .charts-container {
@@ -346,11 +440,11 @@
             gap: 20px;
         }
         
-        .chart-wrapper {
-            background: rgba(0, 255, 0, 0.1);
+        .chart-container {
+            background: rgba(0, 255, 0, 0.05);
             border: 1px solid var(--terminal-border);
             padding: 20px;
-            height: 250px;
+            height: 300px;
         }
         
         .activity-monitor {
@@ -358,7 +452,7 @@
         }
         
         .activity-list {
-            max-height: 300px;
+            max-height: 400px;
             overflow-y: auto;
         }
         
@@ -368,6 +462,11 @@
             padding: 15px;
             margin-bottom: 10px;
             font-size: 0.9rem;
+            transition: all 0.3s ease;
+        }
+        
+        .activity-item:hover {
+            border-color: var(--terminal-cyan);
         }
         
         .activity-header {
@@ -384,11 +483,21 @@
         .activity-time {
             color: var(--terminal-text);
             opacity: 0.7;
+            font-size: 0.8rem;
         }
         
         .activity-details {
             color: var(--terminal-text);
             font-size: 0.8rem;
+        }
+        
+        .activity-action {
+            margin-bottom: 5px;
+        }
+        
+        .activity-ip, .activity-device {
+            font-size: 0.75rem;
+            opacity: 0.8;
         }
         
         .security-controls {
@@ -408,25 +517,79 @@
             margin-bottom: 15px;
             border-bottom: 1px solid var(--terminal-border);
             padding-bottom: 10px;
+            font-size: 1rem;
         }
         
-        .blocked-list, .sessions-list {
-            max-height: 200px;
+        .blocked-list, .visitor-list, .backups-list {
+            max-height: 300px;
             overflow-y: auto;
         }
         
-        .device-item, .session-item {
+        .blocked-item, .visitor-item, .backup-item {
             background: rgba(0, 255, 0, 0.05);
             border: 1px solid var(--terminal-border);
-            padding: 10px;
+            padding: 12px;
             margin-bottom: 8px;
             font-size: 0.8rem;
         }
         
-        .device-actions, .session-actions {
+        .visitor-header, .backup-header {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 8px;
+        }
+        
+        .visitor-ip, .backup-id {
+            color: var(--terminal-cyan);
+            font-weight: bold;
+        }
+        
+        .visitor-time, .backup-time {
+            color: var(--terminal-text);
+            opacity: 0.7;
+            font-size: 0.75rem;
+        }
+        
+        .visitor-details, .backup-details {
+            color: var(--terminal-text);
+            font-size: 0.75rem;
+        }
+        
+        .backup-actions {
             display: flex;
             gap: 5px;
             margin-top: 8px;
+        }
+        
+        .blocked-info, .blocked-reason {
+            margin-bottom: 5px;
+        }
+        
+        .blocked-actions {
+            margin-top: 8px;
+        }
+        
+        @keyframes slideIn {
+            from { transform: translateX(100%); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+        
+        @keyframes slideOut {
+            from { transform: translateX(0); opacity: 1; }
+            to { transform: translateX(100%); opacity: 0; }
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .dev-notification {
+            animation: slideIn 0.3s ease;
+        }
+        
+        .console-line.command {
+            color: var(--terminal-cyan);
         }
         
         @media (max-width: 768px) {
@@ -440,6 +603,29 @@
             
             .security-controls {
                 grid-template-columns: 1fr;
+            }
+            
+            .stats-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            
+            .developer-header {
+                flex-direction: column;
+                text-align: center;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .chart-container {
+                height: 250px;
+            }
+            
+            .console-output {
+                height: 150px;
             }
         }
     </style>
