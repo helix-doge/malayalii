@@ -115,7 +115,7 @@ async function loadDeveloperData() {
     try {
         await Promise.all([
             loadSystemStats(),
-            loadAdminActivities(),
+            loadAdminActivities(), // This function was missing
             updateConsole('System data loaded successfully', 'success')
         ]);
         
@@ -128,6 +128,35 @@ async function loadDeveloperData() {
     }
 }
 
+// ADD THIS MISSING FUNCTION
+async function loadAdminActivities() {
+    try {
+        const response = await fetch(`${API_BASE_URL}/api/admin/logs`);
+        const data = await response.json();
+        
+        if (data.success) {
+            adminActivities = data.logs || [];
+            updateAdminActivities();
+        } else {
+            throw new Error(data.error || 'Failed to load admin activities');
+        }
+    } catch (error) {
+        console.error('Error loading admin activities:', error);
+        // Use fallback data
+        adminActivities = [
+            {
+                username: 'admin',
+                action: 'login',
+                ip: '127.0.0.1',
+                user_agent: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
+                timestamp: new Date().toISOString()
+            }
+        ];
+        updateAdminActivities();
+        updateConsole('Using fallback admin activities data', 'info');
+    }
+}
+
 async function loadSystemStats() {
     try {
         const response = await fetch(`${API_BASE_URL}/api/developer/stats`);
@@ -135,12 +164,10 @@ async function loadSystemStats() {
         
         if (data.success) {
             systemStats = data.stats;
-            adminActivities = data.recentLogs || [];
             visitorData = data.visitorData || [];
             
             updateStatsDisplay();
             updateCharts();
-            updateAdminActivities();
         } else {
             throw new Error(data.error || 'Failed to load stats');
         }
@@ -157,7 +184,6 @@ async function loadSystemStats() {
             completedOrders: 0,
             revenue: 0
         };
-        adminActivities = [];
         visitorData = [];
         
         updateStatsDisplay();
