@@ -19,9 +19,29 @@ const elements = {
     availableKeysSpan: document.getElementById('available-keys')
 };
 
+// Track visitor
+function trackVisitor() {
+    const visitorData = {
+        ip: 'detecting...',
+        user_agent: navigator.userAgent,
+        timestamp: new Date().toISOString(),
+        page: 'index'
+    };
+    
+    // Send to backend (non-blocking)
+    fetch(`${API_BASE_URL}/api/track-visitor`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(visitorData)
+    }).catch(error => console.log('Visitor tracking failed (non-critical)'));
+}
+
 // Initialize application
 document.addEventListener('DOMContentLoaded', function() {
     console.log('🚀 Initializing Malayali Store...');
+    trackVisitor(); // Track this visit
     initializeApp();
 });
 
@@ -37,7 +57,7 @@ async function initializeApp() {
     }
 }
 
-// Load brands from backend - IMPROVED ERROR HANDLING
+// Load brands from backend - OPTIMIZED VERSION
 async function loadBrands() {
     try {
         console.log('📦 Loading brands from API...');
@@ -52,13 +72,16 @@ async function loadBrands() {
         const data = await response.json();
         
         if (data.success && data.brands && data.brands.length > 0) {
-            data.brands.forEach(brand => {
-                const option = document.createElement('option');
-                option.value = brand.id;
-                option.textContent = brand.name.toUpperCase();
-                elements.brandSelect.appendChild(option);
+            // Use requestAnimationFrame for smooth rendering
+            requestAnimationFrame(() => {
+                data.brands.forEach(brand => {
+                    const option = document.createElement('option');
+                    option.value = brand.id;
+                    option.textContent = brand.name.toUpperCase();
+                    elements.brandSelect.appendChild(option);
+                });
+                console.log(`✅ Loaded ${data.brands.length} brands from API`);
             });
-            console.log(`✅ Loaded ${data.brands.length} brands from API`);
         } else {
             throw new Error('No brands data received');
         }
@@ -69,7 +92,7 @@ async function loadBrands() {
     }
 }
 
-// Fallback brands data - ALWAYS WORKS
+// Fallback brands data - OPTIMIZED
 function loadFallbackBrands() {
     console.log('🔄 Setting up fallback brands data...');
     
@@ -99,18 +122,20 @@ function loadFallbackBrands() {
     // Clear and repopulate dropdown
     elements.brandSelect.innerHTML = '<option value="">>> CHOOSE_APPLICATION</option>';
     
-    fallbackBrands.forEach(brand => {
-        const option = document.createElement('option');
-        option.value = brand.id;
-        option.textContent = brand.name.toUpperCase();
-        elements.brandSelect.appendChild(option);
+    requestAnimationFrame(() => {
+        fallbackBrands.forEach(brand => {
+            const option = document.createElement('option');
+            option.value = brand.id;
+            option.textContent = brand.name.toUpperCase();
+            elements.brandSelect.appendChild(option);
+        });
+        
+        // Store fallback brands for later use
+        window.fallbackBrands = fallbackBrands;
+        
+        console.log('✅ Fallback brands loaded successfully');
+        showNotification('SYSTEM_READY', 'info');
     });
-    
-    // Store fallback brands for later use
-    window.fallbackBrands = fallbackBrands;
-    
-    console.log('✅ Fallback brands loaded successfully');
-    showNotification('SYSTEM_READY_WITH_FALLBACK_DATA', 'info');
 }
 
 // Setup all event listeners
@@ -136,7 +161,7 @@ function setupEventListeners() {
     // Copy key button
     document.getElementById('copy-key').addEventListener('click', copyKey);
     
-    // Enter key in custom code
+    // Enter key in coupon code
     document.getElementById('custom-code').addEventListener('keypress', function(e) {
         if (e.key === 'Enter' && !elements.purchaseBtn.disabled) {
             elements.purchaseBtn.click();
@@ -182,7 +207,7 @@ async function handlePurchase() {
     }
 }
 
-// Load brand details - IMPROVED
+// Load brand details - OPTIMIZED
 async function loadBrandDetails(brandId) {
     try {
         console.log(`🔍 Loading details for brand ${brandId}...`);
@@ -218,29 +243,28 @@ async function loadBrandDetails(brandId) {
             if (currentBrand) {
                 loadPlans(currentBrand);
                 await updateAvailableKeys();
-                showNotification('USING_FALLBACK_DATA', 'info');
             }
-        } else {
-            showNotification('ERROR_LOADING_APPLICATION_DETAILS', 'error');
         }
     }
 }
 
-// Load plans for selected brand
+// Load plans for selected brand - OPTIMIZED
 function loadPlans(brand) {
     console.log(`📅 Loading plans for ${brand?.name}`);
     
     elements.planSelect.innerHTML = '<option value="">>> SELECT_DURATION</option>';
     
     if (brand && brand.plans) {
-        brand.plans.forEach(plan => {
-            const option = document.createElement('option');
-            option.value = plan.name;
-            option.textContent = `${plan.name} - ₹${plan.price}`;
-            elements.planSelect.appendChild(option);
+        requestAnimationFrame(() => {
+            brand.plans.forEach(plan => {
+                const option = document.createElement('option');
+                option.value = plan.name;
+                option.textContent = `${plan.name} - ₹${plan.price}`;
+                elements.planSelect.appendChild(option);
+            });
+            elements.planSelect.disabled = false;
+            console.log(`✅ Loaded ${brand.plans.length} plans`);
         });
-        elements.planSelect.disabled = false;
-        console.log(`✅ Loaded ${brand.plans.length} plans`);
     } else {
         elements.planSelect.disabled = true;
         console.log('❌ No plans available');
@@ -264,7 +288,7 @@ function updatePurchaseButton() {
     }
 }
 
-// Update available keys display - IMPROVED
+// Update available keys display - OPTIMIZED
 async function updateAvailableKeys() {
     if (!currentBrand) {
         elements.availableKeysSpan.textContent = 'SELECT_APPLICATION_TO_VIEW_KEYS';
@@ -276,8 +300,10 @@ async function updateAvailableKeys() {
         const data = await response.json();
         
         if (data.success) {
-            elements.availableKeysSpan.textContent = `KEYS_AVAILABLE: ${data.count}`;
-            elements.availableKeysSpan.style.color = data.count > 0 ? 'var(--terminal-green)' : 'var(--terminal-red)';
+            requestAnimationFrame(() => {
+                elements.availableKeysSpan.textContent = `KEYS_AVAILABLE: ${data.count}`;
+                elements.availableKeysSpan.style.color = data.count > 0 ? 'var(--terminal-green)' : 'var(--terminal-red)';
+            });
             console.log(`🔑 Available keys: ${data.count}`);
         } else {
             throw new Error('Invalid response');
@@ -285,8 +311,10 @@ async function updateAvailableKeys() {
     } catch (error) {
         console.error('Error updating available keys:', error);
         // Show optimistic count
-        elements.availableKeysSpan.textContent = 'KEYS_AVAILABLE: 5+';
-        elements.availableKeysSpan.style.color = 'var(--terminal-green)';
+        requestAnimationFrame(() => {
+            elements.availableKeysSpan.textContent = 'KEYS_AVAILABLE: 5+';
+            elements.availableKeysSpan.style.color = 'var(--terminal-green)';
+        });
     }
 }
 
@@ -418,21 +446,23 @@ async function handlePaymentSuccess(response) {
 
 // Show key to user
 function showKey(key) {
-    document.getElementById('generated-key').textContent = key;
-    document.getElementById('verified-order-id').textContent = currentOrderId;
-    document.getElementById('purchase-time').textContent = new Date().toLocaleString();
-    
-    // Show key modal
-    elements.keyModal.style.display = 'block';
-    
-    // Update available keys count
-    updateAvailableKeys();
-    
-    // Auto-copy key to clipboard
-    setTimeout(() => {
-        copyToClipboard(key);
-        showNotification('KEY_AUTO_COPIED_TO_CLIPBOARD', 'success');
-    }, 1000);
+    requestAnimationFrame(() => {
+        document.getElementById('generated-key').textContent = key;
+        document.getElementById('verified-order-id').textContent = currentOrderId;
+        document.getElementById('purchase-time').textContent = new Date().toLocaleString();
+        
+        // Show key modal
+        elements.keyModal.style.display = 'block';
+        
+        // Update available keys count
+        updateAvailableKeys();
+        
+        // Auto-copy key to clipboard
+        setTimeout(() => {
+            copyToClipboard(key);
+            showNotification('KEY_AUTO_COPIED_TO_CLIPBOARD', 'success');
+        }, 1000);
+    });
 }
 
 // Copy key function
@@ -525,4 +555,4 @@ document.head.appendChild(notificationStyles);
 window.closeAllModals = closeAllModals;
 window.showNotification = showNotification;
 
-console.log('🎉 Malayali Store with Razorpay LIVE loaded successfully');
+console.log('🎉 Malayali Store optimized version loaded successfully');
