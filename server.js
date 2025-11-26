@@ -987,6 +987,29 @@ app.get('/api/admin/logs', async (req, res) => {
     }
 });
 
+// 24. Get all orders for sales data
+app.get('/api/admin/orders', async (req, res) => {
+    try {
+        const { data, error } = await supabase
+            .from('orders')
+            .select(`
+                *,
+                brands (name)
+            `)
+            .order('created_at', { ascending: false });
+        
+        if (error) {
+            console.error('Orders error:', error);
+            return res.json({ success: true, orders: [] });
+        }
+        
+        res.json({ success: true, orders: data || [] });
+    } catch (error) {
+        console.error('Orders endpoint error:', error);
+        res.json({ success: true, orders: [] });
+    }
+});
+
 // Helper function for fallback brands
 function getFallbackBrands() {
     return [
