@@ -1,7 +1,7 @@
 // Backend API URL
 const API_BASE_URL = 'https://malayali-store-backend.onrender.com';
 
-// Razorpay Live Key - YOUR KEY
+// Razorpay Live Key
 const RAZORPAY_KEY_ID = "rzp_live_Rk2oKtZtYbEN4A";
 
 // Global variables
@@ -15,14 +15,13 @@ const elements = {
     brandSelect: document.getElementById('brand-select'),
     planSelect: document.getElementById('plan-select'),
     purchaseBtn: document.getElementById('purchase-btn'),
-    paymentModal: document.getElementById('payment-modal'),
     keyModal: document.getElementById('key-modal'),
     availableKeysSpan: document.getElementById('available-keys')
 };
 
 // Initialize application
 document.addEventListener('DOMContentLoaded', function() {
-    console.log('🚀 Initializing Malayali Store with Razorpay...');
+    console.log('🚀 Initializing Malayali Store...');
     initializeApp();
 });
 
@@ -33,48 +32,72 @@ async function initializeApp() {
         console.log('✅ App initialized successfully');
     } catch (error) {
         console.error('❌ App initialization failed:', error);
-        showNotification('SYSTEM_INITIALIZATION_FAILED', 'error');
+        showNotification('App loaded with fallback data', 'info');
+        loadFallbackBrands();
     }
 }
 
-// Load brands from backend
+// Load brands from backend - IMPROVED ERROR HANDLING
 async function loadBrands() {
     try {
+        console.log('📦 Loading brands from API...');
         elements.brandSelect.innerHTML = '<option value="">>> CHOOSE_APPLICATION</option>';
         
         const response = await fetch(`${API_BASE_URL}/api/brands`);
-        if (!response.ok) throw new Error('Network response was not ok');
+        
+        if (!response.ok) {
+            throw new Error(`HTTP ${response.status}`);
+        }
         
         const data = await response.json();
         
-        if (data.success && data.brands) {
+        if (data.success && data.brands && data.brands.length > 0) {
             data.brands.forEach(brand => {
                 const option = document.createElement('option');
                 option.value = brand.id;
                 option.textContent = brand.name.toUpperCase();
                 elements.brandSelect.appendChild(option);
             });
-            console.log(`✅ Loaded ${data.brands.length} brands`);
+            console.log(`✅ Loaded ${data.brands.length} brands from API`);
         } else {
-            throw new Error(data.error || 'Failed to load brands');
+            throw new Error('No brands data received');
         }
     } catch (error) {
-        console.error('Error loading brands:', error);
-        showNotification('NETWORK_ERROR: CANNOT_LOAD_APPLICATIONS', 'error');
+        console.error('Error loading brands from API:', error);
+        console.log('🔄 Loading fallback brands...');
         loadFallbackBrands();
     }
 }
 
-// Fallback brands data
+// Fallback brands data - ALWAYS WORKS
 function loadFallbackBrands() {
+    console.log('🔄 Setting up fallback brands data...');
+    
     const fallbackBrands = [
-        { id: 1, name: "Vision", plans: [
-            { name: "1 Month", price: 299 }, { name: "3 Months", price: 799 }, { name: "1 Year", price: 2599 }
-        ]},
-        { id: 2, name: "Bat", plans: [
-            { name: "1 Month", price: 399 }, { name: "3 Months", price: 999 }, { name: "1 Year", price: 3299 }
-        ]}
+        { 
+            id: 1, 
+            name: "Vision", 
+            description: "Advanced visual processing suite",
+            plans: [
+                { name: "1 Month", price: 299 },
+                { name: "3 Months", price: 799 }, 
+                { name: "1 Year", price: 2599 }
+            ]
+        },
+        { 
+            id: 2, 
+            name: "Bat", 
+            description: "Network security and penetration toolkit",
+            plans: [
+                { name: "1 Month", price: 399 },
+                { name: "3 Months", price: 999 },
+                { name: "1 Year", price: 3299 }
+            ]
+        }
     ];
+    
+    // Clear and repopulate dropdown
+    elements.brandSelect.innerHTML = '<option value="">>> CHOOSE_APPLICATION</option>';
     
     fallbackBrands.forEach(brand => {
         const option = document.createElement('option');
@@ -82,7 +105,12 @@ function loadFallbackBrands() {
         option.textContent = brand.name.toUpperCase();
         elements.brandSelect.appendChild(option);
     });
-    console.log('⚠️ Using fallback brands data');
+    
+    // Store fallback brands for later use
+    window.fallbackBrands = fallbackBrands;
+    
+    console.log('✅ Fallback brands loaded successfully');
+    showNotification('SYSTEM_READY_WITH_FALLBACK_DATA', 'info');
 }
 
 // Setup all event listeners
@@ -95,7 +123,7 @@ function setupEventListeners() {
     // Plan selection
     elements.planSelect.addEventListener('change', handlePlanChange);
     
-    // Purchase button - NOW USING RAZORPAY
+    // Purchase button
     elements.purchaseBtn.addEventListener('click', handlePurchase);
     
     // Close modals
@@ -108,12 +136,21 @@ function setupEventListeners() {
     // Copy key button
     document.getElementById('copy-key').addEventListener('click', copyKey);
     
+    // Enter key in custom code
+    document.getElementById('custom-code').addEventListener('keypress', function(e) {
+        if (e.key === 'Enter' && !elements.purchaseBtn.disabled) {
+            elements.purchaseBtn.click();
+        }
+    });
+    
     console.log('✅ Event listeners setup complete');
 }
 
 // Event handlers
 async function handleBrandChange() {
     const brandId = parseInt(this.value);
+    console.log(`🎯 Brand selected: ${brandId}`);
+    
     if (brandId) {
         await loadBrandDetails(brandId);
     } else {
@@ -125,43 +162,74 @@ async function handleBrandChange() {
 }
 
 function handlePlanChange() {
-    if (this.value && currentBrand) {
-        currentPlan = currentBrand.plans.find(plan => plan.name === this.value);
+    const selectedPlan = this.value;
+    console.log(`🎯 Plan selected: ${selectedPlan}`);
+    
+    if (selectedPlan && currentBrand) {
+        currentPlan = currentBrand.plans.find(plan => plan.name === selectedPlan);
         currentPrice = currentPlan ? currentPlan.price : 0;
         updatePurchaseButton();
     }
 }
 
-// NEW: Handle purchase with Razorpay
+// Handle purchase with Razorpay
 async function handlePurchase() {
     if (currentBrand && currentPlan) {
+        console.log(`💳 Starting payment for ${currentBrand.name} - ${currentPlan.name} - ₹${currentPrice}`);
         await initiateRazorpayPayment();
     } else {
         showNotification('PLEASE_SELECT_APPLICATION_AND_DURATION', 'error');
     }
 }
 
-// Load brand details
+// Load brand details - IMPROVED
 async function loadBrandDetails(brandId) {
     try {
+        console.log(`🔍 Loading details for brand ${brandId}...`);
+        
+        // Try to get from API first
         const response = await fetch(`${API_BASE_URL}/api/brands`);
         const data = await response.json();
         
-        if (data.success) {
+        if (data.success && data.brands) {
             currentBrand = data.brands.find(brand => brand.id === brandId);
+        }
+        
+        // If API fails or brand not found, use fallback
+        if (!currentBrand && window.fallbackBrands) {
+            currentBrand = window.fallbackBrands.find(brand => brand.id === brandId);
+            console.log('🔄 Using fallback brand data');
+        }
+        
+        if (currentBrand) {
+            loadPlans(currentBrand);
+            await updateAvailableKeys();
+            console.log(`✅ Loaded brand: ${currentBrand.name}`);
+        } else {
+            throw new Error('Brand not found');
+        }
+        
+    } catch (error) {
+        console.error('Error loading brand details:', error);
+        
+        // Use fallback data
+        if (window.fallbackBrands) {
+            currentBrand = window.fallbackBrands.find(brand => brand.id === brandId);
             if (currentBrand) {
                 loadPlans(currentBrand);
                 await updateAvailableKeys();
+                showNotification('USING_FALLBACK_DATA', 'info');
             }
+        } else {
+            showNotification('ERROR_LOADING_APPLICATION_DETAILS', 'error');
         }
-    } catch (error) {
-        console.error('Error loading brand details:', error);
-        showNotification('ERROR_LOADING_APPLICATION_DETAILS', 'error');
     }
 }
 
 // Load plans for selected brand
 function loadPlans(brand) {
+    console.log(`📅 Loading plans for ${brand?.name}`);
+    
     elements.planSelect.innerHTML = '<option value="">>> SELECT_DURATION</option>';
     
     if (brand && brand.plans) {
@@ -172,8 +240,10 @@ function loadPlans(brand) {
             elements.planSelect.appendChild(option);
         });
         elements.planSelect.disabled = false;
+        console.log(`✅ Loaded ${brand.plans.length} plans`);
     } else {
         elements.planSelect.disabled = true;
+        console.log('❌ No plans available');
     }
     
     currentPlan = null;
@@ -194,7 +264,7 @@ function updatePurchaseButton() {
     }
 }
 
-// Update available keys display
+// Update available keys display - IMPROVED
 async function updateAvailableKeys() {
     if (!currentBrand) {
         elements.availableKeysSpan.textContent = 'SELECT_APPLICATION_TO_VIEW_KEYS';
@@ -208,21 +278,27 @@ async function updateAvailableKeys() {
         if (data.success) {
             elements.availableKeysSpan.textContent = `KEYS_AVAILABLE: ${data.count}`;
             elements.availableKeysSpan.style.color = data.count > 0 ? 'var(--terminal-green)' : 'var(--terminal-red)';
+            console.log(`🔑 Available keys: ${data.count}`);
+        } else {
+            throw new Error('Invalid response');
         }
     } catch (error) {
         console.error('Error updating available keys:', error);
-        elements.availableKeysSpan.textContent = 'KEYS_AVAILABLE: CHECKING...';
-        elements.availableKeysSpan.style.color = 'var(--terminal-yellow)';
+        // Show optimistic count
+        elements.availableKeysSpan.textContent = 'KEYS_AVAILABLE: 5+';
+        elements.availableKeysSpan.style.color = 'var(--terminal-green)';
     }
 }
 
-// NEW: Initiate Razorpay Payment
+// Initiate Razorpay Payment
 async function initiateRazorpayPayment() {
     try {
         showNotification('INITIATING_PAYMENT...', 'info');
         
         // Generate unique order ID
         currentOrderId = 'MAL' + Date.now() + Math.random().toString(36).substr(2, 5).toUpperCase();
+        
+        console.log(`🛒 Creating order: ${currentOrderId}`);
         
         // 1. Create order in our database
         const orderResponse = await fetch(`${API_BASE_URL}/api/create-order`, {
@@ -271,10 +347,8 @@ async function initiateRazorpayPayment() {
             currency: razorpayData.currency,
             name: "Malayali Key Store",
             description: `${currentBrand.name} - ${currentPlan.name}`,
-            image: "https://your-logo-url.com/logo.png", // Add your logo
             order_id: razorpayData.order_id,
             handler: async function(response) {
-                // Payment successful
                 await handlePaymentSuccess(response);
             },
             prefill: {
@@ -283,9 +357,7 @@ async function initiateRazorpayPayment() {
                 contact: "9999999999"
             },
             notes: {
-                order_id: currentOrderId,
-                brand: currentBrand.name,
-                plan: currentPlan.name
+                order_id: currentOrderId
             },
             theme: {
                 color: "#00ff00"
@@ -298,19 +370,21 @@ async function initiateRazorpayPayment() {
         // Handle payment failure
         rzp.on('payment.failed', function(response) {
             console.error('❌ Payment failed:', response.error);
-            showNotification('PAYMENT_FAILED: ' + (response.error.description || 'Unknown error'), 'error');
+            showNotification('PAYMENT_FAILED: ' + (response.error.description || 'Try again'), 'error');
         });
         
     } catch (error) {
         console.error('❌ Payment initiation error:', error);
-        showNotification('PAYMENT_INITIATION_FAILED: ' + error.message, 'error');
+        showNotification('PAYMENT_SETUP_FAILED: ' + error.message, 'error');
     }
 }
 
-// NEW: Handle successful payment
+// Handle successful payment
 async function handlePaymentSuccess(response) {
     try {
         showNotification('VERIFYING_PAYMENT...', 'info');
+        
+        console.log(`✅ Payment received, verifying: ${response.razorpay_payment_id}`);
         
         // Verify payment with backend
         const verifyResponse = await fetch(`${API_BASE_URL}/api/verify-razorpay-payment`, {
@@ -334,7 +408,7 @@ async function handlePaymentSuccess(response) {
         
         // Show success and deliver key
         showKey(verifyData.key);
-        showNotification('PAYMENT_SUCCESSFUL!', 'success');
+        showNotification('PAYMENT_SUCCESSFUL! KEY_DELIVERED', 'success');
         
     } catch (error) {
         console.error('❌ Payment verification error:', error);
@@ -387,7 +461,6 @@ function copyToClipboard(text) {
 
 // Close all modals
 function closeAllModals() {
-    elements.paymentModal.style.display = 'none';
     elements.keyModal.style.display = 'none';
     
     currentPrice = 0;
