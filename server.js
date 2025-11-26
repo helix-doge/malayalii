@@ -966,6 +966,27 @@ app.get('/api/admin/logs', async (req, res) => {
     }
 });
 
+// 23. Get Admin Logs - ADD THIS ENDPOINT
+app.get('/api/admin/logs', async (req, res) => {
+    try {
+        const { data, error } = await supabase
+            .from('admin_logs')
+            .select('*')
+            .order('timestamp', { ascending: false })
+            .limit(50);
+        
+        if (error) {
+            console.error('Admin logs error:', error);
+            return res.json({ success: true, logs: [] });
+        }
+        
+        res.json({ success: true, logs: data || [] });
+    } catch (error) {
+        console.error('Admin logs endpoint error:', error);
+        res.json({ success: true, logs: [] });
+    }
+});
+
 // Helper function for fallback brands
 function getFallbackBrands() {
     return [
