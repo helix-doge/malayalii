@@ -6,6 +6,8 @@
     <title>Malayali Key Store</title>
     <link rel="stylesheet" href="css/style.css">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <!-- Razorpay Checkout Script -->
+    <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
 </head>
 <body>
     <div class="terminal-container">
@@ -18,7 +20,7 @@
                 <div class="terminal-prompt">
                     <span class="prompt-user">user@malayalistore</span>
                     <span class="prompt-symbol">:~$</span>
-                    <span class="prompt-command">access_granted</span>
+                    <span class="prompt-command">razorpay_live_active</span>
                 </div>
             </div>
         </header>
@@ -26,7 +28,7 @@
         <main class="terminal-body">
             <div class="command-line">
                 <span class="command-prefix">>></span>
-                <span class="command-text">SELECT_PRODUCT</span>
+                <span class="command-text">SELECT_PRODUCT_FOR_PAYMENT</span>
             </div>
 
             <div class="purchase-form">
@@ -57,7 +59,7 @@
 
                 <button id="purchase-btn" class="hack-btn" disabled>
                     <span class="btn-text">
-                        <i class="fas fa-bolt"></i> INITIATE_PURCHASE - ₹0
+                        <i class="fas fa-bolt"></i> PAY_NOW - ₹0
                     </span>
                     <div class="btn-glitch"></div>
                 </button>
@@ -66,11 +68,40 @@
             <div class="status-output">
                 <div class="output-line">
                     <span class="output-prefix">[STATUS]</span>
-                    <span class="output-text">SYSTEM_READY</span>
+                    <span class="output-text">RAZORPAY_LIVE_ACTIVE</span>
                 </div>
                 <div class="output-line">
                     <span class="output-prefix">[KEYS]</span>
                     <span class="output-text" id="available-keys">CHECKING_INVENTORY...</span>
+                </div>
+                <div class="output-line">
+                    <span class="output-prefix">[PAYMENT]</span>
+                    <span class="output-text">UPI/CARDS/NETBANKING_SUPPORTED</span>
+                </div>
+            </div>
+
+            <!-- Payment Methods Info -->
+            <div class="payment-methods-info">
+                <div class="info-card">
+                    <h3><i class="fas fa-shield-alt"></i> SECURE_PAYMENT_METHODS</h3>
+                    <div class="payment-icons">
+                        <div class="payment-icon">
+                            <i class="fas fa-mobile-alt"></i>
+                            <span>UPI</span>
+                        </div>
+                        <div class="payment-icon">
+                            <i class="fas fa-credit-card"></i>
+                            <span>CARDS</span>
+                        </div>
+                        <div class="payment-icon">
+                            <i class="fas fa-university"></i>
+                            <span>NETBANKING</span>
+                        </div>
+                        <div class="payment-icon">
+                            <i class="fas fa-wallet"></i>
+                            <span>WALLETS</span>
+                        </div>
+                    </div>
                 </div>
             </div>
 
@@ -85,104 +116,11 @@
         <footer class="terminal-footer">
             <div class="footer-content">
                 <div class="crypto-animation">
-                    <div class="crypto-text">ENCRYPTED_TRANSACTION_SECURE</div>
+                    <div class="crypto-text">RAZORPAY_SECURE_PAYMENTS_ENCRYPTED_TRANSACTIONS</div>
                 </div>
-                <p class="copyright">&copy; 2025 MALAYALI_KEY_STORE // ALL_RIGHTS_RESERVED</p>
+                <p class="copyright">&copy; 2025 MALAYALI_KEY_STORE // RAZORPAY_POWERED // ALL_RIGHTS_RESERVED</p>
             </div>
         </footer>
-    </div>
-
-    <!-- Payment Modal -->
-    <div id="payment-modal" class="modal">
-        <div class="modal-content terminal-modal">
-            <div class="modal-header">
-                <h2 class="glitch-text-sm" data-text="PAYMENT_INTERFACE">PAYMENT_INTERFACE</h2>
-                <span class="close">&times;</span>
-            </div>
-            <div class="payment-details">
-                <div class="order-summary">
-                    <h3><i class="fas fa-list"></i> ORDER_SUMMARY</h3>
-                    <div class="summary-item">
-                        <span>ORDER_ID:</span>
-                        <span id="order-id">-</span>
-                    </div>
-                    <div class="summary-item">
-                        <span>APPLICATION:</span>
-                        <span id="summary-brand">-</span>
-                    </div>
-                    <div class="summary-item">
-                        <span>DURATION:</span>
-                        <span id="summary-plan">-</span>
-                    </div>
-                    <div class="summary-item">
-                        <span>AMOUNT:</span>
-                        <span id="summary-price">₹0</span>
-                    </div>
-                </div>
-                
-                <div class="payment-instructions">
-                    <h3><i class="fas fa-money-check"></i> PAYMENT_METHOD</h3>
-                    <div class="instruction-steps">
-                        <div class="step">
-                            <div class="step-number">1</div>
-                            <div class="step-content">
-                                <strong>Scan QR Code or Send ₹<span id="payment-amount">0</span> to:</strong>
-                                <div class="upi-id" id="upi-display">malayalihere@ybl</div>
-                                <button id="copy-upi" class="copy-btn-terminal">
-                                    <i class="fas fa-copy"></i> COPY_UPI
-                                </button>
-                            </div>
-                        </div>
-                        <div class="step">
-                            <div class="step-number">2</div>
-                            <div class="step-content">
-                                <strong>Payment will be detected automatically</strong>
-                                <div class="note">System checks every 5 seconds</div>
-                            </div>
-                        </div>
-                        <div class="step">
-                            <div class="step-number">3</div>
-                            <div class="step-content">
-                                <strong>Key will be delivered automatically</strong>
-                                <div class="note">No manual verification needed</div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="qr-section">
-                    <h3><i class="fas fa-qrcode"></i> SCAN_TO_PAY</h3>
-                    <div id="qr-code" class="qr-container"></div>
-                </div>
-
-                <div class="payment-status">
-                    <div class="status-container">
-                        <div id="status-message" class="status-text">
-                            <i class="fas fa-sync fa-spin"></i> AWAITING_PAYMENT
-                        </div>
-                        <div class="payment-steps">
-                            <div class="step active">ORDER_CREATED</div>
-                            <div class="step">AWAITING_PAYMENT</div>
-                            <div class="step">DELIVERING_KEY</div>
-                        </div>
-                    </div>
-                    <div class="payment-actions">
-                        <!-- Add this in your payment modal after QR code section -->
-<div class="payment-actions" style="margin-top: 20px;">
-    <button id="cancel-payment" class="hack-btn cancel">
-        <i class="fas fa-times"></i> CANCEL_ORDER
-    </button>
-    <button id="i-have-paid-btn" class="hack-btn">
-        <i class="fas fa-check"></i> I_HAVE_PAID
-    </button>
-</div>
-                        <button id="cancel-payment" class="hack-btn cancel">
-                            <i class="fas fa-times"></i> CANCEL_ORDER
-                        </button>
-                    </div>
-                </div>
-            </div>
-        </div>
     </div>
 
     <!-- Key Reveal Modal -->
@@ -192,7 +130,7 @@
                 <div class="success-icon">
                     <i class="fas fa-shield-check"></i>
                 </div>
-                <div class="success-text">PAYMENT_VERIFIED</div>
+                <div class="success-text">PAYMENT_SUCCESSFUL</div>
             </div>
             <h2 class="glitch-text-sm" data-text="ACCESS_GRANTED">ACCESS_GRANTED</h2>
             <p>YOUR_LICENSE_KEY:</p>
@@ -211,11 +149,19 @@
                     <i class="fas fa-clock"></i>
                     <span>TIME: <span id="purchase-time"></span></span>
                 </div>
+                <div class="info-item">
+                    <i class="fas fa-check-circle"></i>
+                    <span>STATUS: <span style="color: var(--terminal-green);">VERIFIED</span></span>
+                </div>
             </div>
             <div class="key-info">
                 <div class="info-line">
                     <i class="fas fa-exclamation-triangle"></i>
                     STORE_KEY_SECURELY - SINGLE_USE_ONLY
+                </div>
+                <div class="info-line">
+                    <i class="fas fa-download"></i>
+                    DOWNLOAD_SOFTWARE_FROM_OFFICIAL_SOURCES
                 </div>
             </div>
             <button id="close-modal" class="hack-btn">
@@ -224,97 +170,103 @@
         </div>
     </div>
 
-    <script src="js/main.js"></script>
-
-<!-- Payment Verification Modal -->
-<div id="verification-modal" class="modal">
-    <div class="modal-content terminal-modal">
-        <div class="modal-header">
-            <h2 class="glitch-text-sm" data-text="VERIFY_PAYMENT">VERIFY_PAYMENT</h2>
-            <span class="close">&times;</span>
-        </div>
-        <div class="payment-details">
-            <div class="order-summary">
-                <h3><i class="fas fa-receipt"></i> ORDER_DETAILS</h3>
-                <div class="summary-item">
-                    <span>ORDER_ID:</span>
-                    <span id="verification-order-id">-</span>
-                </div>
-                <div class="summary-item">
-                    <span>AMOUNT_PAID:</span>
-                    <span id="verification-amount">₹0</span>
-                </div>
-            </div>
-            
-            <div class="payment-instructions">
-                <h3><i class="fas fa-check-circle"></i> PAYMENT_VERIFICATION</h3>
-                <div class="instruction-steps">
-                    <div class="step">
-                        <div class="step-number">1</div>
-                        <div class="step-content">
-                            <strong>Send ₹<span id="verification-amount-display">0</span> to UPI ID:</strong>
-                            <div class="upi-id">malayalihere@ybl</div>
-                            <button class="copy-btn-terminal" onclick="copyUpi()">
-                                <i class="fas fa-copy"></i> COPY_UPI
-                            </button>
-                        </div>
-                    </div>
-                    <div class="step">
-                        <div class="step-number">2</div>
-                        <div class="step-content">
-                            <strong>After payment, find UTR Number in your bank app</strong>
-                            <div class="note">UTR is a 12-digit transaction reference number</div>
-                            <div class="note" style="color: var(--terminal-yellow);">
-                                <i class="fas fa-info-circle"></i> Look in your bank statement or UPI app
-                            </div>
-                        </div>
-                    </div>
-                    <div class="step">
-                        <div class="step-number">3</div>
-                        <div class="step-content">
-                            <strong>Enter UTR Number below to get your key</strong>
-                            <div class="note">Verification is manual and instant</div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <div class="verification-form">
-                <div class="form-group">
-                    <label for="utr-number" class="form-label">
-                        <i class="fas fa-hashtag"></i> UTR_NUMBER
-                    </label>
-                    <input type="text" id="utr-number" class="terminal-input" 
-                           placeholder="ENTER_12_DIGIT_UTR_NUMBER" maxlength="16"
-                           style="font-family: monospace; letter-spacing: 1px;">
-                    <div class="note" style="font-size: 0.7rem; margin-top: 5px;">
-                        <i class="fas fa-key"></i> Example: 823479123456
-                    </div>
-                </div>
-                
-                <div class="form-group">
-                    <label for="transaction-amount" class="form-label">
-                        <i class="fas fa-rupee-sign"></i> TRANSACTION_AMOUNT
-                    </label>
-                    <input type="number" id="transaction-amount" class="terminal-input" 
-                           placeholder="ENTER_EXACT_AMOUNT_YOU_PAID">
-                    <div class="note" style="font-size: 0.7rem; margin-top: 5px;">
-                        <i class="fas fa-exclamation-triangle"></i> Must match order amount exactly
-                    </div>
-                </div>
-                
-                <div class="payment-actions">
-                    <button id="cancel-verification" class="hack-btn cancel">
-                        <i class="fas fa-times"></i> CANCEL
-                    </button>
-                    <button id="verify-payment-btn" class="hack-btn">
-                        <i class="fas fa-check"></i> VERIFY_PAYMENT
-                    </button>
+    <!-- Loading Modal -->
+    <div id="loading-modal" class="modal">
+        <div class="modal-content terminal-modal" style="text-align: center; padding: 40px;">
+            <div class="loading-animation">
+                <i class="fas fa-spinner fa-spin" style="font-size: 3rem; color: var(--terminal-cyan); margin-bottom: 20px;"></i>
+                <h3>PROCESSING_PAYMENT</h3>
+                <p>PLEASE_WAIT_WHILE_WE_PROCESS_YOUR_ORDER</p>
+                <div class="loading-dots">
+                    <span></span>
+                    <span></span>
+                    <span></span>
                 </div>
             </div>
         </div>
     </div>
-</div>
-    
+
+    <script src="js/main.js"></script>
+
+    <style>
+        .payment-methods-info {
+            margin: 30px 0;
+        }
+        
+        .info-card {
+            background: rgba(0, 255, 0, 0.05);
+            border: 1px solid var(--terminal-cyan);
+            padding: 20px;
+            border-radius: 0;
+        }
+        
+        .info-card h3 {
+            color: var(--terminal-cyan);
+            margin-bottom: 15px;
+            font-size: 1.1rem;
+            text-align: center;
+        }
+        
+        .payment-icons {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 15px;
+            text-align: center;
+        }
+        
+        .payment-icon {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .payment-icon i {
+            font-size: 1.5rem;
+            color: var(--terminal-green);
+        }
+        
+        .payment-icon span {
+            font-size: 0.8rem;
+            color: var(--terminal-text);
+            text-transform: uppercase;
+        }
+        
+        .loading-dots {
+            display: flex;
+            justify-content: center;
+            gap: 5px;
+            margin-top: 20px;
+        }
+        
+        .loading-dots span {
+            width: 8px;
+            height: 8px;
+            background: var(--terminal-cyan);
+            border-radius: 50%;
+            animation: pulse 1.4s ease-in-out infinite both;
+        }
+        
+        .loading-dots span:nth-child(1) { animation-delay: -0.32s; }
+        .loading-dots span:nth-child(2) { animation-delay: -0.16s; }
+        
+        @keyframes pulse {
+            0%, 80%, 100% { 
+                transform: scale(0.8);
+                opacity: 0.5;
+            }
+            40% { 
+                transform: scale(1.2);
+                opacity: 1;
+            }
+        }
+        
+        @media (max-width: 768px) {
+            .payment-icons {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 20px;
+            }
+        }
+    </style>
 </body>
 </html>
