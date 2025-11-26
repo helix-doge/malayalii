@@ -191,10 +191,14 @@ async function updateStats() {
     }
 }
 
+// FIXED: Apps grid loading function
 async function loadAppsGrid() {
     const appsGrid = document.getElementById('apps-grid');
     
     try {
+        // Always clear the grid first
+        appsGrid.innerHTML = '';
+        
         if (!brandsData || brandsData.length === 0) {
             appsGrid.innerHTML = `
                 <div class="app-card" style="grid-column: 1/-1; text-align: center; padding: 40px;">
@@ -212,7 +216,7 @@ async function loadAppsGrid() {
             return;
         }
         
-        appsGrid.innerHTML = '';
+        console.log(`🔄 Loading ${brandsData.length} apps into grid...`);
         
         // Use requestAnimationFrame for smooth rendering
         requestAnimationFrame(() => {
@@ -259,17 +263,29 @@ async function loadAppsGrid() {
             
             // Add event listeners
             setupAppGridEventListeners();
+            
+            console.log(`✅ Successfully loaded ${brandsData.length} apps`);
         });
         
     } catch (error) {
         console.error('Error loading apps grid:', error);
+        appsGrid.innerHTML = `
+            <div class="app-card" style="grid-column: 1/-1; text-align: center; padding: 40px; color: var(--terminal-red);">
+                <i class="fas fa-exclamation-triangle" style="font-size: 3rem; margin-bottom: 15px;"></i>
+                <div>ERROR_LOADING_APPLICATIONS</div>
+            </div>
+        `;
         showNotification('ERROR_LOADING_APPLICATIONS_GRID', 'error');
     }
 }
 
 // Load keys count for each brand
 async function loadKeysCountForBrands() {
-    brandsData.forEach(async (brand) => {
+    if (!brandsData || brandsData.length === 0) return;
+    
+    console.log(`🔑 Loading keys count for ${brandsData.length} brands...`);
+    
+    for (const brand of brandsData) {
         try {
             const response = await fetch(`${API_BASE_URL}/api/keys/available/${brand.id}`);
             const data = await response.json();
@@ -278,12 +294,18 @@ async function loadKeysCountForBrands() {
                 const countElement = document.querySelector(`.keys-count[data-brand-id="${brand.id}"]`);
                 if (countElement) {
                     countElement.textContent = data.count;
+                    console.log(`✅ Brand ${brand.name}: ${data.count} keys available`);
                 }
             }
         } catch (error) {
             console.error(`Error loading keys count for brand ${brand.id}:`, error);
+            const countElement = document.querySelector(`.keys-count[data-brand-id="${brand.id}"]`);
+            if (countElement) {
+                countElement.textContent = 'Error';
+                countElement.style.color = 'var(--terminal-red)';
+            }
         }
-    });
+    }
 }
 
 // Setup event listeners for app grid
@@ -318,6 +340,8 @@ function setupAppGridEventListeners() {
 function loadFilters() {
     const appFilter = document.getElementById('app-filter');
     appFilter.innerHTML = '<option value="">ALL_APPS</option>';
+    
+    if (!brandsData || brandsData.length === 0) return;
     
     brandsData.forEach(brand => {
         const option = document.createElement('option');
@@ -442,12 +466,14 @@ function openAddKeyModal() {
     keyDurationSelect.innerHTML = '<option value="">SELECT_APPLICATION_FIRST</option>';
     keyDurationSelect.disabled = true;
     
-    brandsData.forEach(brand => {
-        const option = document.createElement('option');
-        option.value = brand.id;
-        option.textContent = brand.name.toUpperCase();
-        keyAppSelect.appendChild(option);
-    });
+    if (brandsData && brandsData.length > 0) {
+        brandsData.forEach(brand => {
+            const option = document.createElement('option');
+            option.value = brand.id;
+            option.textContent = brand.name.toUpperCase();
+            keyAppSelect.appendChild(option);
+        });
+    }
     
     // Add event listener to load durations when app is selected
     keyAppSelect.addEventListener('change', function() {
@@ -478,15 +504,17 @@ function openAddDurationModal(appId = null) {
     const durationAppSelect = document.getElementById('duration-app');
     durationAppSelect.innerHTML = '<option value="">SELECT_APPLICATION</option>';
     
-    brandsData.forEach(brand => {
-        const option = document.createElement('option');
-        option.value = brand.id;
-        option.textContent = brand.name.toUpperCase();
-        if (appId && brand.id === appId) {
-            option.selected = true;
-        }
-        durationAppSelect.appendChild(option);
-    });
+    if (brandsData && brandsData.length > 0) {
+        brandsData.forEach(brand => {
+            const option = document.createElement('option');
+            option.value = brand.id;
+            option.textContent = brand.name.toUpperCase();
+            if (appId && brand.id === appId) {
+                option.selected = true;
+            }
+            durationAppSelect.appendChild(option);
+        });
+    }
     
     document.getElementById('add-duration-modal').style.display = 'block';
     document.getElementById('duration-form').reset();
