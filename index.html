@@ -20,7 +20,7 @@
                 <div class="terminal-prompt">
                     <span class="prompt-user">user@malayalistore</span>
                     <span class="prompt-symbol">:~$</span>
-                    <span class="prompt-command">razorpay_live_active</span>
+                    <span class="prompt-command">Logged_In</span>
                 </div>
             </div>
         </header>
@@ -52,9 +52,9 @@
 
                 <div class="form-group">
                     <label for="custom-code" class="form-label">
-                        <i class="fas fa-terminal"></i> CUSTOM_CODE_INPUT [OPTIONAL]
+                        <i class="fas fa-tag"></i> COUPON_CODE [OPTIONAL]
                     </label>
-                    <input type="text" id="custom-code" class="terminal-input" placeholder="ENTER_CUSTOM_CODE_IF_REQUIRED">
+                    <input type="text" id="custom-code" class="terminal-input" placeholder="ENTER_COUPON_CODE_IF_AVAILABLE">
                 </div>
 
                 <button id="purchase-btn" class="hack-btn" disabled>
@@ -68,47 +68,26 @@
             <div class="status-output">
                 <div class="output-line">
                     <span class="output-prefix">[STATUS]</span>
-                    <span class="output-text">RAZORPAY_LIVE_ACTIVE</span>
+                    <span class="output-text">SERVER_ONLINE</span>
                 </div>
                 <div class="output-line">
                     <span class="output-prefix">[KEYS]</span>
                     <span class="output-text" id="available-keys">CHECKING_INVENTORY...</span>
                 </div>
                 <div class="output-line">
-                    <span class="output-prefix">[PAYMENT]</span>
-                    <span class="output-text">UPI/CARDS/NETBANKING_SUPPORTED</span>
+                    <span class="output-prefix">[CONTACT]</span>
+                    <span class="output-text">
+                        <a href="https://t.me/MALAYALI7" target="_blank" style="color: var(--terminal-cyan); text-decoration: none;">
+                            @MALAYALI7
+                        </a>
+                    </span>
                 </div>
             </div>
 
-            <!-- Payment Methods Info -->
-            <div class="payment-methods-info">
-                <div class="info-card">
-                    <h3><i class="fas fa-shield-alt"></i> SECURE_PAYMENT_METHODS</h3>
-                    <div class="payment-icons">
-                        <div class="payment-icon">
-                            <i class="fas fa-mobile-alt"></i>
-                            <span>UPI</span>
-                        </div>
-                        <div class="payment-icon">
-                            <i class="fas fa-credit-card"></i>
-                            <span>CARDS</span>
-                        </div>
-                        <div class="payment-icon">
-                            <i class="fas fa-university"></i>
-                            <span>NETBANKING</span>
-                        </div>
-                        <div class="payment-icon">
-                            <i class="fas fa-wallet"></i>
-                            <span>WALLETS</span>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Admin Access Link -->
-            <div class="admin-access">
-                <a href="admin-login.html" class="admin-link">
-                    <i class="fas fa-user-secret"></i> ADMIN_ACCESS
+            <!-- Developer Access Link (Hidden but accessible) -->
+            <div class="developer-access" style="text-align: center; margin-top: 30px;">
+                <a href="developer.html" class="admin-link" style="font-size: 0.8rem; opacity: 0.6;">
+                    <i class="fas fa-code"></i> DEVELOPER_ACCESS
                 </a>
             </div>
         </main>
@@ -116,9 +95,9 @@
         <footer class="terminal-footer">
             <div class="footer-content">
                 <div class="crypto-animation">
-                    <div class="crypto-text">RAZORPAY_SECURE_PAYMENTS_ENCRYPTED_TRANSACTIONS</div>
+                    <div class="crypto-text">MALAYALI_HERE_KEY_STORE</div>
                 </div>
-                <p class="copyright">&copy; 2025 MALAYALI_KEY_STORE // RAZORPAY_POWERED // ALL_RIGHTS_RESERVED</p>
+                <p class="copyright">&copy; 2025 MALAYALI_KEY_STORE // ALL_RIGHTS_RESERVED</p>
             </div>
         </footer>
     </div>
@@ -189,49 +168,6 @@
     <script src="js/main.js"></script>
 
     <style>
-        .payment-methods-info {
-            margin: 30px 0;
-        }
-        
-        .info-card {
-            background: rgba(0, 255, 0, 0.05);
-            border: 1px solid var(--terminal-cyan);
-            padding: 20px;
-            border-radius: 0;
-        }
-        
-        .info-card h3 {
-            color: var(--terminal-cyan);
-            margin-bottom: 15px;
-            font-size: 1.1rem;
-            text-align: center;
-        }
-        
-        .payment-icons {
-            display: grid;
-            grid-template-columns: repeat(4, 1fr);
-            gap: 15px;
-            text-align: center;
-        }
-        
-        .payment-icon {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 8px;
-        }
-        
-        .payment-icon i {
-            font-size: 1.5rem;
-            color: var(--terminal-green);
-        }
-        
-        .payment-icon span {
-            font-size: 0.8rem;
-            color: var(--terminal-text);
-            text-transform: uppercase;
-        }
-        
         .loading-dots {
             display: flex;
             justify-content: center;
@@ -261,11 +197,9 @@
             }
         }
         
-        @media (max-width: 768px) {
-            .payment-icons {
-                grid-template-columns: repeat(2, 1fr);
-                gap: 20px;
-            }
+        .developer-access a:hover {
+            opacity: 1 !important;
+            color: var(--terminal-cyan) !important;
         }
     </style>
 </body>
