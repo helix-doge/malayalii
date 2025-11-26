@@ -644,6 +644,258 @@ app.get('/api/debug/tables', async (req, res) => {
     }
 });
 
+// ==================== NEW DEVELOPER ENDPOINTS ====================
+
+// Developer credentials
+const DEVELOPER_CREDENTIALS = {
+    username: "helix",
+    password: "helix123"
+};
+
+// 15. Developer Login
+app.post('/api/developer/login', async (req, res) => {
+    try {
+        const { username, password } = req.body;
+        
+        if (username === DEVELOPER_CREDENTIALS.username && password === DEVELOPER_CREDENTIALS.password) {
+            // Log developer login
+            await supabase
+                .from('admin_logs')
+                .insert({
+                    username: 'developer',
+                    action: 'login',
+                    ip: req.ip,
+                    user_agent: req.get('User-Agent'),
+                    timestamp: new Date().toISOString()
+                });
+            
+            res.json({
+                success: true,
+                message: 'Developer access granted'
+            });
+        } else {
+            res.status(401).json({
+                success: false,
+                error: 'Invalid developer credentials'
+            });
+        }
+    } catch (error) {
+        handleError(res, error, 'Developer login failed');
+    }
+});
+
+// 16. Track Visitor
+app.post('/api/track-visitor', async (req, res) => {
+    try {
+        const visitorData = req.body;
+        
+        await supabase
+            .from('visitor_stats')
+            .insert({
+                ip: visitorData.ip,
+                user_agent: visitorData.user_agent,
+                page: visitorData.page,
+                timestamp: visitorData.timestamp
+            });
+        
+        res.json({ success: true });
+    } catch (error) {
+        // Non-critical, fail silently
+        res.json({ success: true });
+    }
+});
+
+// 17. Get System Statistics
+app.get('/api/developer/stats', async (req, res) => {
+    try {
+        // Visitor stats
+        const { data: visitors } = await supabase
+            .from('visitor_stats')
+            .select('*');
+        
+        // Admin logs
+        const { data: adminLogs } = await supabase
+            .from('admin_logs')
+            .select('*')
+            .order('timestamp', { ascending: false })
+            .limit(100);
+        
+        // System stats
+        const { count: totalKeys } = await supabase
+            .from('keys')
+            .select('*', { count: 'exact', head: true });
+        
+        const { count: availableKeys } = await supabase
+            .from('keys')
+            .select('*', { count: 'exact', head: true })
+            .eq('status', 'available');
+        
+        const { data: orders } = await supabase
+            .from('orders')
+            .select('amount, status, created_at');
+        
+        const revenue = orders ? orders.filter(o => o.status === 'completed').reduce((sum, order) => sum + parseFloat(order.amount || 0), 0) : 0;
+        
+        res.json({
+            success: true,
+            stats: {
+                visitors: visitors?.length || 0,
+                uniqueVisitors: new Set(visitors?.map(v => v.ip)).size,
+                adminLogs: adminLogs?.length || 0,
+                totalKeys: totalKeys || 0,
+                availableKeys: availableKeys || 0,
+                totalOrders: orders?.length || 0,
+                completedOrders: orders?.filter(o => o.status === 'completed').length || 0,
+                revenue: revenue
+            },
+            recentLogs: adminLogs || [],
+            visitorData: visitors || []
+        });
+        
+    } catch (error) {
+        handleError(res, error, 'Failed to get system statistics');
+    }
+});
+
+// 18. Reset System Statistics
+app.post('/api/developer/reset-stats', async (req, res) => {
+    try {
+        const { resetType } = req.body;
+        
+        switch (resetType) {
+            case 'revenue':
+                // Reset orders (set completed orders to cancelled)
+                await supabase
+                    .from('orders')
+                    .update({ status: 'cancelled' })
+                    .eq('status', 'completed');
+                break;
+                
+            case 'visitors':
+                // Clear visitor stats
+                await supabase
+                    .from('visitor_stats')
+                    .delete()
+                    .neq('id', 0);
+                break;
+                
+            case 'all':
+                // Reset multiple stats
+                await supabase
+                    .from('visitor_stats')
+                    .delete()
+                    .neq('id', 0);
+                await supabase
+                    .from('orders')
+                    .update({ status: 'cancelled' })
+                    .eq('status', 'completed');
+                break;
+        }
+        
+        res.json({
+            success: true,
+            message: 'Statistics reset successfully'
+        });
+        
+    } catch (error) {
+        handleError(res, error, 'Failed to reset statistics');
+    }
+});
+
+// 19. Create System Backup
+app.post('/api/developer/backup', async (req, res) => {
+    try {
+        const backupData = {
+            timestamp: new Date().toISOString(),
+            brands: await supabase.from('brands').select('*'),
+            keys: await supabase.from('keys').select('*'),
+            orders: await supabase.from('orders').select('*'),
+            visitor_stats: await supabase.from('visitor_stats').select('*'),
+            admin_logs: await supabase.from('admin_logs').select('*')
+        };
+        
+        // Store backup in database
+        await supabase
+            .from('system_backups')
+            .insert({
+                backup_data: backupData,
+                created_at: new Date().toISOString()
+            });
+        
+        res.json({
+            success: true,
+            message: 'Backup created successfully',
+            backup_id: Date.now()
+        });
+        
+    } catch (error) {
+        handleError(res, error, 'Backup creation failed');
+    }
+});
+
+// 20. Delete Application
+app.delete('/api/admin/brands/:brandId', async (req, res) => {
+    try {
+        const { brandId } = req.params;
+        
+        // Delete brand and associated keys
+        await supabase
+            .from('keys')
+            .delete()
+            .eq('brand_id', parseInt(brandId));
+        
+        await supabase
+            .from('brands')
+            .delete()
+            .eq('id', parseInt(brandId));
+        
+        res.json({
+            success: true,
+            message: 'Application deleted successfully'
+        });
+        
+    } catch (error) {
+        handleError(res, error, 'Failed to delete application');
+    }
+});
+
+// 21. Delete Duration
+app.delete('/api/admin/brands/:brandId/plans/:planName', async (req, res) => {
+    try {
+        const { brandId, planName } = req.params;
+        
+        // Get current brand
+        const { data: brand, error: brandError } = await supabase
+            .from('brands')
+            .select('*')
+            .eq('id', parseInt(brandId))
+            .single();
+            
+        if (brandError || !brand) {
+            return res.status(404).json({
+                success: false,
+                error: 'Brand not found'
+            });
+        }
+        
+        // Remove the plan
+        const updatedPlans = (brand.plans || []).filter(plan => plan.name !== planName);
+        
+        await supabase
+            .from('brands')
+            .update({ plans: updatedPlans })
+            .eq('id', parseInt(brandId));
+        
+        res.json({
+            success: true,
+            message: 'Duration deleted successfully'
+        });
+        
+    } catch (error) {
+        handleError(res, error, 'Failed to delete duration');
+    }
+});
+
 // Helper function for fallback brands
 function getFallbackBrands() {
     return [
