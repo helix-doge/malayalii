@@ -112,58 +112,109 @@ app.get('/api/keys/available/:brandId', async (req, res) => {
     }
 });
 
-// 4. Create Order
+// 4. Create Order - FIXED VERSION
 app.post('/api/create-order', async (req, res) => {
     try {
         const { orderId, brandId, planName, amount } = req.body;
+        
+        console.log('📨 Creating order with data:', { orderId, brandId, planName, amount });
+
+        // Validate input with detailed errors
+        if (!orderId) {
+            return res.status(400).json({ success: false, error: 'Order ID is required' });
+        }
+        if (!brandId) {
+            return res.status(400).json({ success: false, error: 'Brand ID is required' });
+        }
+        if (!planName) {
+            return res.status(400).json({ success: false, error: 'Plan name is required' });
+        }
+        if (!amount) {
+            return res.status(400).json({ success: false, error: 'Amount is required' });
+        }
+
+        // Convert to proper types
+        const brandIdInt = parseInt(brandId);
+        const amountFloat = parseFloat(amount);
+        
+        if (isNaN(brandIdInt)) {
+            return res.status(400).json({ success: false, error: 'Invalid brand ID format' });
+        }
+        if (isNaN(amountFloat)) {
+            return res.status(400).json({ success: false, error: 'Invalid amount format' });
+        }
 
         // Check if keys are available
+        console.log(`🔑 Checking keys for brand ${brandIdInt}, plan ${planName}`);
         const { data: availableKeys, error: keysError } = await supabase
             .from('keys')
             .select('*')
-            .eq('brand_id', parseInt(brandId))
+            .eq('brand_id', brandIdInt)
             .eq('plan', planName)
             .eq('status', 'available')
             .limit(1);
-
+            
+        if (keysError) {
+            console.error('❌ Keys check error:', keysError);
+            throw keysError;
+        }
+            
         if (!availableKeys || availableKeys.length === 0) {
-            return res.status(400).json({
-                success: false,
-                error: 'No keys available for this selection'
+            console.log(`❌ No keys available for brand ${brandIdInt}, plan ${planName}`);
+            return res.status(400).json({ 
+                success: false, 
+                error: 'NO_KEYS_AVAILABLE' 
             });
         }
 
-        // Create order
+        console.log(`✅ Keys available, creating order: ${orderId}`);
+
+        // Create order with explicit data types
         const orderData = {
             order_id: orderId,
-            brand_id: parseInt(brandId),
+            brand_id: brandIdInt,
             plan_name: planName,
-            amount: parseFloat(amount),
+            amount: amountFloat,
             status: 'pending',
             created_at: new Date().toISOString()
         };
+
+        console.log('💾 Order data to insert:', orderData);
 
         const { data: order, error: orderError } = await supabase
             .from('orders')
             .insert(orderData)
             .select()
             .single();
-
+            
         if (orderError) {
-            return res.status(500).json({
-                success: false,
-                error: 'Failed to create order: ' + orderError.message
-            });
+            console.error('❌ Order creation error:', orderError);
+            
+            // Check if it's a duplicate order ID error
+            if (orderError.code === '23505') { // Unique violation
+                return res.status(400).json({ 
+                    success: false, 
+                    error: 'Order ID already exists' 
+                });
+            }
+            
+            throw orderError;
         }
 
-        res.json({
-            success: true,
-            order: order,
-            message: 'Order created successfully'
+        console.log(`✅ Order created successfully: ${orderId}`);
+        res.json({ 
+            success: true, 
+            message: 'Order created successfully',
+            order: order
         });
 
     } catch (error) {
-        handleError(res, error, 'Failed to create order');
+        console.error('❌ Order creation error:', error);
+        res.status(500).json({ 
+            success: false, 
+            error: 'Failed to create order',
+            details: error.message 
+        });
     }
 });
 
@@ -658,14 +709,14 @@ app.post('/api/developer/login', async (req, res) => {
         const { username, password } = req.body;
         
         if (username === DEVELOPER_CREDENTIALS.username && password === DEVELOPER_CREDENTIALS.password) {
-            // Log developer login
-            await supabase
+            // Create admin log entry
+            const { error: logError } = await supabase
                 .from('admin_logs')
                 .insert({
                     username: 'developer',
                     action: 'login',
-                    ip: req.ip,
-                    user_agent: req.get('User-Agent'),
+                    ip: req.ip || 'unknown',
+                    user_agent: req.get('User-Agent') || 'unknown',
                     timestamp: new Date().toISOString()
                 });
             
@@ -893,6 +944,25 @@ app.delete('/api/admin/brands/:brandId/plans/:planName', async (req, res) => {
         
     } catch (error) {
         handleError(res, error, 'Failed to delete duration');
+    }
+});
+
+// 22. Get Admin Logs
+app.get('/api/admin/logs', async (req, res) => {
+    try {
+        const { data, error } = await supabase
+            .from('admin_logs')
+            .select('*')
+            .order('timestamp', { ascending: false })
+            .limit(50);
+        
+        if (error) {
+            return res.json({ success: true, logs: [] });
+        }
+        
+        res.json({ success: true, logs: data || [] });
+    } catch (error) {
+        res.json({ success: true, logs: [] });
     }
 });
 
