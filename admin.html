@@ -231,5 +231,27 @@
     </div>
 
     <script src="js/admin.js"></script>
+    <script>
+// Temporary debug script
+console.log('🛠️ DEBUG: Checking admin panel initialization...');
+
+// Check if elements exist
+console.log('Apps grid element:', document.getElementById('apps-grid'));
+console.log('Brands data:', window.brandsData);
+
+// Force reload apps after 2 seconds if still empty
+setTimeout(() => {
+    const appsGrid = document.getElementById('apps-grid');
+    if (appsGrid && appsGrid.children.length === 0) {
+        console.log('🛠️ DEBUG: Apps grid is empty, forcing reload...');
+        if (window.loadAppsGrid && window.brandsData) {
+            window.loadAppsGrid();
+        } else {
+            console.log('🛠️ DEBUG: Functions not available, reloading page...');
+            window.location.reload();
+        }
+    }
+}, 2000);
+</script>
 </body>
 </html>
