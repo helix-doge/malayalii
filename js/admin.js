@@ -42,6 +42,7 @@ async function initializeAdminPanel() {
 
 async function loadAdminData() {
     try {
+        // Load all data in parallel for better performance
         await Promise.all([
             loadBrands(),
             updateStats(),
@@ -116,7 +117,12 @@ function setupAdminEvents() {
     // Add key button
     document.getElementById('add-key-btn').addEventListener('click', openAddKeyModal);
     
-    // Form submissions - FIXED EVENT LISTENERS
+    // Developer access button
+    document.getElementById('developer-btn').addEventListener('click', function() {
+        window.location.href = 'developer.html';
+    });
+    
+    // Form submissions
     document.getElementById('app-form').addEventListener('submit', handleAddApp);
     document.getElementById('key-form').addEventListener('submit', handleAddKey);
     document.getElementById('duration-form').addEventListener('submit', handleAddDuration);
@@ -208,61 +214,105 @@ async function loadAppsGrid() {
         
         appsGrid.innerHTML = '';
         
-        for (const brand of brandsData) {
-            // Get available keys count for this brand
-            let availableCount = 0;
-            try {
-                const keysResponse = await fetch(`${API_BASE_URL}/api/keys/available/${brand.id}`);
-                if (keysResponse.ok) {
-                    const keysData = await keysResponse.json();
-                    availableCount = keysData.success ? keysData.count : 0;
-                }
-            } catch (error) {
-                console.error(`Error loading key count for brand ${brand.id}:`, error);
-                availableCount = 5; // Fallback count
-            }
-            
-            const appCard = document.createElement('div');
-            appCard.className = 'app-card';
-            
-            appCard.innerHTML = `
-                <div class="app-name">${brand.name.toUpperCase()}</div>
-                <div class="app-description">${brand.description || 'No description'}</div>
-                <div class="app-stats">
-                    <div style="color: var(--terminal-green); font-size: 0.8rem;">
-                        KEYS_AVAILABLE: ${availableCount}
+        // Use requestAnimationFrame for smooth rendering
+        requestAnimationFrame(() => {
+            brandsData.forEach(brand => {
+                const appCard = document.createElement('div');
+                appCard.className = 'app-card';
+                
+                appCard.innerHTML = `
+                    <div class="app-header">
+                        <div class="app-name">${brand.name.toUpperCase()}</div>
+                        <button class="hack-btn-sm delete-app-btn" data-app-id="${brand.id}" data-app-name="${brand.name}">
+                            <i class="fas fa-trash"></i> DELETE
+                        </button>
                     </div>
-                </div>
-                <div class="app-durations">
-                    ${(brand.plans || []).map(plan => `
-                        <div class="duration-item">
-                            <span>${plan.name}</span>
-                            <span>₹${plan.price}</span>
+                    <div class="app-description">${brand.description || 'No description'}</div>
+                    <div class="app-stats">
+                        <div style="color: var(--terminal-green); font-size: 0.8rem;">
+                            KEYS_AVAILABLE: <span class="keys-count" data-brand-id="${brand.id}">Loading...</span>
                         </div>
-                    `).join('')}
-                </div>
-                <div class="app-actions">
-                    <button class="hack-btn-sm add-duration-btn" data-app-id="${brand.id}">
-                        <i class="fas fa-plus"></i> ADD_DURATION
-                    </button>
-                </div>
-            `;
-            
-            appsGrid.appendChild(appCard);
-        }
-        
-        // Add event listeners to duration buttons
-        document.querySelectorAll('.add-duration-btn').forEach(button => {
-            button.addEventListener('click', function() {
-                const appId = parseInt(this.getAttribute('data-app-id'));
-                openAddDurationModal(appId);
+                    </div>
+                    <div class="app-durations">
+                        ${(brand.plans || []).map(plan => `
+                            <div class="duration-item">
+                                <span>${plan.name}</span>
+                                <span>₹${plan.price}</span>
+                                <button class="delete-duration-btn" data-app-id="${brand.id}" data-plan-name="${plan.name}">
+                                    <i class="fas fa-times" style="color: var(--terminal-red); cursor: pointer;"></i>
+                                </button>
+                            </div>
+                        `).join('')}
+                    </div>
+                    <div class="app-actions">
+                        <button class="hack-btn-sm add-duration-btn" data-app-id="${brand.id}">
+                            <i class="fas fa-plus"></i> ADD_DURATION
+                        </button>
+                    </div>
+                `;
+                
+                appsGrid.appendChild(appCard);
             });
+            
+            // Load keys count for each brand
+            loadKeysCountForBrands();
+            
+            // Add event listeners
+            setupAppGridEventListeners();
         });
         
     } catch (error) {
         console.error('Error loading apps grid:', error);
         showNotification('ERROR_LOADING_APPLICATIONS_GRID', 'error');
     }
+}
+
+// Load keys count for each brand
+async function loadKeysCountForBrands() {
+    brandsData.forEach(async (brand) => {
+        try {
+            const response = await fetch(`${API_BASE_URL}/api/keys/available/${brand.id}`);
+            const data = await response.json();
+            
+            if (data.success) {
+                const countElement = document.querySelector(`.keys-count[data-brand-id="${brand.id}"]`);
+                if (countElement) {
+                    countElement.textContent = data.count;
+                }
+            }
+        } catch (error) {
+            console.error(`Error loading keys count for brand ${brand.id}:`, error);
+        }
+    });
+}
+
+// Setup event listeners for app grid
+function setupAppGridEventListeners() {
+    // Add duration buttons
+    document.querySelectorAll('.add-duration-btn').forEach(button => {
+        button.addEventListener('click', function() {
+            const appId = parseInt(this.getAttribute('data-app-id'));
+            openAddDurationModal(appId);
+        });
+    });
+    
+    // Delete app buttons
+    document.querySelectorAll('.delete-app-btn').forEach(button => {
+        button.addEventListener('click', function() {
+            const appId = parseInt(this.getAttribute('data-app-id'));
+            const appName = this.getAttribute('data-app-name');
+            deleteApplication(appId, appName);
+        });
+    });
+    
+    // Delete duration buttons
+    document.querySelectorAll('.delete-duration-btn').forEach(button => {
+        button.addEventListener('click', function() {
+            const appId = parseInt(this.getAttribute('data-app-id'));
+            const planName = this.getAttribute('data-plan-name');
+            deleteDuration(appId, planName);
+        });
+    });
 }
 
 function loadFilters() {
@@ -324,37 +374,39 @@ async function loadKeysTable() {
             
             tableBody.innerHTML = '';
             
-            filteredKeys.forEach(key => {
-                const brandName = key.brands ? key.brands.name : 'UNKNOWN';
-                const row = document.createElement('tr');
+            requestAnimationFrame(() => {
+                filteredKeys.forEach(key => {
+                    const brandName = key.brands ? key.brands.name : 'UNKNOWN';
+                    const row = document.createElement('tr');
+                    
+                    row.innerHTML = `
+                        <td>
+                            <code style="color: var(--terminal-cyan); font-size: 0.8rem;">${key.key_value}</code>
+                        </td>
+                        <td>${brandName.toUpperCase()}</td>
+                        <td>${key.plan}</td>
+                        <td>
+                            <span class="status-${key.status}">${key.status.toUpperCase()}</span>
+                        </td>
+                        <td>
+                            ${key.order_id ? `<code style="font-size: 0.7rem;">${key.order_id}</code>` : '-'}
+                        </td>
+                        <td>
+                            <button class="hack-btn-sm delete-key-btn" data-key-id="${key.id}">
+                                <i class="fas fa-trash"></i> DELETE
+                            </button>
+                        </td>
+                    `;
+                    
+                    tableBody.appendChild(row);
+                });
                 
-                row.innerHTML = `
-                    <td>
-                        <code style="color: var(--terminal-cyan); font-size: 0.8rem;">${key.key_value}</code>
-                    </td>
-                    <td>${brandName.toUpperCase()}</td>
-                    <td>${key.plan}</td>
-                    <td>
-                        <span class="status-${key.status}">${key.status.toUpperCase()}</span>
-                    </td>
-                    <td>
-                        ${key.order_id ? `<code style="font-size: 0.7rem;">${key.order_id}</code>` : '-'}
-                    </td>
-                    <td>
-                        <button class="hack-btn-sm delete-key-btn" data-key-id="${key.id}">
-                            <i class="fas fa-trash"></i> DELETE
-                        </button>
-                    </td>
-                `;
-                
-                tableBody.appendChild(row);
-            });
-            
-            // Add event listeners to delete buttons
-            document.querySelectorAll('.delete-key-btn').forEach(button => {
-                button.addEventListener('click', function() {
-                    const keyId = parseInt(this.getAttribute('data-key-id'));
-                    deleteKey(keyId);
+                // Add event listeners to delete buttons
+                document.querySelectorAll('.delete-key-btn').forEach(button => {
+                    button.addEventListener('click', function() {
+                        const keyId = parseInt(this.getAttribute('data-key-id'));
+                        deleteKey(keyId);
+                    });
                 });
             });
             
@@ -441,7 +493,59 @@ function openAddDurationModal(appId = null) {
     document.getElementById('duration-name').focus();
 }
 
-// Form handlers - FIXED VERSIONS
+// NEW: Delete Application
+async function deleteApplication(appId, appName) {
+    if (!confirm(`CONFIRM_DELETE_APPLICATION?\n\nApplication: ${appName}\n\nTHIS_ACTION_CANNOT_BE_UNDONE.`)) {
+        return;
+    }
+    
+    try {
+        const response = await fetch(`${API_BASE_URL}/api/admin/brands/${appId}`, {
+            method: 'DELETE'
+        });
+        
+        const data = await response.json();
+        
+        if (!response.ok || !data.success) {
+            throw new Error(data.error || 'Failed to delete application');
+        }
+        
+        showNotification('APPLICATION_DELETED_SUCCESSFULLY', 'success');
+        await loadAdminData(); // Reload all data
+        
+    } catch (error) {
+        console.error('Error deleting application:', error);
+        showNotification('DELETE_APPLICATION_FAILED: ' + error.message, 'error');
+    }
+}
+
+// NEW: Delete Duration
+async function deleteDuration(appId, planName) {
+    if (!confirm(`CONFIRM_DELETE_DURATION?\n\nPlan: ${planName}\n\nTHIS_ACTION_CANNOT_BE_UNDONE.`)) {
+        return;
+    }
+    
+    try {
+        const response = await fetch(`${API_BASE_URL}/api/admin/brands/${appId}/plans/${encodeURIComponent(planName)}`, {
+            method: 'DELETE'
+        });
+        
+        const data = await response.json();
+        
+        if (!response.ok || !data.success) {
+            throw new Error(data.error || 'Failed to delete duration');
+        }
+        
+        showNotification('DURATION_DELETED_SUCCESSFULLY', 'success');
+        await loadAdminData(); // Reload all data
+        
+    } catch (error) {
+        console.error('Error deleting duration:', error);
+        showNotification('DELETE_DURATION_FAILED: ' + error.message, 'error');
+    }
+}
+
+// Form handlers
 async function handleAddApp(e) {
     e.preventDefault();
     
@@ -655,6 +759,35 @@ notificationStyles.textContent = `
     @keyframes slideOut {
         from { transform: translateX(0); opacity: 1; }
         to { transform: translateX(100%); opacity: 0; }
+    }
+    
+    .app-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 10px;
+    }
+    
+    .delete-app-btn {
+        background: rgba(255, 0, 0, 0.1) !important;
+        border-color: var(--terminal-red) !important;
+        color: var(--terminal-red) !important;
+    }
+    
+    .delete-app-btn:hover {
+        background: rgba(255, 0, 0, 0.2) !important;
+    }
+    
+    .duration-item {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 8px 0;
+        border-bottom: 1px solid rgba(0, 255, 0, 0.1);
+    }
+    
+    .duration-item:last-child {
+        border-bottom: none;
     }
 `;
 document.head.appendChild(notificationStyles);
