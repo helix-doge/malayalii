@@ -141,10 +141,27 @@ async function loadSystemStats() {
             updateStatsDisplay();
             updateCharts();
             updateAdminActivities();
+        } else {
+            throw new Error(data.error || 'Failed to load stats');
         }
     } catch (error) {
         console.error('Error loading system stats:', error);
-        throw error;
+        // Use fallback data
+        systemStats = {
+            visitors: 0,
+            uniqueVisitors: 0,
+            adminLogs: 0,
+            totalKeys: 0,
+            availableKeys: 0,
+            totalOrders: 0,
+            completedOrders: 0,
+            revenue: 0
+        };
+        adminActivities = [];
+        visitorData = [];
+        
+        updateStatsDisplay();
+        updateConsole('Using fallback statistics data', 'info');
     }
 }
 
@@ -157,7 +174,14 @@ function updateStatsDisplay() {
 
 function updateCharts() {
     // Visitors chart
-    const visitorsCtx = document.getElementById('visitors-chart').getContext('2d');
+    const visitorsCtx = document.getElementById('visitors-chart');
+    
+    if (!visitorsCtx) {
+        console.log('Visitors chart canvas not found');
+        return;
+    }
+    
+    const ctx = visitorsCtx.getContext('2d');
     
     if (charts.visitors) {
         charts.visitors.destroy();
@@ -173,7 +197,13 @@ function updateCharts() {
     const dates = Object.keys(visitorsByDate).slice(-7); // Last 7 days
     const counts = dates.map(date => visitorsByDate[date]);
     
-    charts.visitors = new Chart(visitorsCtx, {
+    // If no data, show empty chart
+    if (dates.length === 0) {
+        dates.push('No Data');
+        counts.push(0);
+    }
+    
+    charts.visitors = new Chart(ctx, {
         type: 'line',
         data: {
             labels: dates,
@@ -182,7 +212,8 @@ function updateCharts() {
                 data: counts,
                 borderColor: '#00ff00',
                 backgroundColor: 'rgba(0, 255, 0, 0.1)',
-                tension: 0.4
+                tension: 0.4,
+                fill: true
             }]
         },
         options: {
@@ -220,7 +251,24 @@ function updateCharts() {
 
 function updateAdminActivities() {
     const activityList = document.getElementById('admin-activity-list');
+    if (!activityList) return;
+    
     activityList.innerHTML = '';
+    
+    if (!adminActivities || adminActivities.length === 0) {
+        activityList.innerHTML = `
+            <div class="activity-item">
+                <div class="activity-header">
+                    <span class="activity-user">SYSTEM</span>
+                    <span class="activity-time">${new Date().toLocaleString()}</span>
+                </div>
+                <div class="activity-details">
+                    No admin activities recorded yet.
+                </div>
+            </div>
+        `;
+        return;
+    }
     
     adminActivities.slice(0, 10).forEach(activity => {
         const activityItem = document.createElement('div');
@@ -228,13 +276,13 @@ function updateAdminActivities() {
         
         activityItem.innerHTML = `
             <div class="activity-header">
-                <span class="activity-user">${activity.username}</span>
+                <span class="activity-user">${activity.username || 'SYSTEM'}</span>
                 <span class="activity-time">${new Date(activity.timestamp).toLocaleString()}</span>
             </div>
             <div class="activity-details">
-                <strong>Action:</strong> ${activity.action}<br>
-                <strong>IP:</strong> ${activity.ip}<br>
-                <strong>Device:</strong> ${activity.user_agent?.substring(0, 50)}...
+                <strong>Action:</strong> ${activity.action || 'Unknown'}<br>
+                <strong>IP:</strong> ${activity.ip || 'Unknown'}<br>
+                <strong>Device:</strong> ${(activity.user_agent || 'Unknown').substring(0, 50)}...
             </div>
         `;
         
@@ -243,7 +291,9 @@ function updateAdminActivities() {
 }
 
 function updateConsole(message, type = 'info') {
-    const console = document.getElementById('system-console');
+    const consoleElement = document.getElementById('system-console');
+    if (!consoleElement) return;
+    
     const consoleLine = document.createElement('div');
     consoleLine.className = 'console-line';
     
@@ -255,17 +305,20 @@ function updateConsole(message, type = 'info') {
         <span class="console-text">${message}</span>
     `;
     
-    console.appendChild(consoleLine);
-    console.scrollTop = console.scrollHeight;
+    consoleElement.appendChild(consoleLine);
+    consoleElement.scrollTop = consoleElement.scrollHeight;
 }
 
 function clearConsole() {
-    document.getElementById('system-console').innerHTML = `
-        <div class="console-line">
-            <span class="console-prefix">[SYSTEM]</span>
-            <span class="console-text">Console cleared...</span>
-        </div>
-    `;
+    const consoleElement = document.getElementById('system-console');
+    if (consoleElement) {
+        consoleElement.innerHTML = `
+            <div class="console-line">
+                <span class="console-prefix">[SYSTEM]</span>
+                <span class="console-text">Console cleared...</span>
+            </div>
+        `;
+    }
 }
 
 async function refreshDeveloperData() {
@@ -340,7 +393,9 @@ async function resetStatistics(resetType) {
 
 function toggleSecurityPanel() {
     const panel = document.getElementById('security-panel');
-    panel.style.display = panel.style.display === 'none' ? 'block' : 'none';
+    if (panel) {
+        panel.style.display = panel.style.display === 'none' ? 'block' : 'none';
+    }
 }
 
 function startDataRefresh() {
@@ -363,7 +418,10 @@ function startDeveloperTime() {
             hour12: false
         }).replace(',', '');
         
-        document.getElementById('dev-server-time').textContent = `SYSTEM_TIME: ${timeString}`;
+        const timeElement = document.getElementById('dev-server-time');
+        if (timeElement) {
+            timeElement.textContent = `SYSTEM_TIME: ${timeString}`;
+        }
     }
     
     updateTime();
@@ -372,11 +430,13 @@ function startDeveloperTime() {
 
 function updateDeveloperStatus(status) {
     const statusElement = document.getElementById('dev-system-status');
-    statusElement.textContent = `STATUS: ${status}`;
-    
-    const color = status === 'ONLINE' ? 'var(--terminal-green)' : 
-                  status === 'ERROR' ? 'var(--terminal-red)' : 'var(--terminal-yellow)';
-    statusElement.style.color = color;
+    if (statusElement) {
+        statusElement.textContent = `STATUS: ${status}`;
+        
+        const color = status === 'ONLINE' ? 'var(--terminal-green)' : 
+                      status === 'ERROR' ? 'var(--terminal-red)' : 'var(--terminal-yellow)';
+        statusElement.style.color = color;
+    }
 }
 
 function showDeveloperNotification(message, type = 'info') {
@@ -413,7 +473,11 @@ function showDeveloperNotification(message, type = 'info') {
     
     setTimeout(() => {
         notification.style.animation = 'slideOut 0.3s ease';
-        setTimeout(() => notification.remove(), 300);
+        setTimeout(() => {
+            if (notification.parentNode) {
+                notification.parentNode.removeChild(notification);
+            }
+        }, 300);
     }, 4000);
 }
 
