@@ -1,8 +1,8 @@
 // Backend API URL
 const API_BASE_URL = 'https://malayali-store-backend.onrender.com';
 
-// UPI ID
-const UPI_ID = "malayalihere@ybl";
+// Razorpay Live Key - YOUR KEY
+const RAZORPAY_KEY_ID = "rzp_live_Rk2oKtZtYbEN4A";
 
 // Global variables
 let currentBrand = null;
@@ -17,14 +17,12 @@ const elements = {
     purchaseBtn: document.getElementById('purchase-btn'),
     paymentModal: document.getElementById('payment-modal'),
     keyModal: document.getElementById('key-modal'),
-    verificationModal: document.getElementById('verification-modal'),
-    availableKeysSpan: document.getElementById('available-keys'),
-    statusMessage: document.getElementById('status-message')
+    availableKeysSpan: document.getElementById('available-keys')
 };
 
 // Initialize application
 document.addEventListener('DOMContentLoaded', function() {
-    console.log('🚀 Initializing Malayali Store...');
+    console.log('🚀 Initializing Malayali Store with Razorpay...');
     initializeApp();
 });
 
@@ -97,11 +95,8 @@ function setupEventListeners() {
     // Plan selection
     elements.planSelect.addEventListener('change', handlePlanChange);
     
-    // Purchase button
+    // Purchase button - NOW USING RAZORPAY
     elements.purchaseBtn.addEventListener('click', handlePurchase);
-    
-    // Cancel payment
-    document.getElementById('cancel-payment').addEventListener('click', closeAllModals);
     
     // Close modals
     document.querySelectorAll('.close').forEach(button => {
@@ -110,30 +105,8 @@ function setupEventListeners() {
     
     document.getElementById('close-modal').addEventListener('click', closeAllModals);
     
-    // Payment verification
-    document.getElementById('verify-payment-btn').addEventListener('click', verifyPayment);
-    document.getElementById('cancel-verification').addEventListener('click', closeVerificationModal);
-    
-    // Copy buttons
+    // Copy key button
     document.getElementById('copy-key').addEventListener('click', copyKey);
-    document.getElementById('copy-upi').addEventListener('click', copyUpi);
-    
-    // I have paid button
-    document.getElementById('i-have-paid-btn').addEventListener('click', openVerificationModal);
-    
-    // Close modals on outside click
-    window.addEventListener('click', function(e) {
-        if (e.target.classList.contains('modal')) {
-            closeAllModals();
-        }
-    });
-    
-    // Enter key in custom code
-    document.getElementById('custom-code').addEventListener('keypress', function(e) {
-        if (e.key === 'Enter' && !elements.purchaseBtn.disabled) {
-            elements.purchaseBtn.click();
-        }
-    });
     
     console.log('✅ Event listeners setup complete');
 }
@@ -159,9 +132,10 @@ function handlePlanChange() {
     }
 }
 
+// NEW: Handle purchase with Razorpay
 async function handlePurchase() {
     if (currentBrand && currentPlan) {
-        await checkAndOpenPayment();
+        await initiateRazorpayPayment();
     } else {
         showNotification('PLEASE_SELECT_APPLICATION_AND_DURATION', 'error');
     }
@@ -212,11 +186,11 @@ function updatePurchaseButton() {
     if (currentBrand && currentPlan) {
         elements.purchaseBtn.disabled = false;
         elements.purchaseBtn.querySelector('.btn-text').innerHTML = 
-            `<i class="fas fa-bolt"></i> INITIATE_PURCHASE - ₹${currentPrice}`;
+            `<i class="fas fa-bolt"></i> PAY_NOW - ₹${currentPrice}`;
     } else {
         elements.purchaseBtn.disabled = true;
         elements.purchaseBtn.querySelector('.btn-text').innerHTML = 
-            '<i class="fas fa-bolt"></i> INITIATE_PURCHASE - ₹0';
+            '<i class="fas fa-bolt"></i> PAY_NOW - ₹0';
     }
 }
 
@@ -242,206 +216,129 @@ async function updateAvailableKeys() {
     }
 }
 
-// Check keys and open payment modal
-async function checkAndOpenPayment() {
+// NEW: Initiate Razorpay Payment
+async function initiateRazorpayPayment() {
     try {
-        showNotification('CHECKING_KEY_AVAILABILITY...', 'info');
+        showNotification('INITIATING_PAYMENT...', 'info');
         
-        const response = await fetch(`${API_BASE_URL}/api/keys/available/${currentBrand.id}`);
-        const data = await response.json();
+        // Generate unique order ID
+        currentOrderId = 'MAL' + Date.now() + Math.random().toString(36).substr(2, 5).toUpperCase();
         
-        if (data.success && data.count > 0) {
-            openPaymentModal();
-        } else {
-            showNotification('NO_KEYS_AVAILABLE_FOR_THIS_SELECTION', 'error');
-        }
-    } catch (error) {
-        console.error('Error checking keys:', error);
-        showNotification('ERROR_CHECKING_KEY_AVAILABILITY', 'error');
-    }
-}
-
-// Open payment modal
-async function openPaymentModal() {
-    currentOrderId = 'ORD' + Date.now() + Math.random().toString(36).substr(2, 5).toUpperCase();
-    
-    try {
-        // Ensure proper data types
-        const orderData = {
-            orderId: currentOrderId,
-            brandId: parseInt(currentBrand.id),
-            planName: currentPlan.name,
-            amount: parseFloat(currentPrice)
-        };
-
-        console.log('📦 Sending order data:', orderData);
-
-        const response = await fetch(`${API_BASE_URL}/api/create-order`, {
+        // 1. Create order in our database
+        const orderResponse = await fetch(`${API_BASE_URL}/api/create-order`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
             },
-            body: JSON.stringify(orderData)
-        });
-        
-        // Parse response first
-        const data = await response.json();
-        
-        console.log('📨 Backend response:', data);
-        
-        if (!response.ok || !data.success) {
-            throw new Error(data.error || `HTTP error! status: ${response.status}`);
-        }
-        
-        // Update UI
-        updatePaymentUI();
-        generateQRCode();
-        
-        // Show modal
-        elements.paymentModal.style.display = 'block';
-        
-    } catch (error) {
-        console.error('❌ Error creating order:', error);
-        showNotification('ORDER_CREATION_FAILED: ' + error.message, 'error');
-    }
-}
-
-// Update payment UI elements - THIS WAS MISSING
-function updatePaymentUI() {
-    document.getElementById('summary-brand').textContent = currentBrand.name.toUpperCase();
-    document.getElementById('summary-plan').textContent = currentPlan.name.toUpperCase();
-    document.getElementById('summary-price').textContent = `₹${currentPrice}`;
-    document.getElementById('payment-amount').textContent = currentPrice;
-    document.getElementById('order-id').textContent = currentOrderId;
-    document.getElementById('upi-display').textContent = UPI_ID;
-    
-    // Update verification modal too
-    document.getElementById('verification-order-id').textContent = currentOrderId;
-    document.getElementById('verification-amount').textContent = `₹${currentPrice}`;
-    document.getElementById('verification-amount-display').textContent = currentPrice;
-    document.getElementById('transaction-amount').value = currentPrice;
-}
-
-// Generate QR code
-function generateQRCode() {
-    const qrContainer = document.getElementById('qr-code');
-    qrContainer.innerHTML = '';
-    
-    // Create UPI payment URL
-    const upiUrl = `upi://pay?pa=${UPI_ID}&pn=MalayaliStore&am=${currentPrice}&cu=INR&tn=Order${currentOrderId}`;
-    
-    // Use reliable QR code service
-    const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(upiUrl)}`;
-    
-    const qrImage = document.createElement('img');
-    qrImage.src = qrUrl;
-    qrImage.alt = 'UPI Payment QR Code';
-    qrImage.style.width = '200px';
-    qrImage.style.height = '200px';
-    qrImage.style.border = '2px solid var(--terminal-cyan)';
-    qrImage.style.background = 'white';
-    qrImage.style.padding = '10px';
-    
-    qrImage.onload = () => {
-        console.log('✅ QR code loaded successfully');
-        qrContainer.innerHTML = '';
-        qrContainer.appendChild(qrImage);
-    };
-    
-    qrImage.onerror = () => {
-        console.error('❌ QR code failed to load');
-        qrContainer.innerHTML = `
-            <div style="color: var(--terminal-red); padding: 20px; text-align: center;">
-                <i class="fas fa-exclamation-triangle" style="font-size: 2rem; margin-bottom: 10px;"></i>
-                <div>QR_CODE_GENERATION_FAILED</div>
-                <div style="font-size: 0.8rem; margin-top: 10px; color: var(--terminal-cyan);">
-                    Please use UPI ID: ${UPI_ID}
-                </div>
-            </div>
-        `;
-    };
-}
-
-// Open verification modal
-function openVerificationModal() {
-    // Close payment modal and open verification modal
-    elements.paymentModal.style.display = 'none';
-    document.getElementById('verification-modal').style.display = 'block';
-    
-    // Clear previous UTR number
-    document.getElementById('utr-number').value = '';
-    
-    // Focus on UTR input
-    setTimeout(() => {
-        document.getElementById('utr-number').focus();
-    }, 300);
-}
-
-// Close verification modal
-function closeVerificationModal() {
-    document.getElementById('verification-modal').style.display = 'none';
-}
-
-// Verify payment with UTR number
-async function verifyPayment() {
-    const utrNumber = document.getElementById('utr-number').value.trim();
-    const transactionAmount = document.getElementById('transaction-amount').value.trim();
-    
-    if (!utrNumber) {
-        showNotification('PLEASE_ENTER_UTR_NUMBER', 'error');
-        document.getElementById('utr-number').focus();
-        return;
-    }
-    
-    if (!transactionAmount) {
-        showNotification('PLEASE_ENTER_TRANSACTION_AMOUNT', 'error');
-        document.getElementById('transaction-amount').focus();
-        return;
-    }
-    
-    // Validate UTR format (12 digits)
-    if (utrNumber.length < 8 || utrNumber.length > 16) {
-        showNotification('INVALID_UTR_NUMBER_FORMAT', 'error');
-        document.getElementById('utr-number').focus();
-        return;
-    }
-    
-    try {
-        // Show loading state
-        const verifyBtn = document.getElementById('verify-payment-btn');
-        const originalText = verifyBtn.innerHTML;
-        verifyBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> VERIFYING...';
-        verifyBtn.disabled = true;
-        
-        showNotification('VERIFYING_PAYMENT...', 'info');
-        
-        const response = await fetch(`${API_BASE_URL}/api/verify-payment`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
                 orderId: currentOrderId,
-                utrNumber: utrNumber,
-                transactionAmount: parseFloat(transactionAmount)
+                brandId: parseInt(currentBrand.id),
+                planName: currentPlan.name,
+                amount: parseFloat(currentPrice)
             })
         });
         
-        const data = await response.json();
+        const orderData = await orderResponse.json();
         
-        if (!response.ok || !data.success) {
-            throw new Error(data.error || 'Verification failed');
+        if (!orderResponse.ok || !orderData.success) {
+            throw new Error(orderData.error || 'Failed to create order');
         }
         
-        showKey(data.key);
-        showNotification('PAYMENT_VERIFIED_SUCCESSFULLY!', 'success');
+        // 2. Create Razorpay order
+        const razorpayResponse = await fetch(`${API_BASE_URL}/api/create-razorpay-order`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                orderId: currentOrderId,
+                amount: currentPrice,
+                brandName: currentBrand.name,
+                planName: currentPlan.name
+            })
+        });
+        
+        const razorpayData = await razorpayResponse.json();
+        
+        if (!razorpayResponse.ok || !razorpayData.success) {
+            throw new Error(razorpayData.error || 'Failed to create payment order');
+        }
+        
+        // 3. Open Razorpay checkout
+        const options = {
+            key: RAZORPAY_KEY_ID,
+            amount: razorpayData.amount,
+            currency: razorpayData.currency,
+            name: "Malayali Key Store",
+            description: `${currentBrand.name} - ${currentPlan.name}`,
+            image: "https://your-logo-url.com/logo.png", // Add your logo
+            order_id: razorpayData.order_id,
+            handler: async function(response) {
+                // Payment successful
+                await handlePaymentSuccess(response);
+            },
+            prefill: {
+                name: "Customer",
+                email: "customer@example.com",
+                contact: "9999999999"
+            },
+            notes: {
+                order_id: currentOrderId,
+                brand: currentBrand.name,
+                plan: currentPlan.name
+            },
+            theme: {
+                color: "#00ff00"
+            }
+        };
+        
+        const rzp = new Razorpay(options);
+        rzp.open();
+        
+        // Handle payment failure
+        rzp.on('payment.failed', function(response) {
+            console.error('❌ Payment failed:', response.error);
+            showNotification('PAYMENT_FAILED: ' + (response.error.description || 'Unknown error'), 'error');
+        });
         
     } catch (error) {
-        console.error('Payment verification error:', error);
-        showNotification('VERIFICATION_FAILED: ' + error.message, 'error');
+        console.error('❌ Payment initiation error:', error);
+        showNotification('PAYMENT_INITIATION_FAILED: ' + error.message, 'error');
+    }
+}
+
+// NEW: Handle successful payment
+async function handlePaymentSuccess(response) {
+    try {
+        showNotification('VERIFYING_PAYMENT...', 'info');
         
-        // Reset button state
-        const verifyBtn = document.getElementById('verify-payment-btn');
-        verifyBtn.innerHTML = '<i class="fas fa-check"></i> VERIFY_PAYMENT';
-        verifyBtn.disabled = false;
+        // Verify payment with backend
+        const verifyResponse = await fetch(`${API_BASE_URL}/api/verify-razorpay-payment`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                razorpay_order_id: response.razorpay_order_id,
+                razorpay_payment_id: response.razorpay_payment_id,
+                razorpay_signature: response.razorpay_signature,
+                orderId: currentOrderId
+            })
+        });
+        
+        const verifyData = await verifyResponse.json();
+        
+        if (!verifyResponse.ok || !verifyData.success) {
+            throw new Error(verifyData.error || 'Payment verification failed');
+        }
+        
+        // Show success and deliver key
+        showKey(verifyData.key);
+        showNotification('PAYMENT_SUCCESSFUL!', 'success');
+        
+    } catch (error) {
+        console.error('❌ Payment verification error:', error);
+        showNotification('PAYMENT_VERIFICATION_FAILED: ' + error.message, 'error');
     }
 }
 
@@ -451,8 +348,7 @@ function showKey(key) {
     document.getElementById('verified-order-id').textContent = currentOrderId;
     document.getElementById('purchase-time').textContent = new Date().toLocaleString();
     
-    // Close verification modal and open key modal
-    document.getElementById('verification-modal').style.display = 'none';
+    // Show key modal
     elements.keyModal.style.display = 'block';
     
     // Update available keys count
@@ -465,18 +361,13 @@ function showKey(key) {
     }, 1000);
 }
 
-// Copy functions
+// Copy key function
 function copyKey() {
     const keyText = document.getElementById('generated-key').textContent;
     if (keyText && keyText !== 'DECRYPTING_KEY...') {
         copyToClipboard(keyText);
         showNotification('KEY_COPIED_TO_CLIPBOARD', 'success');
     }
-}
-
-function copyUpi() {
-    copyToClipboard(UPI_ID);
-    showNotification('UPI_ID_COPIED', 'success');
 }
 
 // Utility function to copy to clipboard
@@ -498,11 +389,6 @@ function copyToClipboard(text) {
 function closeAllModals() {
     elements.paymentModal.style.display = 'none';
     elements.keyModal.style.display = 'none';
-    document.getElementById('verification-modal').style.display = 'none';
-    
-    // Reset form fields
-    document.getElementById('utr-number').value = '';
-    document.getElementById('transaction-amount').value = '';
     
     currentPrice = 0;
     currentOrderId = null;
@@ -565,6 +451,5 @@ document.head.appendChild(notificationStyles);
 // Make functions globally available
 window.closeAllModals = closeAllModals;
 window.showNotification = showNotification;
-window.copyUpi = copyUpi;
 
-console.log('🎉 Malayali Store frontend loaded successfully');
+console.log('🎉 Malayali Store with Razorpay LIVE loaded successfully');
