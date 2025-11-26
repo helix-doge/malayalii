@@ -111,16 +111,16 @@ function setupAdminEvents() {
         }
     });
     
+    // Developer button
+    document.getElementById('developer-btn').addEventListener('click', function() {
+        window.location.href = 'developer.html';
+    });
+    
     // Add app button
     document.getElementById('add-app-btn').addEventListener('click', openAddAppModal);
     
     // Add key button
     document.getElementById('add-key-btn').addEventListener('click', openAddKeyModal);
-    
-    // Developer access button
-    document.getElementById('developer-btn').addEventListener('click', function() {
-        window.location.href = 'developer.html';
-    });
     
     // Form submissions
     document.getElementById('app-form').addEventListener('submit', handleAddApp);
@@ -788,6 +788,22 @@ notificationStyles.textContent = `
     
     .duration-item:last-child {
         border-bottom: none;
+    }
+    
+    .status-available {
+        background: rgba(0, 255, 0, 0.1);
+        color: var(--terminal-green);
+        padding: 4px 8px;
+        border-radius: 3px;
+        font-size: 0.8rem;
+    }
+    
+    .status-sold {
+        background: rgba(255, 0, 0, 0.1);
+        color: var(--terminal-red);
+        padding: 4px 8px;
+        border-radius: 3px;
+        font-size: 0.8rem;
     }
 `;
 document.head.appendChild(notificationStyles);
