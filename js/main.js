@@ -97,7 +97,7 @@ function loadFallbackBrands() {
     console.log('🔄 Setting up fallback brands data...');
     
     const fallbackBrands = [
-        { 
+        /*{ 
             id: 1, 
             name: "Vision", 
             description: "Advanced visual processing suite",
@@ -116,7 +116,7 @@ function loadFallbackBrands() {
                 { name: "3 Months", price: 999 },
                 { name: "1 Year", price: 3299 }
             ]
-        }
+        }*/
     ];
     
     // Clear and repopulate dropdown
