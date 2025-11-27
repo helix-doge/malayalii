@@ -123,9 +123,9 @@ function setupAdminEvents() {
     });
     
     // Developer button
-   // document.getElementById('developer-btn').addEventListener('click', function() {
-   //     window.location.href = 'developer.html';
-    // });
+    document.getElementById('developer-btn').addEventListener('click', function() {
+        window.location.href = 'developer.html';
+    });
     
     // Add app button
     document.getElementById('add-app-btn').addEventListener('click', openAddAppModal);
