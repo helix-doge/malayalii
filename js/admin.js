@@ -71,7 +71,7 @@ async function loadBrands() {
         console.error('❌ Error loading brands from API:', error);
         // Use comprehensive fallback data
         brandsData = [
-            { 
+          /* { 
                 id: 1, 
                 name: "Vision", 
                 description: "Advanced visual processing suite",
@@ -103,7 +103,7 @@ async function loadBrands() {
                     { name: "1 Year", price: 3999 }
                 ],
                 created_at: new Date().toISOString()
-            }
+            }*/
         ];
         console.log('🔄 Using fallback brands data');
         showNotification('USING_FALLBACK_BRANDS_DATA', 'info');
