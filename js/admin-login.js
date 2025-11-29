@@ -1,7 +1,7 @@
 import { createClient } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm";
 
 const supabaseUrl = "https://dytrdmvicireccasxxvj.supabase.co";
-const supabaseKey = "YOUR_PUBLIC_ANON_KEY"; // replace with your anon key
+const supabaseKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImR5dHJkbXZpY2lyZWNjYXN4eHZqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjMyMTk1MjYsImV4cCI6MjA3ODc5NTUyNn0.MJpdbbhUI7BkZ_FtHao_83R2ncEQyTv3nS-YZBCyIHY"; // replace with your anon key
 const supabase = createClient(supabaseUrl, supabaseKey);
 
 const loginForm = document.getElementById("login-form");
