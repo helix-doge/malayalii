@@ -1010,6 +1010,229 @@ app.get('/api/admin/orders', async (req, res) => {
     }
 });
 
+// 25. Admin Login with Database Verification
+app.post('/api/admin/login', async (req, res) => {
+    try {
+        const { username, password } = req.body;
+        
+        if (!username || !password) {
+            return res.status(400).json({
+                success: false,
+                error: 'Username and password are required'
+            });
+        }
+
+        // Check if admin table exists
+        const { data: tableExists, error: tableError } = await supabase
+            .from('admins')
+            .select('id')
+            .limit(1);
+        
+        // If table doesn't exist or is empty, create default admin
+        if (tableError || !tableExists || tableExists.length === 0) {
+            console.log('🔄 Creating default admin account...');
+            
+            // Create admins table if it doesn't exist
+            // Note: In production, you should create this table via SQL migration
+            const { error: createError } = await supabase
+                .from('admins')
+                .insert({
+                    username: 'admin',
+                    password: 'malayali2025', // In production, hash this password!
+                    email: 'admin@malayalistore.com',
+                    role: 'superadmin',
+                    created_at: new Date().toISOString(),
+                    last_login: null
+                });
+            
+            if (createError) {
+                console.error('Error creating admin table:', createError);
+                // For now, use fallback credentials
+                if (username === 'admin' && password === 'malayali2025') {
+                    // Log admin login
+                    await supabase
+                        .from('admin_logs')
+                        .insert({
+                            username: username,
+                            action: 'login',
+                            ip: req.ip || 'unknown',
+                            user_agent: req.get('User-Agent') || 'unknown',
+                            timestamp: new Date().toISOString()
+                        });
+                    
+                    return res.json({
+                        success: true,
+                        message: 'Login successful',
+                        user: {
+                            username: 'admin',
+                            role: 'superadmin'
+                        }
+                    });
+                }
+                
+                return res.status(401).json({
+                    success: false,
+                    error: 'Invalid credentials'
+                });
+            }
+        }
+
+        // Check admin credentials in database
+        const { data: admin, error: adminError } = await supabase
+            .from('admins')
+            .select('*')
+            .eq('username', username)
+            .eq('password', password) // In production, use password hashing!
+            .single();
+        
+        if (adminError || !admin) {
+            return res.status(401).json({
+                success: false,
+                error: 'Invalid credentials'
+            });
+        }
+
+        // Update last login time
+        await supabase
+            .from('admins')
+            .update({ last_login: new Date().toISOString() })
+            .eq('id', admin.id);
+
+        // Log admin login
+        await supabase
+            .from('admin_logs')
+            .insert({
+                username: username,
+                action: 'login',
+                ip: req.ip || 'unknown',
+                user_agent: req.get('User-Agent') || 'unknown',
+                timestamp: new Date().toISOString()
+            });
+
+        res.json({
+            success: true,
+            message: 'Login successful',
+            user: {
+                id: admin.id,
+                username: admin.username,
+                email: admin.email,
+                role: admin.role
+            }
+        });
+
+    } catch (error) {
+        console.error('Admin login error:', error);
+        res.status(500).json({
+            success: false,
+            error: 'Login failed',
+            details: error.message
+        });
+    }
+});
+
+// 26. Admin Management Endpoints
+app.get('/api/admin/users', async (req, res) => {
+    try {
+        const { data, error } = await supabase
+            .from('admins')
+            .select('*')
+            .order('created_at', { ascending: false });
+        
+        if (error) throw error;
+        
+        res.json({
+            success: true,
+            users: data || []
+        });
+        
+    } catch (error) {
+        console.error('Get admin users error:', error);
+        res.status(500).json({
+            success: false,
+            error: 'Failed to fetch admin users'
+        });
+    }
+});
+
+app.post('/api/admin/users', async (req, res) => {
+    try {
+        const { username, password, email, role } = req.body;
+        
+        if (!username || !password || !email) {
+            return res.status(400).json({
+                success: false,
+                error: 'Username, password, and email are required'
+            });
+        }
+
+        // Check if username already exists
+        const { data: existingUser, error: checkError } = await supabase
+            .from('admins')
+            .select('id')
+            .eq('username', username)
+            .single();
+        
+        if (existingUser) {
+            return res.status(400).json({
+                success: false,
+                error: 'Username already exists'
+            });
+        }
+
+        const { data, error } = await supabase
+            .from('admins')
+            .insert({
+                username: username,
+                password: password, // In production, hash this!
+                email: email,
+                role: role || 'admin',
+                created_at: new Date().toISOString(),
+                last_login: null
+            })
+            .select();
+        
+        if (error) throw error;
+        
+        res.json({
+            success: true,
+            user: data[0],
+            message: 'Admin user created successfully'
+        });
+        
+    } catch (error) {
+        console.error('Create admin user error:', error);
+        res.status(500).json({
+            success: false,
+            error: 'Failed to create admin user'
+        });
+    }
+});
+
+app.delete('/api/admin/users/:userId', async (req, res) => {
+    try {
+        const { userId } = req.params;
+        
+        const { error } = await supabase
+            .from('admins')
+            .delete()
+            .eq('id', userId);
+        
+        if (error) throw error;
+        
+        res.json({
+            success: true,
+            message: 'Admin user deleted successfully'
+        });
+        
+    } catch (error) {
+        console.error('Delete admin user error:', error);
+        res.status(500).json({
+            success: false,
+            error: 'Failed to delete admin user'
+        });
+    }
+});
+
 // Helper function for fallback brands
 function getFallbackBrands() {
     return [
