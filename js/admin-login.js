@@ -1,8 +1,8 @@
-// Admin login credentials
-const ADMIN_CREDENTIALS = {
-    username: "admin",
-    password: "malayali2025"
-};
+// Backend API URL
+const API_BASE_URL = 'https://malayali-store-backend.onrender.com';
+
+// Admin table name in Supabase
+const ADMIN_TABLE = 'admins';
 
 document.addEventListener('DOMContentLoaded', function() {
     // Check if already logged in
@@ -47,7 +47,7 @@ function initializeLogin() {
     });
 
     // Login form submission
-    loginForm.addEventListener('submit', function(e) {
+    loginForm.addEventListener('submit', async function(e) {
         e.preventDefault();
 
         const username = usernameInput.value.trim();
@@ -58,37 +58,54 @@ function initializeLogin() {
             return;
         }
 
-        // Simulate processing
+        // Show loading state
         const submitBtn = this.querySelector('button');
         const originalText = submitBtn.innerHTML;
         submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> VERIFYING...';
         submitBtn.disabled = true;
 
-        // Simulate API call delay
-        setTimeout(() => {
-            if (username === ADMIN_CREDENTIALS.username && password === ADMIN_CREDENTIALS.password) {
-                // Successful login
-                localStorage.setItem('adminLoggedIn', 'true');
-                localStorage.setItem('adminLoginTime', new Date().toISOString());
-                
-                showNotification('ACCESS_GRANTED', 'success');
-                
-                setTimeout(() => {
-                    window.location.href = 'admin.html';
-                }, 1000);
-            } else {
-                // Failed login
-                showNotification('ACCESS_DENIED: INVALID_CREDENTIALS', 'error');
-                submitBtn.innerHTML = originalText;
-                submitBtn.disabled = false;
-                
-                // Shake animation
-                loginForm.style.animation = 'shake 0.5s ease';
-                setTimeout(() => {
-                    loginForm.style.animation = '';
-                }, 500);
+        try {
+            // Call backend API to verify admin credentials
+            const response = await fetch(`${API_BASE_URL}/api/admin/login`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    username: username,
+                    password: password
+                })
+            });
+
+            const data = await response.json();
+
+            if (!response.ok || !data.success) {
+                throw new Error(data.error || 'Login failed');
             }
-        }, 1500);
+
+            // Successful login
+            localStorage.setItem('adminLoggedIn', 'true');
+            localStorage.setItem('adminLoginTime', new Date().toISOString());
+            localStorage.setItem('adminUsername', username);
+            
+            showNotification('ACCESS_GRANTED', 'success');
+            
+            setTimeout(() => {
+                window.location.href = 'admin.html';
+            }, 1000);
+
+        } catch (error) {
+            console.error('Login error:', error);
+            showNotification('ACCESS_DENIED: ' + error.message, 'error');
+            submitBtn.innerHTML = originalText;
+            submitBtn.disabled = false;
+            
+            // Shake animation
+            loginForm.style.animation = 'shake 0.5s ease';
+            setTimeout(() => {
+                loginForm.style.animation = '';
+            }, 500);
+        }
     });
 
     // Add shake animation
@@ -116,7 +133,7 @@ function showNotification(message, type = 'info') {
     notification.className = `notification ${type}`;
     notification.innerHTML = `
         <span class="notification-icon">
-            <i class="fas fa-${type === 'success' ? 'check' : 'exclamation-triangle'}"></i>
+            <i class="fas fa-${type === 'success' ? 'check' : type === 'error' ? 'exclamation-triangle' : 'info'}"></i>
         </span>
         <span class="notification-text">${message}</span>
     `;
@@ -125,8 +142,8 @@ function showNotification(message, type = 'info') {
         position: fixed;
         top: 20px;
         right: 20px;
-        background: ${type === 'success' ? 'rgba(0,255,0,0.1)' : 'rgba(255,0,0,0.1)'};
-        border: 1px solid ${type === 'success' ? 'var(--terminal-green)' : 'var(--terminal-red)'};
+        background: ${type === 'success' ? 'rgba(0,255,0,0.1)' : type === 'error' ? 'rgba(255,0,0,0.1)' : 'rgba(0,255,255,0.1)'};
+        border: 1px solid ${type === 'success' ? 'var(--terminal-green)' : type === 'error' ? 'var(--terminal-red)' : 'var(--terminal-cyan)'};
         color: var(--terminal-text);
         padding: 15px 20px;
         font-family: 'Share Tech Mono', monospace;
