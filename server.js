@@ -3,6 +3,7 @@ const cors = require('cors');
 const { createClient } = require('@supabase/supabase-js');
 const crypto = require('crypto');
 const app = express();
+const bcrypt = require('bcrypt');
 
 // Middleware
 app.use(cors());
@@ -1010,7 +1011,9 @@ app.get('/api/admin/orders', async (req, res) => {
     }
 });
 
-// 25. Admin Login with Database Verification
+const bcrypt = require('bcrypt');
+
+// 25. Admin Login with Database Verification (WITH BCRYPT)
 app.post('/api/admin/login', async (req, res) => {
     try {
         const { username, password } = req.body;
@@ -1028,17 +1031,17 @@ app.post('/api/admin/login', async (req, res) => {
             .select('id')
             .limit(1);
         
-        // If table doesn't exist or is empty, create default admin
+        // If table doesn't exist or is empty, create default admin with hashed password
         if (tableError || !tableExists || tableExists.length === 0) {
             console.log('🔄 Creating default admin account...');
             
-            // Create admins table if it doesn't exist
-            // Note: In production, you should create this table via SQL migration
+            const hashedPassword = await bcrypt.hash('malayali2025', 10);
+            
             const { error: createError } = await supabase
                 .from('admins')
                 .insert({
                     username: 'admin',
-                    password: 'malayali2025', // In production, hash this password!
+                    password: hashedPassword, // Store hashed password
                     email: 'admin@malayalistore.com',
                     role: 'superadmin',
                     created_at: new Date().toISOString(),
@@ -1047,7 +1050,7 @@ app.post('/api/admin/login', async (req, res) => {
             
             if (createError) {
                 console.error('Error creating admin table:', createError);
-                // For now, use fallback credentials
+                // Fallback to basic verification (temporary)
                 if (username === 'admin' && password === 'malayali2025') {
                     // Log admin login
                     await supabase
@@ -1082,10 +1085,19 @@ app.post('/api/admin/login', async (req, res) => {
             .from('admins')
             .select('*')
             .eq('username', username)
-            .eq('password', password) // In production, use password hashing!
             .single();
         
         if (adminError || !admin) {
+            return res.status(401).json({
+                success: false,
+                error: 'Invalid credentials'
+            });
+        }
+
+        // Verify password with bcrypt
+        const isPasswordValid = await bcrypt.compare(password, admin.password);
+        
+        if (!isPasswordValid) {
             return res.status(401).json({
                 success: false,
                 error: 'Invalid credentials'
@@ -1130,30 +1142,7 @@ app.post('/api/admin/login', async (req, res) => {
     }
 });
 
-// 26. Admin Management Endpoints
-app.get('/api/admin/users', async (req, res) => {
-    try {
-        const { data, error } = await supabase
-            .from('admins')
-            .select('*')
-            .order('created_at', { ascending: false });
-        
-        if (error) throw error;
-        
-        res.json({
-            success: true,
-            users: data || []
-        });
-        
-    } catch (error) {
-        console.error('Get admin users error:', error);
-        res.status(500).json({
-            success: false,
-            error: 'Failed to fetch admin users'
-        });
-    }
-});
-
+// 26. Admin Management Endpoints (WITH BCRYPT)
 app.post('/api/admin/users', async (req, res) => {
     try {
         const { username, password, email, role } = req.body;
@@ -1179,11 +1168,14 @@ app.post('/api/admin/users', async (req, res) => {
             });
         }
 
+        // Hash the password before storing
+        const hashedPassword = await bcrypt.hash(password, 10);
+
         const { data, error } = await supabase
             .from('admins')
             .insert({
                 username: username,
-                password: password, // In production, hash this!
+                password: hashedPassword, // Store hashed password
                 email: email,
                 role: role || 'admin',
                 created_at: new Date().toISOString(),
@@ -1208,27 +1200,77 @@ app.post('/api/admin/users', async (req, res) => {
     }
 });
 
-app.delete('/api/admin/users/:userId', async (req, res) => {
+// 27. Change Password Endpoint
+app.post('/api/admin/change-password', async (req, res) => {
     try {
-        const { userId } = req.params;
+        const { username, currentPassword, newPassword } = req.body;
         
-        const { error } = await supabase
+        if (!username || !currentPassword || !newPassword) {
+            return res.status(400).json({
+                success: false,
+                error: 'All fields are required'
+            });
+        }
+
+        // Get admin user
+        const { data: admin, error: adminError } = await supabase
             .from('admins')
-            .delete()
-            .eq('id', userId);
+            .select('*')
+            .eq('username', username)
+            .single();
         
-        if (error) throw error;
+        if (adminError || !admin) {
+            return res.status(404).json({
+                success: false,
+                error: 'Admin user not found'
+            });
+        }
+
+        // Verify current password
+        const isCurrentPasswordValid = await bcrypt.compare(currentPassword, admin.password);
         
+        if (!isCurrentPasswordValid) {
+            return res.status(401).json({
+                success: false,
+                error: 'Current password is incorrect'
+            });
+        }
+
+        // Hash new password
+        const hashedNewPassword = await bcrypt.hash(newPassword, 10);
+
+        // Update password
+        const { error: updateError } = await supabase
+            .from('admins')
+            .update({ 
+                password: hashedNewPassword,
+                updated_at: new Date().toISOString()
+            })
+            .eq('id', admin.id);
+        
+        if (updateError) throw updateError;
+
+        // Log password change
+        await supabase
+            .from('admin_logs')
+            .insert({
+                username: username,
+                action: 'change_password',
+                ip: req.ip || 'unknown',
+                user_agent: req.get('User-Agent') || 'unknown',
+                timestamp: new Date().toISOString()
+            });
+
         res.json({
             success: true,
-            message: 'Admin user deleted successfully'
+            message: 'Password changed successfully'
         });
         
     } catch (error) {
-        console.error('Delete admin user error:', error);
+        console.error('Change password error:', error);
         res.status(500).json({
             success: false,
-            error: 'Failed to delete admin user'
+            error: 'Failed to change password'
         });
     }
 });
