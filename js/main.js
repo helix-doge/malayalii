@@ -1,3 +1,4 @@
+const heroSection = document.getElementById("heroSection");
 const appsSection = document.getElementById("appsSection");
 const appGrid = document.getElementById("appGrid");
 const appsTitle = document.getElementById("appsTitle");
@@ -14,7 +15,7 @@ const appsData = {
 };
 
 function selectPlatform(platform) {
-  document.querySelector(".hero").style.display = "none";
+  heroSection.classList.add("hidden-section");
   appsSection.classList.remove("hidden");
 
   appGrid.innerHTML = "";
@@ -34,5 +35,5 @@ function selectPlatform(platform) {
 
 function goBack() {
   appsSection.classList.add("hidden");
-  document.querySelector(".hero").style.display = "flex";
+  heroSection.classList.remove("hidden-section");
 }
