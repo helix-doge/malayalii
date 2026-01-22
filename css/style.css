@@ -18,17 +18,16 @@ body {
   color: var(--text);
 }
 
-/* HERO */
+/* HERO GRID */
 .hero {
   position: relative;
   min-height: 100vh;
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
+  display: grid;
+  grid-template-rows: auto 1fr auto;
   padding: 30px 20px;
 }
 
-/* BACKGROUND IMAGE LATER */
+/* BACKGROUND IMAGE (ADD LATER) */
 /*
 .hero {
   background: url("../assets/bg.jpg") center/cover no-repeat;
@@ -38,78 +37,78 @@ body {
 .overlay {
   position: absolute;
   inset: 0;
-  background: linear-gradient(to bottom, rgba(0,0,0,0.6), #0b0f14);
+  background: linear-gradient(to bottom, rgba(0,0,0,0.7), #0b0f14);
   z-index: 0;
 }
 
 /* TITLE */
-.left-title {
+.title {
   position: relative;
   z-index: 1;
+  text-align: center;
 }
 
-.left-title h1 {
+.title h1 {
   font-family: 'Orbitron', sans-serif;
-  font-size: 2.2rem;
+  font-size: 2.4rem;
   color: var(--accent);
   line-height: 1.1;
 }
 
-.left-title p {
+.title p {
   margin-top: 8px;
   color: var(--muted);
   font-size: 0.85rem;
 }
 
-/* CENTER OPTIONS (PRIMARY CTA) */
-.center-options {
+/* CENTER BUTTONS */
+.center-buttons {
   position: relative;
   z-index: 1;
   display: flex;
   flex-direction: column;
-  align-items: center;
   justify-content: center;
-  gap: 22px;
-  flex: 1; /* THIS pushes it to true center */
+  align-items: center;
+  gap: 18px;
 }
 
 .platform-btn {
-  width: 280px;
-  padding: 18px;
+  width: 100%;
+  max-width: 320px;
+  padding: 16px;
   background: var(--card);
   border: 1px solid transparent;
   border-radius: 14px;
   color: var(--text);
-  font-size: 1.1rem;
+  font-size: 1.05rem;
   letter-spacing: 1px;
   cursor: pointer;
-  transition: 0.3s ease;
+  transition: 0.25s ease;
 }
 
 .platform-btn:hover {
   border-color: var(--accent);
-  transform: scale(1.05);
+  transform: scale(1.03);
 }
 
-/* VISION (BOTTOM, SECONDARY) */
+/* VISION (BOTTOM FIXED) */
 .vision {
   position: relative;
   z-index: 1;
   text-align: center;
-  max-width: 900px;
-  margin: 0 auto;
+  margin-top: 10px;
 }
 
 .vision h3 {
   color: #3aa0ff;
   letter-spacing: 3px;
   font-size: 0.85rem;
-  margin-bottom: 8px;
+  margin-bottom: 6px;
 }
 
 .vision p {
   color: var(--muted);
-  font-size: 0.85rem;
+  font-size: 0.8rem;
   line-height: 1.5;
 }
 
@@ -136,23 +135,13 @@ body {
   border-radius: 14px;
   cursor: pointer;
   border: 1px solid transparent;
-  transition: 0.3s;
 }
 
 .app-card:hover {
   border-color: var(--accent);
 }
 
-.app-card h4 {
-  color: var(--accent);
-}
-
-.app-card p {
-  color: var(--muted);
-  font-size: 0.9rem;
-}
-
-/* BACK BUTTON */
+/* BACK */
 .back-btn {
   margin-top: 40px;
   padding: 12px 30px;
@@ -161,26 +150,15 @@ body {
   color: var(--accent);
   border-radius: 10px;
   cursor: pointer;
-  transition: 0.3s;
 }
 
-.back-btn:hover {
-  background: var(--accent);
-  color: #000;
-}
-
-/* UTIL */
 .hidden {
   display: none;
 }
 
-/* DESKTOP ENHANCEMENT */
+/* DESKTOP TWEAK */
 @media (min-width: 900px) {
-  .left-title h1 {
+  .title h1 {
     font-size: 3rem;
-  }
-
-  .center-options {
-    gap: 26px;
   }
 }
