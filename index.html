@@ -1,42 +1,48 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Malayali Here Store</title>
 
   <link rel="stylesheet" href="css/style.css">
-  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700&family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@600;700&family=Poppins:wght@300;400;500&display=swap" rel="stylesheet">
 </head>
 <body>
 
   <!-- HERO -->
   <section class="hero">
-    <div class="hero-overlay"></div>
-    <div class="hero-content">
-      <h1>MALAYALI HERE STORE</h1>
-      <p>Select your platform to continue</p>
+    <div class="overlay"></div>
+
+    <div class="hero-top">
+      <h1>MALAYALI<br><span>HERE STORE</span></h1>
+      <p class="subtitle">BGMI • PUBG • iOS TOOLS</p>
     </div>
-  </section>
 
-  <!-- PLATFORM SELECTION -->
-  <section class="platform-section" id="platformSection">
-    <h2>Choose Platform</h2>
-
-    <div class="platform-grid">
-      <div class="platform-card" onclick="selectPlatform('android')">
+    <!-- CENTER OPTIONS -->
+    <div class="center-options">
+      <div class="platform-btn" onclick="selectPlatform('android')">
         ANDROID
       </div>
-
-      <div class="platform-card" onclick="selectPlatform('ios')">
+      <div class="platform-btn" onclick="selectPlatform('ios')">
         iOS / iPAD
       </div>
+    </div>
+
+    <!-- VISION -->
+    <div class="vision">
+      <h3>VISION</h3>
+      <p>
+        Our vision is to provide trusted, secure, and high-performance BGMI / PUBG
+        iOS tools for Malayali gamers, ensuring smooth gameplay, fast support,
+        and a premium user experience.
+      </p>
     </div>
   </section>
 
   <!-- APP LIST -->
-  <section class="apps-section hidden" id="appsSection">
-    <h2 id="appTitle">Available Apps</h2>
+  <section class="apps hidden" id="appsSection">
+    <h2 id="appsTitle">Available Apps</h2>
     <div class="app-grid" id="appGrid"></div>
 
     <button class="back-btn" onclick="goBack()">← Back</button>
