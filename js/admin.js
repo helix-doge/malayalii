@@ -1,23 +1,15 @@
-/* ===============================
-   SUPABASE CONFIG
-================================ */
-const SUPABASE_URL = "https://dytrdmvicireccasxxvj.supabase.co";
-const SUPABASE_ANON_KEY = "sb_publishable_Rr3_s1fI61dQp14A-Hk92A_j_ZCAnuW";
+const SUPABASE_URL = "YOUR_SUPABASE_URL";
+const SUPABASE_KEY = "YOUR_SUPABASE_ANON_KEY";
 
 const supabase = window.supabase.createClient(
   SUPABASE_URL,
-  SUPABASE_ANON_KEY
+  SUPABASE_KEY
 );
 
-/* ===============================
-   STATE
-================================ */
-let editingAppId = null;
+let editingId = null;
 let plans = [];
 
-/* ===============================
-   LOAD EXISTING APPS
-================================ */
+/* LOAD APPS */
 async function loadApps() {
   const res = await fetch("/api/apps");
   const apps = await res.json();
@@ -42,11 +34,14 @@ async function loadApps() {
 
 loadApps();
 
-/* ===============================
-   PLANS
-================================ */
+/* PLANS */
 function addPlan() {
   plans.push({ label: "", price: "" });
+  renderPlans();
+}
+
+function removePlan(i) {
+  plans.splice(i, 1);
   renderPlans();
 }
 
@@ -59,25 +54,18 @@ function renderPlans() {
     row.className = "plan-row";
     row.innerHTML = `
       <input placeholder="1 DAY / 1 WEEK / 1 MONTH"
-             value="${p.label}"
-             onchange="plans[${i}].label=this.value">
+        value="${p.label}"
+        onchange="plans[${i}].label=this.value">
       <input placeholder="Price"
-             value="${p.price}"
-             onchange="plans[${i}].price=this.value">
+        value="${p.price}"
+        onchange="plans[${i}].price=this.value">
       <button onclick="removePlan(${i})">X</button>
     `;
     container.appendChild(row);
   });
 }
 
-function removePlan(index) {
-  plans.splice(index, 1);
-  renderPlans();
-}
-
-/* ===============================
-   SAVE APP
-================================ */
+/* SAVE APP */
 async function saveApp() {
   const name = appName.value.trim();
   const description = appDesc.value.trim();
@@ -91,17 +79,19 @@ async function saveApp() {
       .from("app-icons")
       .upload(Date.now() + "-" + file.name, file);
 
-    if (error) {
-      alert("Icon upload failed");
-      return;
-    }
+    if (error) return alert("Icon upload failed");
 
     icon_url =
       `${SUPABASE_URL}/storage/v1/object/public/app-icons/${data.path}`;
   }
 
-  await fetch("/api/admin/app", {
-    method: "POST",
+  const method = editingId ? "PUT" : "POST";
+  const url = editingId
+    ? `/api/admin/app/${editingId}`
+    : "/api/admin/app";
+
+  await fetch(url, {
+    method,
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({
       name,
@@ -116,11 +106,9 @@ async function saveApp() {
   loadApps();
 }
 
-/* ===============================
-   EDIT / DELETE
-================================ */
+/* EDIT */
 function editApp(app) {
-  editingAppId = app.id;
+  editingId = app.id;
   formTitle.innerText = "Edit App";
 
   appName.value = app.name;
@@ -131,25 +119,20 @@ function editApp(app) {
   renderPlans();
 }
 
+/* DELETE */
 async function deleteApp(id) {
   if (!confirm("Delete this app?")) return;
-
-  await fetch(`/api/admin/app/${id}`, {
-    method: "DELETE"
-  });
-
+  await fetch(`/api/admin/app/${id}`, { method: "DELETE" });
   loadApps();
 }
 
-/* ===============================
-   RESET FORM
-================================ */
+/* RESET */
 function resetForm() {
-  editingAppId = null;
+  editingId = null;
   appName.value = "";
   appDesc.value = "";
   appIcon.value = "";
   plans = [];
   renderPlans();
-  formTitle.innerText = "Add New App";
+  formTitle.innerText = "Add App";
 }
