@@ -1,50 +1,38 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta charset="UTF-8">
   <title>Admin Panel – Malayali Store</title>
-
   <link rel="stylesheet" href="css/admin.css">
 </head>
 <body>
 
-<header>
-  <h1>Admin Panel</h1>
-  <p>Manage Apps, Icons & Plans</p>
-</header>
+<h1>Admin Panel</h1>
 
-<main>
-  <!-- ADD / EDIT APP -->
-  <section class="card">
-    <h2 id="formTitle">Add New App</h2>
+<section class="card">
+  <h2 id="formTitle">Add App</h2>
 
-    <input id="appName" placeholder="App Name">
-    <textarea id="appDesc" placeholder="App Description"></textarea>
+  <input id="appName" placeholder="App Name">
+  <textarea id="appDesc" placeholder="App Description"></textarea>
 
-    <select id="platform">
-      <option value="android">Android</option>
-      <option value="ios">iOS / iPad</option>
-    </select>
+  <select id="platform">
+    <option value="android">Android</option>
+    <option value="ios">iOS / iPad</option>
+  </select>
 
-    <label class="file-label">
-      Upload App Icon
-      <input type="file" id="appIcon" hidden>
-    </label>
+  <input type="file" id="appIcon">
 
-    <h3>Plans</h3>
-    <div id="plansList"></div>
+  <h3>Plans</h3>
+  <div id="plansList"></div>
+  <button onclick="addPlan()">+ Add Plan</button>
 
-    <button class="secondary" onclick="addPlan()">+ Add Plan</button>
-    <button class="primary" onclick="saveApp()">Save App</button>
-  </section>
+  <button class="primary" onclick="saveApp()">Save App</button>
+</section>
 
-  <!-- EXISTING APPS -->
-  <section class="card">
-    <h2>Existing Apps</h2>
-    <div id="appsList"></div>
-  </section>
-</main>
+<section class="card">
+  <h2>Existing Apps</h2>
+  <div id="appsList"></div>
+</section>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="js/admin.js"></script>
