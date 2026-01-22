@@ -14,21 +14,18 @@ async function loadApps() {
   const res = await fetch("/api/apps");
   const apps = await res.json();
 
-  const list = document.getElementById("appsList");
-  list.innerHTML = "";
+  appsList.innerHTML = "";
 
   apps.forEach(app => {
     const div = document.createElement("div");
     div.className = "app-item";
     div.innerHTML = `
       <strong>${app.name}</strong> (${app.platform})
-      <p>${app.description}</p>
-      <div class="app-actions">
-        <button onclick='editApp(${JSON.stringify(app)})'>Edit</button>
-        <button onclick="deleteApp('${app.id}')">Delete</button>
-      </div>
+      <p>${app.description || ""}</p>
+      <button onclick='editApp(${JSON.stringify(app)})'>Edit</button>
+      <button onclick="deleteApp('${app.id}')">Delete</button>
     `;
-    list.appendChild(div);
+    appsList.appendChild(div);
   });
 }
 
@@ -40,37 +37,37 @@ function addPlan() {
   renderPlans();
 }
 
-function removePlan(i) {
-  plans.splice(i, 1);
-  renderPlans();
-}
-
 function renderPlans() {
-  const container = document.getElementById("plansList");
-  container.innerHTML = "";
-
+  plansList.innerHTML = "";
   plans.forEach((p, i) => {
     const row = document.createElement("div");
     row.className = "plan-row";
     row.innerHTML = `
       <input placeholder="1 DAY / 1 WEEK / 1 MONTH"
         value="${p.label}"
-        onchange="plans[${i}].label=this.value">
+        oninput="plans[${i}].label=this.value">
       <input placeholder="Price"
         value="${p.price}"
-        onchange="plans[${i}].price=this.value">
+        oninput="plans[${i}].price=this.value">
       <button onclick="removePlan(${i})">X</button>
     `;
-    container.appendChild(row);
+    plansList.appendChild(row);
   });
+}
+
+function removePlan(i) {
+  plans.splice(i, 1);
+  renderPlans();
 }
 
 /* SAVE APP */
 async function saveApp() {
   const name = appName.value.trim();
   const description = appDesc.value.trim();
-  const platform = document.getElementById("platform").value;
+  const platform = platformSelect.value;
   const file = appIcon.files[0];
+
+  if (!name) return alert("App name required");
 
   let icon_url = null;
 
@@ -85,6 +82,14 @@ async function saveApp() {
       `${SUPABASE_URL}/storage/v1/object/public/app-icons/${data.path}`;
   }
 
+  const payload = {
+    name,
+    description,
+    platform,
+    icon_url,
+    plans
+  };
+
   const method = editingId ? "PUT" : "POST";
   const url = editingId
     ? `/api/admin/app/${editingId}`
@@ -93,13 +98,7 @@ async function saveApp() {
   await fetch(url, {
     method,
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({
-      name,
-      description,
-      platform,
-      icon_url,
-      plans
-    })
+    body: JSON.stringify(payload)
   });
 
   resetForm();
@@ -112,8 +111,8 @@ function editApp(app) {
   formTitle.innerText = "Edit App";
 
   appName.value = app.name;
-  appDesc.value = app.description;
-  platform.value = app.platform;
+  appDesc.value = app.description || "";
+  platformSelect.value = app.platform;
 
   plans = app.plans || [];
   renderPlans();
@@ -121,7 +120,7 @@ function editApp(app) {
 
 /* DELETE */
 async function deleteApp(id) {
-  if (!confirm("Delete this app?")) return;
+  if (!confirm("Delete app?")) return;
   await fetch(`/api/admin/app/${id}`, { method: "DELETE" });
   loadApps();
 }
