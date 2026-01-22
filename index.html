@@ -1,8 +1,8 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Malayali Here Store</title>
 
   <link rel="stylesheet" href="css/style.css">
@@ -10,41 +10,40 @@
 </head>
 <body>
 
-  <section class="hero" id="heroSection">
-    <div class="overlay"></div>
+  <!-- HERO PAGE -->
+  <section class="page hero active" id="heroPage">
+    <div class="bg"></div>
 
-    <!-- TITLE -->
-    <div class="title">
-      <h1>MALAYALI<br>HERE STORE</h1>
-      <p>BGMI • PUBG • iOS TOOLS</p>
-    </div>
+    <div class="hero-grid">
+      <!-- TITLE -->
+      <div class="title">
+        <h1>MALAYALI<br>HERE STORE</h1>
+        <p>BGMI • PUBG • iOS TOOLS</p>
+      </div>
 
-    <!-- CENTER BUTTONS (MAIN CTA) -->
-    <div class="center-buttons">
-      <button class="platform-btn" onclick="selectPlatform('android')">
-        ANDROID
-      </button>
-      <button class="platform-btn" onclick="selectPlatform('ios')">
-        iOS / iPAD
-      </button>
-    </div>
+      <!-- BUTTONS -->
+      <div class="buttons">
+        <button onclick="openApps('android')">ANDROID</button>
+        <button onclick="openApps('ios')">iOS / iPAD</button>
+      </div>
 
-    <!-- VISION (ALWAYS BOTTOM) -->
-    <div class="vision">
-      <h3>VISION</h3>
-      <p>
-        Our vision is to provide trusted, secure, and high-performance BGMI / PUBG
-        iOS tools for Malayali gamers, ensuring smooth gameplay, fast support,
-        and a premium user experience.
-      </p>
+      <!-- VISION -->
+      <div class="vision">
+        <h3>VISION</h3>
+        <p>
+          Our vision is to provide trusted, secure, and high-performance BGMI / PUBG
+          iOS tools for Malayali gamers, ensuring smooth gameplay, fast support,
+          and a premium user experience.
+        </p>
+      </div>
     </div>
   </section>
 
   <!-- APPS PAGE -->
-  <section class="apps hidden" id="appsSection">
+  <section class="page apps" id="appsPage">
     <h2 id="appsTitle">Available Apps</h2>
     <div class="app-grid" id="appGrid"></div>
-    <button class="back-btn" onclick="goBack()">← Back</button>
+    <button class="back" onclick="goBack()">← Back</button>
   </section>
 
   <script src="js/main.js"></script>
