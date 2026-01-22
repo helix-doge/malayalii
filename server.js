@@ -11,22 +11,18 @@ const supabase = createClient(
   process.env.SUPABASE_SERVICE_KEY
 );
 
-/* HEALTH CHECK */
+/* Health check */
 app.get("/", (req, res) => {
-  res.send("Malayali Store backend running");
+  res.send("Malayali Store Backend Running");
 });
 
-/* USER SIDE: GET APPS + PLANS */
+/* USER + ADMIN: GET ALL APPS */
 app.get("/api/apps", async (req, res) => {
   const { data, error } = await supabase
     .from("apps")
-    .select("id,name,description,platform,icon_url,plans(label,price)");
+    .select("id,name,description,platform,icon_url,plans(id,label,price)");
 
-  if (error) {
-    console.error(error);
-    return res.status(500).json({ error: "Failed to fetch apps" });
-  }
-
+  if (error) return res.status(500).json(error);
   res.json(data);
 });
 
@@ -48,19 +44,45 @@ app.post("/api/admin/app", async (req, res) => {
     price: p.price
   }));
 
-  await supabase.from("plans").insert(planRows);
+  if (planRows.length > 0) {
+    await supabase.from("plans").insert(planRows);
+  }
+
+  res.json({ success: true });
+});
+
+/* ADMIN: UPDATE APP */
+app.put("/api/admin/app/:id", async (req, res) => {
+  const { name, description, platform, icon_url, plans } = req.body;
+  const appId = req.params.id;
+
+  await supabase
+    .from("apps")
+    .update({ name, description, platform, icon_url })
+    .eq("id", appId);
+
+  await supabase.from("plans").delete().eq("app_id", appId);
+
+  if (plans.length > 0) {
+    const planRows = plans.map(p => ({
+      app_id: appId,
+      label: p.label,
+      price: p.price
+    }));
+    await supabase.from("plans").insert(planRows);
+  }
 
   res.json({ success: true });
 });
 
 /* ADMIN: DELETE APP */
 app.delete("/api/admin/app/:id", async (req, res) => {
-  await supabase.from("plans").delete().eq("app_id", req.params.id);
-  await supabase.from("apps").delete().eq("id", req.params.id);
+  const appId = req.params.id;
+  await supabase.from("plans").delete().eq("app_id", appId);
+  await supabase.from("apps").delete().eq("id", appId);
   res.json({ success: true });
 });
 
-const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => {
-  console.log("Server running on port", PORT);
+app.listen(process.env.PORT || 3000, () => {
+  console.log("Backend running");
 });
