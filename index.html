@@ -1,8 +1,8 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Malayali Here Store</title>
 
   <link rel="stylesheet" href="css/style.css">
@@ -10,26 +10,22 @@
 </head>
 <body>
 
-  <!-- HERO -->
   <section class="hero">
     <div class="overlay"></div>
 
-    <div class="hero-top">
-      <h1>MALAYALI<br><span>HERE STORE</span></h1>
-      <p class="subtitle">BGMI • PUBG • iOS TOOLS</p>
+    <!-- LEFT TITLE -->
+    <div class="left-title">
+      <h1>MALAYALI<br>HERE STORE</h1>
+      <p>BGMI • PUBG • iOS TOOLS</p>
     </div>
 
     <!-- CENTER OPTIONS -->
     <div class="center-options">
-      <div class="platform-btn" onclick="selectPlatform('android')">
-        ANDROID
-      </div>
-      <div class="platform-btn" onclick="selectPlatform('ios')">
-        iOS / iPAD
-      </div>
+      <button class="platform-btn" onclick="selectPlatform('android')">ANDROID</button>
+      <button class="platform-btn" onclick="selectPlatform('ios')">iOS / iPAD</button>
     </div>
 
-    <!-- VISION -->
+    <!-- BOTTOM VISION -->
     <div class="vision">
       <h3>VISION</h3>
       <p>
@@ -40,11 +36,10 @@
     </div>
   </section>
 
-  <!-- APP LIST -->
+  <!-- APPS PAGE -->
   <section class="apps hidden" id="appsSection">
     <h2 id="appsTitle">Available Apps</h2>
     <div class="app-grid" id="appGrid"></div>
-
     <button class="back-btn" onclick="goBack()">← Back</button>
   </section>
 
