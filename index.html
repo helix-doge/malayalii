@@ -1,13 +1,11 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Malayali Here Store</title>
 
   <link rel="stylesheet" href="css/style.css">
-
-  <!-- Google Fonts -->
   <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700&family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
 </head>
 <body>
@@ -17,43 +15,31 @@
     <div class="hero-overlay"></div>
     <div class="hero-content">
       <h1>MALAYALI HERE STORE</h1>
-      <p>BGMI • PUBG • iOS Tools</p>
-    </div>
-  </section>
-
-  <!-- TOOLS -->
-  <section class="tools">
-    <div class="tool-card" onclick="openPlatform('infinite')">
-      <h2>INFINITE MOD</h2>
-    </div>
-
-    <div class="tool-card" onclick="openPlatform('win')">
-      <h2>WIN iOS</h2>
-    </div>
-
-    <div class="tool-card" onclick="openPlatform('king')">
-      <h2>KING iOS</h2>
+      <p>Select your platform to continue</p>
     </div>
   </section>
 
   <!-- PLATFORM SELECTION -->
-  <section class="platforms hidden" id="platformSection">
-    <h3>Select Platform</h3>
+  <section class="platform-section" id="platformSection">
+    <h2>Choose Platform</h2>
 
     <div class="platform-grid">
-      <div class="platform-card" onclick="showApps('android')">
+      <div class="platform-card" onclick="selectPlatform('android')">
         ANDROID
       </div>
-      <div class="platform-card" onclick="showApps('ios')">
+
+      <div class="platform-card" onclick="selectPlatform('ios')">
         iOS / iPAD
       </div>
     </div>
   </section>
 
-  <!-- APPS -->
-  <section class="apps hidden" id="appSection">
-    <h3>Available Apps</h3>
+  <!-- APP LIST -->
+  <section class="apps-section hidden" id="appsSection">
+    <h2 id="appTitle">Available Apps</h2>
     <div class="app-grid" id="appGrid"></div>
+
+    <button class="back-btn" onclick="goBack()">← Back</button>
   </section>
 
   <script src="js/main.js"></script>
