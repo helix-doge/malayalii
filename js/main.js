@@ -34,5 +34,5 @@ function selectPlatform(platform) {
 
 function goBack() {
   appsSection.classList.add("hidden");
-  document.querySelector(".hero").style.display = "grid";
+  document.querySelector(".hero").style.display = "flex";
 }
