@@ -24,7 +24,7 @@ body {
 .bg {
   position: absolute;
   inset: 0;
-  background: linear-gradient(to bottom, #000000aa, #0b0f14);
+  background: url("../assets/bg.jpg") center/cover no-repeat;
 }
 
 .hero-grid {
