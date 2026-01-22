@@ -1,8 +1,8 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Malayali Here Store</title>
 
   <link rel="stylesheet" href="css/style.css">
@@ -10,46 +10,46 @@
 </head>
 <body>
 
-  <!-- HERO / PLATFORM -->
-  <section class="page hero active" id="heroPage">
-    <div class="bg"></div>
+<!-- HERO -->
+<section class="page hero active" id="heroPage">
+  <div class="bg"></div>
 
-    <div class="hero-grid">
-      <div class="title">
-        <h1>MALAYALI<br>HERE STORE</h1>
-        <p>BGMI • PUBG • iOS TOOLS</p>
-      </div>
-
-      <div class="buttons">
-        <button onclick="openApps('android')">ANDROID</button>
-        <button onclick="openApps('ios')">iOS / iPAD</button>
-      </div>
-
-      <div class="vision">
-        <h3>VISION</h3>
-        <p>
-          Our vision is to provide trusted, secure, and high-performance BGMI / PUBG
-          iOS tools for Malayali gamers, ensuring smooth gameplay, fast support,
-          and a premium user experience.
-        </p>
-      </div>
+  <div class="hero-grid">
+    <div class="title">
+      <h1>MALAYALI<br>HERE STORE</h1>
+      <p>BGMI • PUBG • iOS TOOLS</p>
     </div>
-  </section>
 
-  <!-- APPS PAGE -->
-  <section class="page apps" id="appsPage">
-    <h2 id="appsTitle"></h2>
-    <div class="app-grid" id="appGrid"></div>
-    <button class="back" onclick="backToHero()">← Back</button>
-  </section>
+    <div class="buttons">
+      <button onclick="openApps('android')">ANDROID</button>
+      <button onclick="openApps('ios')">iOS / iPAD</button>
+    </div>
 
-  <!-- PLANS PAGE -->
-  <section class="page plans" id="plansPage">
-    <h2 id="plansTitle"></h2>
-    <div class="plans-grid" id="plansGrid"></div>
-    <button class="back" onclick="backToApps()">← Back</button>
-  </section>
+    <div class="vision">
+      <h3>VISION</h3>
+      <p>
+        Our vision is to provide trusted, secure, and high-performance BGMI / PUBG
+        iOS tools for Malayali gamers, ensuring smooth gameplay, fast support,
+        and a premium user experience.
+      </p>
+    </div>
+  </div>
+</section>
 
-  <script src="js/main.js"></script>
+<!-- APPS -->
+<section class="page apps" id="appsPage">
+  <h2 id="appsTitle"></h2>
+  <div class="app-grid" id="appGrid"></div>
+  <button class="back" onclick="backToHero()">← Back</button>
+</section>
+
+<!-- PLANS -->
+<section class="page plans" id="plansPage">
+  <h2 id="plansTitle"></h2>
+  <div class="plans-grid" id="plansGrid"></div>
+  <button class="back" onclick="backToApps()">← Back</button>
+</section>
+
+<script src="js/main.js"></script>
 </body>
 </html>
