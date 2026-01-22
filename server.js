@@ -11,24 +11,37 @@ const supabase = createClient(
   process.env.SUPABASE_SERVICE_KEY
 );
 
-/* Health check */
-app.get("/", (req, res) => {
-  res.send("Malayali Store Backend Running");
-});
+/* Health */
+app.get("/", (_, res) => res.send("Backend OK"));
 
-/* USER + ADMIN: GET ALL APPS */
-app.get("/api/apps", async (req, res) => {
+/* GET APPS (USER + ADMIN) */
+app.get("/api/apps", async (_, res) => {
   const { data, error } = await supabase
     .from("apps")
-    .select("id,name,description,platform,icon_url,plans(id,label,price)");
+    .select(`
+      id,
+      name,
+      description,
+      platform,
+      icon_url,
+      plans (
+        id,
+        label,
+        price
+      )
+    `);
 
   if (error) return res.status(500).json(error);
   res.json(data);
 });
 
-/* ADMIN: ADD APP */
+/* ADD APP */
 app.post("/api/admin/app", async (req, res) => {
   const { name, description, platform, icon_url, plans } = req.body;
+
+  if (!name || !platform) {
+    return res.status(400).json({ error: "Missing fields" });
+  }
 
   const { data: appRow, error } = await supabase
     .from("apps")
@@ -38,23 +51,22 @@ app.post("/api/admin/app", async (req, res) => {
 
   if (error) return res.status(500).json(error);
 
-  const planRows = plans.map(p => ({
-    app_id: appRow.id,
-    label: p.label,
-    price: p.price
-  }));
-
-  if (planRows.length > 0) {
-    await supabase.from("plans").insert(planRows);
+  if (Array.isArray(plans) && plans.length > 0) {
+    const rows = plans.map(p => ({
+      app_id: appRow.id,
+      label: p.label,
+      price: Number(p.price)
+    }));
+    await supabase.from("plans").insert(rows);
   }
 
   res.json({ success: true });
 });
 
-/* ADMIN: UPDATE APP */
+/* UPDATE APP */
 app.put("/api/admin/app/:id", async (req, res) => {
-  const { name, description, platform, icon_url, plans } = req.body;
   const appId = req.params.id;
+  const { name, description, platform, icon_url, plans } = req.body;
 
   await supabase
     .from("apps")
@@ -63,19 +75,19 @@ app.put("/api/admin/app/:id", async (req, res) => {
 
   await supabase.from("plans").delete().eq("app_id", appId);
 
-  if (plans.length > 0) {
-    const planRows = plans.map(p => ({
+  if (Array.isArray(plans) && plans.length > 0) {
+    const rows = plans.map(p => ({
       app_id: appId,
       label: p.label,
-      price: p.price
+      price: Number(p.price)
     }));
-    await supabase.from("plans").insert(planRows);
+    await supabase.from("plans").insert(rows);
   }
 
   res.json({ success: true });
 });
 
-/* ADMIN: DELETE APP */
+/* DELETE APP */
 app.delete("/api/admin/app/:id", async (req, res) => {
   const appId = req.params.id;
   await supabase.from("plans").delete().eq("app_id", appId);
@@ -83,6 +95,6 @@ app.delete("/api/admin/app/:id", async (req, res) => {
   res.json({ success: true });
 });
 
-app.listen(process.env.PORT || 3000, () => {
-  console.log("Backend running");
-});
+app.listen(process.env.PORT || 3000, () =>
+  console.log("Server running")
+);
