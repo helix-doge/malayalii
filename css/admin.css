@@ -1,0 +1,113 @@
+* {
+  box-sizing: border-box;
+  font-family: Arial, sans-serif;
+}
+
+body {
+  margin: 0;
+  background: #0b0f14;
+  color: #fff;
+}
+
+header {
+  padding: 20px;
+  border-bottom: 1px solid #222;
+}
+
+header h1 {
+  margin: 0;
+  color: #ff9f1a;
+}
+
+header p {
+  margin-top: 6px;
+  color: #aaa;
+}
+
+main {
+  padding: 20px;
+  display: grid;
+  gap: 20px;
+}
+
+.card {
+  background: #141923;
+  padding: 20px;
+  border-radius: 12px;
+}
+
+.card h2 {
+  margin-top: 0;
+  color: #ff9f1a;
+}
+
+input, textarea, select {
+  width: 100%;
+  padding: 10px;
+  margin: 8px 0;
+  background: #0b0f14;
+  border: 1px solid #333;
+  color: #fff;
+  border-radius: 8px;
+}
+
+textarea {
+  resize: vertical;
+}
+
+.file-label {
+  display: inline-block;
+  margin: 10px 0;
+  padding: 10px;
+  background: #0b0f14;
+  border: 1px dashed #444;
+  cursor: pointer;
+  border-radius: 8px;
+}
+
+button {
+  margin-top: 10px;
+  padding: 10px 16px;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+.primary {
+  background: #ff9f1a;
+  color: #000;
+}
+
+.secondary {
+  background: transparent;
+  color: #ff9f1a;
+  border: 1px solid #ff9f1a;
+}
+
+.plan-row {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 8px;
+}
+
+.plan-row input {
+  flex: 1;
+}
+
+.plan-row button {
+  background: #c0392b;
+  color: #fff;
+}
+
+.app-item {
+  border-bottom: 1px solid #222;
+  padding: 10px 0;
+}
+
+.app-item strong {
+  color: #ff9f1a;
+}
+
+.app-actions button {
+  margin-right: 10px;
+}
