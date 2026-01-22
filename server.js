@@ -1,83 +1,54 @@
-const express = require("express");
-const cors = require("cors");
-const multer = require("multer");
-const fs = require("fs");
-const path = require("path");
+import express from "express";
+import cors from "cors";
+import { createClient } from "@supabase/supabase-js";
 
 const app = express();
-const PORT = process.env.PORT || 3000;
-
 app.use(cors());
 app.use(express.json());
-app.use("/uploads", express.static("uploads"));
 
-const DATA_FILE = "./data/apps.json";
+const supabase = createClient(
+  process.env.SUPABASE_URL,
+  process.env.SUPABASE_SERVICE_KEY
+);
 
-/* Ensure data file exists */
-if (!fs.existsSync(DATA_FILE)) {
-  fs.mkdirSync("./data", { recursive: true });
-  fs.writeFileSync(DATA_FILE, JSON.stringify({ android: [], ios: [] }, null, 2));
-}
+/* GET ALL APPS + PLANS (USER SIDE) */
+app.get("/api/apps", async (req, res) => {
+  const { data, error } = await supabase
+    .from("apps")
+    .select("*, plans(*)");
 
-/* Multer config */
-const storage = multer.diskStorage({
-  destination: "uploads/",
-  filename: (_, file, cb) => {
-    cb(null, Date.now() + "-" + file.originalname);
-  }
-});
-const upload = multer({ storage });
-
-/* Helpers */
-const readData = () => JSON.parse(fs.readFileSync(DATA_FILE));
-const saveData = (data) => fs.writeFileSync(DATA_FILE, JSON.stringify(data, null, 2));
-
-/* Get apps (user side) */
-app.get("/api/apps", (req, res) => {
-  res.json(readData());
+  if (error) return res.status(500).json(error);
+  res.json(data);
 });
 
-/* Add app */
-app.post("/api/apps", upload.single("icon"), (req, res) => {
-  const { name, description, platform, plans } = req.body;
-  const data = readData();
+/* ADMIN: ADD APP */
+app.post("/api/admin/app", async (req, res) => {
+  const { name, description, platform, icon_url, plans } = req.body;
 
-  data[platform].push({
-    id: Date.now(),
-    name,
-    description,
-    icon: req.file ? `/uploads/${req.file.filename}` : "",
-    plans: JSON.parse(plans)
-  });
+  const { data: appData, error } = await supabase
+    .from("apps")
+    .insert([{ name, description, platform, icon_url }])
+    .select()
+    .single();
 
-  saveData(data);
+  if (error) return res.status(500).json(error);
+
+  const planRows = plans.map(p => ({
+    app_id: appData.id,
+    label: p.label,
+    price: p.price
+  }));
+
+  await supabase.from("plans").insert(planRows);
+
   res.json({ success: true });
 });
 
-/* Update app */
-app.put("/api/apps/:id", (req, res) => {
-  const { platform, name, description, plans } = req.body;
-  const data = readData();
-
-  const appItem = data[platform].find(a => a.id == req.params.id);
-  if (!appItem) return res.status(404).end();
-
-  appItem.name = name;
-  appItem.description = description;
-  appItem.plans = plans;
-
-  saveData(data);
+/* ADMIN: DELETE APP */
+app.delete("/api/admin/app/:id", async (req, res) => {
+  await supabase.from("plans").delete().eq("app_id", req.params.id);
+  await supabase.from("apps").delete().eq("id", req.params.id);
   res.json({ success: true });
 });
 
-/* Delete app */
-app.delete("/api/apps/:platform/:id", (req, res) => {
-  const data = readData();
-  data[req.params.platform] =
-    data[req.params.platform].filter(a => a.id != req.params.id);
-
-  saveData(data);
-  res.json({ success: true });
-});
-
-app.listen(PORT, () => console.log("Server running on", PORT));
+app.listen(3000, () => console.log("Backend running"));
