@@ -5,8 +5,7 @@ const appsTitle = document.getElementById("appsTitle");
 const appsData = {
   android: [
     { name: "Infinite Mod", desc: "Android Premium Tool" },
-    { name: "Infinite Lite", desc: "Safe Android Version" },
-    { name: "BGMI Tool", desc: "Android Support" }
+    { name: "Infinite Lite", desc: "Safe Android Version" }
   ],
   ios: [
     { name: "Win iOS", desc: "Secure iOS Tool" },
@@ -29,15 +28,11 @@ function selectPlatform(platform) {
       <h4>${app.name}</h4>
       <p>${app.desc}</p>
     `;
-    div.onclick = () => {
-      console.log("Selected:", app.name);
-      // next: redirect to key purchase
-    };
     appGrid.appendChild(div);
   });
 }
 
 function goBack() {
   appsSection.classList.add("hidden");
-  document.querySelector(".hero").style.display = "flex";
+  document.querySelector(".hero").style.display = "grid";
 }
