@@ -1,25 +1,11 @@
-:root {
-  --bg: #0b0f14;
-  --card: #141923;
-  --accent: #ff9f1a;
-  --text: #ffffff;
-  --muted: #b8c1cc;
-}
-
-* {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
-}
-
 body {
-  background: var(--bg);
+  margin: 0;
+  background: #0b0f14;
   font-family: 'Poppins', sans-serif;
-  color: var(--text);
+  color: #fff;
   overflow: hidden;
 }
 
-/* PAGE SYSTEM */
 /* PAGE SYSTEM */
 .page {
   position: absolute;
@@ -34,72 +20,90 @@ body {
   pointer-events: auto;
 }
 
-/* APP LIST */
+/* HERO */
+.bg {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(to bottom, #000000aa, #0b0f14);
+}
+
+.hero-grid {
+  position: relative;
+  height: 100%;
+  display: grid;
+  grid-template-rows: auto 1fr auto;
+  padding: 24px;
+}
+
+.title h1 {
+  font-family: 'Orbitron', sans-serif;
+  color: #ff9f1a;
+}
+
+.buttons {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: 16px;
+}
+
+.buttons button {
+  width: 260px;
+  padding: 14px;
+  background: #141923;
+  border: none;
+  border-radius: 14px;
+  color: #fff;
+  font-size: 1rem;
+  cursor: pointer;
+}
+
+.buttons button:hover {
+  box-shadow: 0 0 0 1px #ff9f1a;
+}
+
+/* APPS */
 .app-grid {
-  margin-top: 30px;
   display: grid;
   gap: 20px;
-  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  padding: 20px;
 }
 
 .app-card {
   background: #141923;
-  padding: 20px;
-  border-radius: 14px;
+  padding: 16px;
+  border-radius: 12px;
   display: flex;
-  gap: 14px;
-  align-items: center;
+  gap: 12px;
   cursor: pointer;
-  transition: 0.25s;
-}
-
-.app-card:hover {
-  box-shadow: 0 0 0 1px #ff9f1a;
 }
 
 .app-card img {
   width: 48px;
   height: 48px;
-  object-fit: cover;
-  border-radius: 10px;
-}
-
-.app-info h4 {
-  color: #ff9f1a;
-  margin-bottom: 4px;
-}
-
-.app-info p {
-  font-size: 0.85rem;
-  color: #b8c1cc;
+  border-radius: 8px;
 }
 
 /* PLANS */
 .plans-grid {
-  margin-top: 30px;
   display: grid;
   gap: 20px;
-  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  padding: 20px;
 }
 
 .plan-card {
   background: #141923;
-  padding: 26px;
-  border-radius: 16px;
-  cursor: pointer;
+  padding: 20px;
+  border-radius: 12px;
   text-align: center;
-  transition: 0.25s;
 }
 
-.plan-card:hover {
-  box-shadow: 0 0 0 1px #ff9f1a;
-}
-
-.plan-card h3 {
+.back {
+  margin: 20px;
+  padding: 10px 20px;
+  background: transparent;
+  border: 1px solid #ff9f1a;
   color: #ff9f1a;
-  margin-bottom: 10px;
-}
-
-.plan-card span {
-  font-size: 1.2rem;
+  border-radius: 8px;
 }
