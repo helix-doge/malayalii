@@ -11,13 +11,22 @@ const supabase = createClient(
   process.env.SUPABASE_SERVICE_KEY
 );
 
-/* GET ALL APPS + PLANS (USER SIDE) */
+/* HEALTH CHECK */
+app.get("/", (req, res) => {
+  res.send("Malayali Store backend running");
+});
+
+/* USER SIDE: GET APPS + PLANS */
 app.get("/api/apps", async (req, res) => {
   const { data, error } = await supabase
     .from("apps")
-    .select("*, plans(*)");
+    .select("id,name,description,platform,icon_url,plans(label,price)");
 
-  if (error) return res.status(500).json(error);
+  if (error) {
+    console.error(error);
+    return res.status(500).json({ error: "Failed to fetch apps" });
+  }
+
   res.json(data);
 });
 
@@ -25,7 +34,7 @@ app.get("/api/apps", async (req, res) => {
 app.post("/api/admin/app", async (req, res) => {
   const { name, description, platform, icon_url, plans } = req.body;
 
-  const { data: appData, error } = await supabase
+  const { data: appRow, error } = await supabase
     .from("apps")
     .insert([{ name, description, platform, icon_url }])
     .select()
@@ -34,7 +43,7 @@ app.post("/api/admin/app", async (req, res) => {
   if (error) return res.status(500).json(error);
 
   const planRows = plans.map(p => ({
-    app_id: appData.id,
+    app_id: appRow.id,
     label: p.label,
     price: p.price
   }));
@@ -51,4 +60,7 @@ app.delete("/api/admin/app/:id", async (req, res) => {
   res.json({ success: true });
 });
 
-app.listen(3000, () => console.log("Backend running"));
+const PORT = process.env.PORT || 3000;
+app.listen(PORT, () => {
+  console.log("Server running on port", PORT);
+});
