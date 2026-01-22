@@ -1,206 +1,61 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Malayali Key Store</title>
-    <link rel="stylesheet" href="css/style.css">
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
-    <!-- Razorpay Checkout Script -->
-    <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Malayali Here Store</title>
+
+  <link rel="stylesheet" href="css/style.css">
+
+  <!-- Google Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700&family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
 </head>
 <body>
-    <div class="terminal-container">
-        <div class="scan-line"></div>
-        <div class="glow-effect"></div>
-        
-        <header class="terminal-header">
-            <div class="header-content">
-                <h1 class="glitch-text" data-text="MALAYALI_KEY_STORE">MALAYALI_KEY_STORE</h1>
-                <div class="terminal-prompt">
-                    <span class="prompt-user">user@malayalistore</span>
-                    <span class="prompt-symbol">:~$</span>
-                    <span class="prompt-command">Logged_In</span>
-                </div>
-            </div>
-        </header>
 
-        <main class="terminal-body">
-            <div class="command-line">
-                <span class="command-prefix">>></span>
-                <span class="command-text">SELECT_PRODUCT_FOR_PAYMENT</span>
-            </div>
+  <!-- HERO -->
+  <section class="hero">
+    <div class="hero-overlay"></div>
+    <div class="hero-content">
+      <h1>MALAYALI HERE STORE</h1>
+      <p>BGMI • PUBG • iOS Tools</p>
+    </div>
+  </section>
 
-            <div class="purchase-form">
-                <div class="form-group">
-                    <label for="brand-select" class="form-label">
-                        <i class="fas fa-code-branch"></i> SELECT_APPLICATION
-                    </label>
-                    <select id="brand-select" class="terminal-select">
-                        <option value="">>> CHOOSE_APPLICATION</option>
-                    </select>
-                </div>
-
-                <div class="form-group">
-                    <label for="plan-select" class="form-label">
-                        <i class="fas fa-clock"></i> DURATION_PARAMETER
-                    </label>
-                    <select id="plan-select" class="terminal-select" disabled>
-                        <option value="">>> SELECT_APPLICATION_FIRST</option>
-                    </select>
-                </div>
-
-                <div class="form-group">
-                    <label for="custom-code" class="form-label">
-                        <i class="fas fa-tag"></i> COUPON_CODE [OPTIONAL]
-                    </label>
-                    <input type="text" id="custom-code" class="terminal-input" placeholder="ENTER_COUPON_CODE_IF_AVAILABLE">
-                </div>
-
-                <button id="purchase-btn" class="hack-btn" disabled>
-                    <span class="btn-text">
-                        <i class="fas fa-bolt"></i> PAY_NOW - ₹0
-                    </span>
-                    <div class="btn-glitch"></div>
-                </button>
-            </div>
-
-            <div class="status-output">
-                <div class="output-line">
-                    <span class="output-prefix">[STATUS]</span>
-                    <span class="output-text">SERVER_ONLINE</span>
-                </div>
-                <div class="output-line">
-                    <span class="output-prefix">[KEYS]</span>
-                    <span class="output-text" id="available-keys">CHECKING_INVENTORY...</span>
-                </div>
-                <div class="output-line">
-                    <span class="output-prefix">[CONTACT]</span>
-                    <span class="output-text">
-                        <a href="https://t.me/MALAYALI7" target="_blank" style="color: var(--terminal-cyan); text-decoration: none;">
-                            @MALAYALI7
-                        </a>
-                    </span>
-                </div>
-            </div>
-
-            <!-- Developer Access Link (Hidden but accessible) -->
-       <!--     <div class="developer-access" style="text-align: center; margin-top: 30px;">
-                <a href="developer.html" class="admin-link" style="font-size: 0.8rem; opacity: 0.6;">
-                    <i class="fas fa-code"></i> DEVELOPER_ACCESS
-                </a>
-            </div>
-        </main>
--->
-        <footer class="terminal-footer">
-            <div class="footer-content">
-                <div class="crypto-animation">
-                    <div class="crypto-text">MALAYALI_HERE_KEY_STORE</div>
-                </div>
-                <p class="copyright">&copy; 2025 MALAYALI_KEY_STORE // ALL_RIGHTS_RESERVED</p>
-            </div>
-        </footer>
+  <!-- TOOLS -->
+  <section class="tools">
+    <div class="tool-card" onclick="openPlatform('infinite')">
+      <h2>INFINITE MOD</h2>
     </div>
 
-    <!-- Key Reveal Modal -->
-    <div id="key-modal" class="modal">
-        <div class="modal-content terminal-modal key-modal">
-            <div class="success-animation">
-                <div class="success-icon">
-                    <i class="fas fa-shield-check"></i>
-                </div>
-                <div class="success-text">PAYMENT_SUCCESSFUL</div>
-            </div>
-            <h2 class="glitch-text-sm" data-text="ACCESS_GRANTED">ACCESS_GRANTED</h2>
-            <p>YOUR_LICENSE_KEY:</p>
-            <div class="key-display">
-                <code id="generated-key" class="key-code">DECRYPTING_KEY...</code>
-                <button id="copy-key" class="copy-btn-terminal">
-                    <i class="fas fa-copy"></i>
-                </button>
-            </div>
-            <div class="transaction-info">
-                <div class="info-item">
-                    <i class="fas fa-receipt"></i>
-                    <span>ORDER_ID: <span id="verified-order-id"></span></span>
-                </div>
-                <div class="info-item">
-                    <i class="fas fa-clock"></i>
-                    <span>TIME: <span id="purchase-time"></span></span>
-                </div>
-                <div class="info-item">
-                    <i class="fas fa-check-circle"></i>
-                    <span>STATUS: <span style="color: var(--terminal-green);">VERIFIED</span></span>
-                </div>
-            </div>
-            <div class="key-info">
-                <div class="info-line">
-                    <i class="fas fa-exclamation-triangle"></i>
-                    STORE_KEY_SECURELY - SINGLE_USE_ONLY
-                </div>
-                <div class="info-line">
-                    <i class="fas fa-download"></i>
-                    DOWNLOAD_SOFTWARE_FROM_OFFICIAL_SOURCES
-                </div>
-            </div>
-            <button id="close-modal" class="hack-btn">
-                <i class="fas fa-lock"></i> ACKNOWLEDGE
-            </button>
-        </div>
+    <div class="tool-card" onclick="openPlatform('win')">
+      <h2>WIN iOS</h2>
     </div>
 
-    <!-- Loading Modal -->
-    <div id="loading-modal" class="modal">
-        <div class="modal-content terminal-modal" style="text-align: center; padding: 40px;">
-            <div class="loading-animation">
-                <i class="fas fa-spinner fa-spin" style="font-size: 3rem; color: var(--terminal-cyan); margin-bottom: 20px;"></i>
-                <h3>PROCESSING_PAYMENT</h3>
-                <p>PLEASE_WAIT_WHILE_WE_PROCESS_YOUR_ORDER</p>
-                <div class="loading-dots">
-                    <span></span>
-                    <span></span>
-                    <span></span>
-                </div>
-            </div>
-        </div>
+    <div class="tool-card" onclick="openPlatform('king')">
+      <h2>KING iOS</h2>
     </div>
+  </section>
 
-    <script src="js/main.js"></script>
+  <!-- PLATFORM SELECTION -->
+  <section class="platforms hidden" id="platformSection">
+    <h3>Select Platform</h3>
 
-    <style>
-        .loading-dots {
-            display: flex;
-            justify-content: center;
-            gap: 5px;
-            margin-top: 20px;
-        }
-        
-        .loading-dots span {
-            width: 8px;
-            height: 8px;
-            background: var(--terminal-cyan);
-            border-radius: 50%;
-            animation: pulse 1.4s ease-in-out infinite both;
-        }
-        
-        .loading-dots span:nth-child(1) { animation-delay: -0.32s; }
-        .loading-dots span:nth-child(2) { animation-delay: -0.16s; }
-        
-        @keyframes pulse {
-            0%, 80%, 100% { 
-                transform: scale(0.8);
-                opacity: 0.5;
-            }
-            40% { 
-                transform: scale(1.2);
-                opacity: 1;
-            }
-        }
-        
-        .developer-access a:hover {
-            opacity: 1 !important;
-            color: var(--terminal-cyan) !important;
-        }
-    </style>
+    <div class="platform-grid">
+      <div class="platform-card" onclick="showApps('android')">
+        ANDROID
+      </div>
+      <div class="platform-card" onclick="showApps('ios')">
+        iOS / iPAD
+      </div>
+    </div>
+  </section>
+
+  <!-- APPS -->
+  <section class="apps hidden" id="appSection">
+    <h3>Available Apps</h3>
+    <div class="app-grid" id="appGrid"></div>
+  </section>
+
+  <script src="js/main.js"></script>
 </body>
 </html>
