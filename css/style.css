@@ -1,6 +1,6 @@
-e:root {
+:root {
   --bg: #0b0f14;
-  --card: rgba(20,25,35,0.95);
+  --card: #141923;
   --accent: #ff9f1a;
   --text: #ffffff;
   --muted: #b8c1cc;
@@ -16,35 +16,43 @@ body {
   background: var(--bg);
   font-family: 'Poppins', sans-serif;
   color: var(--text);
+  overflow: hidden;
+}
+
+/* PAGE SYSTEM */
+.page {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.35s ease;
+}
+
+.page.active {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+/* HERO BACKGROUND */
+.bg {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(to bottom, #000000aa, #0b0f14);
+  z-index: 0;
 }
 
 /* HERO GRID */
-.hero {
+.hero-grid {
   position: relative;
-  min-height: 100vh;
+  z-index: 1;
+  height: 100%;
   display: grid;
   grid-template-rows: auto 1fr auto;
-  padding: 30px 20px;
-}
-
-/* BACKGROUND IMAGE (ADD LATER) */
-/*
-.hero {
-  background: url("../assets/bg.jpg") center/cover no-repeat;
-}
-*/
-
-.overlay {
-  position: absolute;
-  inset: 0;
-  background: linear-gradient(to bottom, rgba(0,0,0,0.7), #0b0f14);
-  z-index: 0;
+  padding: 24px;
 }
 
 /* TITLE */
 .title {
-  position: relative;
-  z-index: 1;
   text-align: center;
 }
 
@@ -52,57 +60,51 @@ body {
   font-family: 'Orbitron', sans-serif;
   font-size: 2.4rem;
   color: var(--accent);
-  line-height: 1.1;
 }
 
 .title p {
-  margin-top: 8px;
+  margin-top: 6px;
   color: var(--muted);
   font-size: 0.85rem;
 }
 
-/* CENTER BUTTONS */
-.center-buttons {
-  position: relative;
-  z-index: 1;
+/* BUTTONS */
+.buttons {
   display: flex;
   flex-direction: column;
   justify-content: center;
   align-items: center;
-  gap: 18px;
+  gap: 16px;
 }
 
-.platform-btn {
+.buttons button {
   width: 100%;
   max-width: 320px;
   padding: 16px;
   background: var(--card);
-  border: 1px solid transparent;
-  border-radius: 14px;
   color: var(--text);
+  border: none;
+  border-radius: 14px;
   font-size: 1.05rem;
   letter-spacing: 1px;
   cursor: pointer;
-  transition: 0.25s ease;
+  transition: transform 0.25s, box-shadow 0.25s;
 }
 
-.platform-btn:hover {
-  border-color: var(--accent);
-  transform: scale(1.03);
+.buttons button:hover {
+  transform: scale(1.04);
+  box-shadow: 0 0 0 1px var(--accent);
 }
 
-/* VISION (BOTTOM FIXED) */
+/* VISION */
 .vision {
-  position: relative;
-  z-index: 1;
   text-align: center;
-  margin-top: 10px;
 }
 
 .vision h3 {
   color: #3aa0ff;
-  letter-spacing: 3px;
   font-size: 0.85rem;
+  letter-spacing: 3px;
   margin-bottom: 6px;
 }
 
@@ -114,37 +116,26 @@ body {
 
 /* APPS PAGE */
 .apps {
-  padding: 60px 20px;
+  padding: 40px 20px;
   text-align: center;
 }
 
-.apps h2 {
-  margin-bottom: 40px;
-  color: var(--accent);
-}
-
 .app-grid {
+  margin-top: 30px;
   display: grid;
+  gap: 20px;
   grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-  gap: 25px;
 }
 
-.app-card {
+.app-grid div {
   background: var(--card);
-  padding: 30px;
+  padding: 24px;
   border-radius: 14px;
-  cursor: pointer;
-  border: 1px solid transparent;
 }
 
-.app-card:hover {
-  border-color: var(--accent);
-}
-
-/* BACK */
-.back-btn {
+.back {
   margin-top: 40px;
-  padding: 12px 30px;
+  padding: 12px 26px;
   background: transparent;
   border: 1px solid var(--accent);
   color: var(--accent);
@@ -152,20 +143,9 @@ body {
   cursor: pointer;
 }
 
-.hidden {
-  display: none;
-}
-
-/* DESKTOP TWEAK */
+/* DESKTOP */
 @media (min-width: 900px) {
   .title h1 {
     font-size: 3rem;
   }
-}
-
-.hidden-section {
-  visibility: hidden;
-  position: absolute;
-  inset: 0;
-  pointer-events: none;
 }
