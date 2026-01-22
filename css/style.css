@@ -20,12 +20,13 @@ body {
 }
 
 /* PAGE SYSTEM */
+/* PAGE SYSTEM */
 .page {
   position: absolute;
   inset: 0;
   opacity: 0;
   pointer-events: none;
-  transition: opacity 0.35s ease;
+  transition: opacity 0.3s ease;
 }
 
 .page.active {
@@ -33,129 +34,47 @@ body {
   pointer-events: auto;
 }
 
-/* HERO BACKGROUND */
-.bg {
-  position: absolute;
-  inset: 0;
-  background: linear-gradient(to bottom, #000000aa, #0b0f14);
-  z-index: 0;
-}
-
-/* HERO GRID */
-.hero-grid {
-  position: relative;
-  z-index: 1;
-  height: 100%;
-  display: grid;
-  grid-template-rows: auto 1fr auto;
-  padding: 24px;
-}
-
-/* TITLE */
-.title {
-  text-align: center;
-}
-
-.title h1 {
-  font-family: 'Orbitron', sans-serif;
-  font-size: 2.4rem;
-  color: var(--accent);
-}
-
-.title p {
-  margin-top: 6px;
-  color: var(--muted);
-  font-size: 0.85rem;
-}
-
-/* BUTTONS */
-.buttons {
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  gap: 16px;
-}
-
-.buttons button {
-  width: 100%;
-  max-width: 320px;
-  padding: 16px;
-  background: var(--card);
-  color: var(--text);
-  border: none;
-  border-radius: 14px;
-  font-size: 1.05rem;
-  letter-spacing: 1px;
-  cursor: pointer;
-  transition: transform 0.25s, box-shadow 0.25s;
-}
-
-.buttons button:hover {
-  transform: scale(1.04);
-  box-shadow: 0 0 0 1px var(--accent);
-}
-
-/* VISION */
-.vision {
-  text-align: center;
-}
-
-.vision h3 {
-  color: #3aa0ff;
-  font-size: 0.85rem;
-  letter-spacing: 3px;
-  margin-bottom: 6px;
-}
-
-.vision p {
-  color: var(--muted);
-  font-size: 0.8rem;
-  line-height: 1.5;
-}
-
-/* APPS PAGE */
-.apps {
-  padding: 40px 20px;
-  text-align: center;
-}
-
+/* APP LIST */
 .app-grid {
   margin-top: 30px;
   display: grid;
   gap: 20px;
-  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
 }
 
-.app-grid div {
-  background: var(--card);
-  padding: 24px;
+.app-card {
+  background: #141923;
+  padding: 20px;
   border-radius: 14px;
-}
-
-.back {
-  margin-top: 40px;
-  padding: 12px 26px;
-  background: transparent;
-  border: 1px solid var(--accent);
-  color: var(--accent);
-  border-radius: 10px;
+  display: flex;
+  gap: 14px;
+  align-items: center;
   cursor: pointer;
+  transition: 0.25s;
 }
 
-/* DESKTOP */
-@media (min-width: 900px) {
-  .title h1 {
-    font-size: 3rem;
-  }
+.app-card:hover {
+  box-shadow: 0 0 0 1px #ff9f1a;
+}
+
+.app-card img {
+  width: 48px;
+  height: 48px;
+  object-fit: cover;
+  border-radius: 10px;
+}
+
+.app-info h4 {
+  color: #ff9f1a;
+  margin-bottom: 4px;
+}
+
+.app-info p {
+  font-size: 0.85rem;
+  color: #b8c1cc;
 }
 
 /* PLANS */
-.plans {
-  padding: 40px 20px;
-  text-align: center;
-}
-
 .plans-grid {
   margin-top: 30px;
   display: grid;
@@ -164,31 +83,23 @@ body {
 }
 
 .plan-card {
-  background: var(--card);
+  background: #141923;
   padding: 26px;
   border-radius: 16px;
   cursor: pointer;
+  text-align: center;
   transition: 0.25s;
-  border: 1px solid transparent;
 }
 
 .plan-card:hover {
-  border-color: var(--accent);
-  transform: scale(1.03);
+  box-shadow: 0 0 0 1px #ff9f1a;
 }
 
 .plan-card h3 {
-  color: var(--accent);
-  margin-bottom: 8px;
-}
-
-.plan-card p {
-  color: var(--muted);
-  font-size: 0.9rem;
+  color: #ff9f1a;
+  margin-bottom: 10px;
 }
 
 .plan-card span {
-  display: block;
-  margin-top: 12px;
-  font-size: 1.1rem;
+  font-size: 1.2rem;
 }
