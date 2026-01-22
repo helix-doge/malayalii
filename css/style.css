@@ -1,4 +1,4 @@
-:root {
+e:root {
   --bg: #0b0f14;
   --card: rgba(20,25,35,0.95);
   --accent: #ff9f1a;
@@ -161,4 +161,11 @@ body {
   .title h1 {
     font-size: 3rem;
   }
+}
+
+.hidden-section {
+  visibility: hidden;
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
 }
