@@ -1,39 +1,35 @@
-const heroSection = document.getElementById("heroSection");
-const appsSection = document.getElementById("appsSection");
+const heroPage = document.getElementById("heroPage");
+const appsPage = document.getElementById("appsPage");
 const appGrid = document.getElementById("appGrid");
 const appsTitle = document.getElementById("appsTitle");
 
-const appsData = {
+const apps = {
   android: [
-    { name: "Infinite Mod", desc: "Android Premium Tool" },
-    { name: "Infinite Lite", desc: "Safe Android Version" }
+    "Infinite Mod",
+    "Infinite Lite"
   ],
   ios: [
-    { name: "Win iOS", desc: "Secure iOS Tool" },
-    { name: "King iOS", desc: "Premium iOS Mod" }
+    "Win iOS",
+    "King iOS"
   ]
 };
 
-function selectPlatform(platform) {
-  heroSection.classList.add("hidden-section");
-  appsSection.classList.remove("hidden");
+function openApps(platform) {
+  heroPage.classList.remove("active");
+  appsPage.classList.add("active");
 
-  appGrid.innerHTML = "";
-  appsTitle.innerText =
+  appsTitle.textContent =
     platform === "android" ? "Android Apps" : "iOS / iPad Apps";
 
-  appsData[platform].forEach(app => {
+  appGrid.innerHTML = "";
+  apps[platform].forEach(name => {
     const div = document.createElement("div");
-    div.className = "app-card";
-    div.innerHTML = `
-      <h4>${app.name}</h4>
-      <p>${app.desc}</p>
-    `;
+    div.textContent = name;
     appGrid.appendChild(div);
   });
 }
 
 function goBack() {
-  appsSection.classList.add("hidden");
-  heroSection.classList.remove("hidden-section");
+  appsPage.classList.remove("active");
+  heroPage.classList.add("active");
 }
