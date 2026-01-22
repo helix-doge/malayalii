@@ -2,26 +2,69 @@
 <html>
 <head>
   <title>Admin Panel</title>
+  <style>
+    body { font-family: Arial; background:#0b0f14; color:#fff; padding:20px }
+    input, select, button, textarea {
+      width:100%; margin:6px 0; padding:10px;
+      background:#141923; color:#fff; border:none; border-radius:6px;
+    }
+    button { cursor:pointer; background:#ff9f1a; color:#000 }
+    .card { background:#141923; padding:15px; margin-top:15px; border-radius:10px }
+    .plan { display:flex; gap:10px }
+  </style>
 </head>
 <body>
 
-<h2>Add App</h2>
+<h2>Admin Panel</h2>
 
-<input id="appName" placeholder="App Name"><br><br>
+<div class="card">
+  <h3>Add / Edit App</h3>
 
-<select id="platform">
-  <option value="android">Android</option>
-  <option value="ios">iOS / iPad</option>
-</select><br><br>
+  <input id="name" placeholder="App Name">
+  <textarea id="desc" placeholder="Description"></textarea>
 
-<input type="file" id="icon"><br><br>
+  <select id="platform">
+    <option value="android">Android</option>
+    <option value="ios">iOS / iPad</option>
+  </select>
 
-<h3>Plans</h3>
-<input placeholder="Weekly Price"><br>
-<input placeholder="Monthly Price"><br>
-<input placeholder="Lifetime Price"><br><br>
+  <input type="file" id="icon">
 
-<button>Add App</button>
+  <h4>Plans</h4>
+  <div id="plans"></div>
+
+  <button onclick="addPlan()">Add Plan</button>
+  <button onclick="saveApp()">Save App</button>
+</div>
+
+<script>
+let plans = [];
+
+function addPlan() {
+  const label = prompt("Plan name (1 DAY / 1 WEEK / 1 MONTH)");
+  const price = prompt("Price");
+  if (!label || !price) return;
+  plans.push({ label, price });
+  renderPlans();
+}
+
+function renderPlans() {
+  document.getElementById("plans").innerHTML =
+    plans.map(p => `<div>${p.label} - ₹${p.price}</div>`).join("");
+}
+
+async function saveApp() {
+  const fd = new FormData();
+  fd.append("name", name.value);
+  fd.append("description", desc.value);
+  fd.append("platform", platform.value);
+  fd.append("plans", JSON.stringify(plans));
+  if (icon.files[0]) fd.append("icon", icon.files[0]);
+
+  await fetch("/api/apps", { method:"POST", body: fd });
+  alert("Saved");
+}
+</script>
 
 </body>
 </html>
