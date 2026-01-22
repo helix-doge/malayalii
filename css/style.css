@@ -22,10 +22,10 @@ body {
 .hero {
   position: relative;
   min-height: 100vh;
-  display: grid;
-  grid-template-columns: 1fr 1fr 1fr;
-  grid-template-rows: 1fr auto;
-  padding: 40px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: 30px 20px;
 }
 
 /* BACKGROUND IMAGE LATER */
@@ -38,39 +38,39 @@ body {
 .overlay {
   position: absolute;
   inset: 0;
-  background: linear-gradient(to right, rgba(0,0,0,0.65), #0b0f14);
+  background: linear-gradient(to bottom, rgba(0,0,0,0.6), #0b0f14);
   z-index: 0;
 }
 
-/* LEFT TITLE */
+/* TITLE */
 .left-title {
-  grid-column: 1 / 2;
+  position: relative;
   z-index: 1;
-  align-self: center;
 }
 
 .left-title h1 {
   font-family: 'Orbitron', sans-serif;
-  font-size: 3rem;
+  font-size: 2.2rem;
   color: var(--accent);
   line-height: 1.1;
 }
 
 .left-title p {
-  margin-top: 12px;
+  margin-top: 8px;
   color: var(--muted);
-  letter-spacing: 1px;
+  font-size: 0.85rem;
 }
 
-/* CENTER OPTIONS */
+/* CENTER OPTIONS (PRIMARY CTA) */
 .center-options {
-  grid-column: 2 / 3;
+  position: relative;
   z-index: 1;
   display: flex;
   flex-direction: column;
-  justify-content: center;
   align-items: center;
+  justify-content: center;
   gap: 22px;
+  flex: 1; /* THIS pushes it to true center */
 }
 
 .platform-btn {
@@ -91,32 +91,31 @@ body {
   transform: scale(1.05);
 }
 
-/* VISION */
+/* VISION (BOTTOM, SECONDARY) */
 .vision {
-  grid-column: 1 / 4;
-  grid-row: 2;
+  position: relative;
   z-index: 1;
   text-align: center;
   max-width: 900px;
   margin: 0 auto;
-  padding-top: 30px;
 }
 
 .vision h3 {
   color: #3aa0ff;
   letter-spacing: 3px;
-  margin-bottom: 10px;
+  font-size: 0.85rem;
+  margin-bottom: 8px;
 }
 
 .vision p {
   color: var(--muted);
-  font-size: 0.95rem;
-  line-height: 1.6;
+  font-size: 0.85rem;
+  line-height: 1.5;
 }
 
 /* APPS PAGE */
 .apps {
-  padding: 60px 30px;
+  padding: 60px 20px;
   text-align: center;
 }
 
@@ -175,19 +174,13 @@ body {
   display: none;
 }
 
-/* MOBILE FIX */
-@media (max-width: 900px) {
-  .hero {
-    grid-template-columns: 1fr;
-    text-align: center;
+/* DESKTOP ENHANCEMENT */
+@media (min-width: 900px) {
+  .left-title h1 {
+    font-size: 3rem;
   }
 
-  .left-title,
   .center-options {
-    grid-column: 1;
-  }
-
-  .left-title {
-    margin-bottom: 40px;
+    gap: 26px;
   }
 }
