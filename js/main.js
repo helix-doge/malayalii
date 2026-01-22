@@ -1,7 +1,6 @@
-const platformSection = document.getElementById("platformSection");
 const appsSection = document.getElementById("appsSection");
 const appGrid = document.getElementById("appGrid");
-const appTitle = document.getElementById("appTitle");
+const appsTitle = document.getElementById("appsTitle");
 
 const appsData = {
   android: [
@@ -10,37 +9,35 @@ const appsData = {
     { name: "BGMI Tool", desc: "Android Support" }
   ],
   ios: [
-    { name: "Win iOS", desc: "iOS Secure Tool" },
+    { name: "Win iOS", desc: "Secure iOS Tool" },
     { name: "King iOS", desc: "Premium iOS Mod" }
   ]
 };
 
 function selectPlatform(platform) {
-  platformSection.classList.add("hidden");
+  document.querySelector(".hero").style.display = "none";
   appsSection.classList.remove("hidden");
 
   appGrid.innerHTML = "";
-  appTitle.innerText =
+  appsTitle.innerText =
     platform === "android" ? "Android Apps" : "iOS / iPad Apps";
 
   appsData[platform].forEach(app => {
     const div = document.createElement("div");
     div.className = "app-card";
     div.innerHTML = `
-      <h3>${app.name}</h3>
+      <h4>${app.name}</h4>
       <p>${app.desc}</p>
     `;
-
     div.onclick = () => {
-      // NEXT STEP (keys page later)
-      console.log("Selected app:", app.name);
+      console.log("Selected:", app.name);
+      // next: redirect to key purchase
     };
-
     appGrid.appendChild(div);
   });
 }
 
 function goBack() {
   appsSection.classList.add("hidden");
-  platformSection.classList.remove("hidden");
+  document.querySelector(".hero").style.display = "flex";
 }
