@@ -5,25 +5,23 @@
 
 body {
   margin: 0;
-  background: #000;
   color: #fff;
+  background: #000;
 }
 
 .page {
   display: none;
   min-height: 100vh;
-  padding: 24px;
+  position: relative;
+  padding: 20px;
 }
 
 .page.active {
-  display: block;
+  display: flex;
+  flex-direction: column;
 }
 
-/* HERO */
-.hero {
-  position: relative;
-}
-
+/* BACKGROUND */
 .bg {
   position: absolute;
   inset: 0;
@@ -32,29 +30,32 @@ body {
   z-index: -1;
 }
 
-.hero-grid {
-  min-height: 100vh;
-  display: grid;
-  align-content: center;
-  gap: 40px;
+/* TOP TITLE */
+.top-title {
+  text-align: center;
+  margin-top: 20px;
 }
 
-.title h1 {
+.top-title h1 {
   font-family: 'Orbitron', sans-serif;
-  font-size: 44px;
+  font-size: 38px;
   margin: 0;
 }
 
-.title p {
+.top-title p {
   color: #ccc;
 }
 
-.buttons {
+/* CENTER BUTTONS */
+.center-buttons {
+  flex: 1;
   display: flex;
+  justify-content: center;
+  align-items: center;
   gap: 20px;
 }
 
-.buttons button {
+.center-buttons button {
   padding: 18px 40px;
   border-radius: 14px;
   border: none;
@@ -62,17 +63,25 @@ body {
   cursor: pointer;
 }
 
-.buttons button:first-child {
+.center-buttons button:first-child {
   background: linear-gradient(135deg, #22c55e, #16a34a);
 }
 
-.buttons button:last-child {
+.center-buttons button:last-child {
   background: linear-gradient(135deg, #38bdf8, #0284c7);
 }
 
+/* VISION */
 .vision {
-  max-width: 520px;
-  color: #ccc;
+  text-align: center;
+  color: #ddd;
+  margin-bottom: 20px;
+}
+
+.vision p {
+  max-width: 600px;
+  margin: auto;
+  font-size: 14px;
 }
 
 /* APPS */
@@ -80,13 +89,12 @@ body {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
   gap: 20px;
-  margin-top: 30px;
 }
 
 .app-card {
   background: rgba(0,0,0,0.6);
   border: 1px solid #222;
-  border-radius: 16px;
+  border-radius: 14px;
   padding: 16px;
   text-align: center;
   cursor: pointer;
@@ -98,20 +106,10 @@ body {
   border-radius: 12px;
 }
 
-.back {
-  margin-top: 30px;
-  background: transparent;
-  color: #fff;
-  border: 1px solid #444;
-  padding: 10px 16px;
-  border-radius: 8px;
-}
-
 /* PLANS */
 .plans-grid {
   display: grid;
   gap: 16px;
-  margin-top: 30px;
 }
 
 .plan-card {
@@ -119,4 +117,14 @@ body {
   border: 1px solid #333;
   border-radius: 14px;
   padding: 16px;
+}
+
+/* BACK BUTTON */
+.back {
+  margin-top: 30px;
+  background: transparent;
+  color: #fff;
+  border: 1px solid #444;
+  padding: 10px 16px;
+  border-radius: 8px;
 }
