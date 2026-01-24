@@ -1,8 +1,5 @@
 document.addEventListener("DOMContentLoaded", () => {
 
-  /* ===============================
-     SUPABASE CONFIG (FRONTEND)
-  ================================ */
   const SUPABASE_URL = "https://dytrdmvicireccasxxvj.supabase.co";
   const SUPABASE_ANON_KEY = "sb_publishable_Rr3_s1fI61dQp14A-Hk92A_j_ZCAnuW";
 
@@ -11,9 +8,6 @@ document.addEventListener("DOMContentLoaded", () => {
     SUPABASE_ANON_KEY
   );
 
-  /* ===============================
-     DOM ELEMENTS
-  ================================ */
   const appName = document.getElementById("appName");
   const appDesc = document.getElementById("appDesc");
   const platformSelect = document.getElementById("platformSelect");
@@ -21,19 +15,22 @@ document.addEventListener("DOMContentLoaded", () => {
   const plansList = document.getElementById("plansList");
   const appsList = document.getElementById("appsList");
   const formTitle = document.getElementById("formTitle");
+  const toast = document.getElementById("toast");
 
   const addPlanBtn = document.getElementById("addPlanBtn");
   const saveAppBtn = document.getElementById("saveAppBtn");
 
-  /* ===============================
-     STATE
-  ================================ */
   let editingId = null;
   let plans = [];
 
-  /* ===============================
-     LOAD APPS
-  ================================ */
+  /* TOAST */
+  function showToast(msg) {
+    toast.textContent = msg;
+    toast.classList.add("show");
+    setTimeout(() => toast.classList.remove("show"), 2500);
+  }
+
+  /* LOAD APPS */
   async function loadApps() {
     const res = await fetch("/api/apps");
     const apps = await res.json();
@@ -43,16 +40,15 @@ document.addEventListener("DOMContentLoaded", () => {
     apps.forEach(app => {
       const div = document.createElement("div");
       div.className = "app-item";
-
       div.innerHTML = `
         <strong>${app.name}</strong> (${app.platform})
         <p>${app.description || ""}</p>
-        <button class="edit-btn">Edit</button>
-        <button class="delete-btn">Delete</button>
+        <button class="edit">Edit</button>
+        <button class="delete">Delete</button>
       `;
 
-      div.querySelector(".edit-btn").onclick = () => editApp(app);
-      div.querySelector(".delete-btn").onclick = () => deleteApp(app.id);
+      div.querySelector(".edit").onclick = () => editApp(app);
+      div.querySelector(".delete").onclick = () => deleteApp(app.id);
 
       appsList.appendChild(div);
     });
@@ -60,9 +56,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
   loadApps();
 
-  /* ===============================
-     PLANS
-  ================================ */
+  /* PLANS */
   function renderPlans() {
     plansList.innerHTML = "";
 
@@ -70,24 +64,19 @@ document.addEventListener("DOMContentLoaded", () => {
       const row = document.createElement("div");
       row.className = "plan-row";
 
-      const label = document.createElement("input");
-      label.placeholder = "1 DAY / 1 WEEK / 1 MONTH";
-      label.value = p.label;
-      label.oninput = e => plans[i].label = e.target.value;
+      row.innerHTML = `
+        <input placeholder="1 DAY / 1 WEEK / 1 MONTH" value="${p.label}">
+        <input placeholder="Price" value="${p.price}">
+        <button>X</button>
+      `;
 
-      const price = document.createElement("input");
-      price.placeholder = "Price";
-      price.value = p.price;
-      price.oninput = e => plans[i].price = e.target.value;
-
-      const del = document.createElement("button");
-      del.textContent = "X";
-      del.onclick = () => {
+      row.children[0].oninput = e => plans[i].label = e.target.value;
+      row.children[1].oninput = e => plans[i].price = e.target.value;
+      row.children[2].onclick = () => {
         plans.splice(i, 1);
         renderPlans();
       };
 
-      row.append(label, price, del);
       plansList.appendChild(row);
     });
   }
@@ -97,34 +86,19 @@ document.addEventListener("DOMContentLoaded", () => {
     renderPlans();
   };
 
-  /* ===============================
-     SAVE APP (ICON UPLOAD FIXED)
-  ================================ */
+  /* SAVE APP */
   saveAppBtn.onclick = async () => {
-
-    if (!appName.value.trim()) {
-      alert("App name required");
-      return;
-    }
-
     let icon_url = null;
     const file = appIcon.files[0];
 
     if (file) {
-      const filePath = `icons/${Date.now()}-${file.name}`;
-
       const { data, error } = await supabase.storage
         .from("app-icons")
-        .upload(filePath, file, {
-          cacheControl: "3600",
+        .upload(`icons/${Date.now()}-${file.name}`, file, {
           upsert: true
         });
 
-      if (error) {
-        console.error(error);
-        alert("Icon upload failed (check storage policy)");
-        return;
-      }
+      if (error) return showToast("Icon upload failed");
 
       icon_url =
         `${SUPABASE_URL}/storage/v1/object/public/app-icons/${data.path}`;
@@ -138,10 +112,11 @@ document.addEventListener("DOMContentLoaded", () => {
       plans
     };
 
-    const method = editingId ? "PUT" : "POST";
     const url = editingId
       ? `/api/admin/app/${editingId}`
       : "/api/admin/app";
+
+    const method = editingId ? "PUT" : "POST";
 
     await fetch(url, {
       method,
@@ -150,33 +125,26 @@ document.addEventListener("DOMContentLoaded", () => {
     });
 
     resetForm();
-    loadApps();
+    await loadApps();   // 👈 FORCE REFRESH
+    showToast("App saved successfully");
   };
 
-  /* ===============================
-     EDIT / DELETE
-  ================================ */
   function editApp(app) {
     editingId = app.id;
     formTitle.textContent = "Edit App";
-
     appName.value = app.name;
     appDesc.value = app.description || "";
     platformSelect.value = app.platform;
-
     plans = app.plans || [];
     renderPlans();
   }
 
   async function deleteApp(id) {
-    if (!confirm("Delete this app?")) return;
     await fetch(`/api/admin/app/${id}`, { method: "DELETE" });
-    loadApps();
+    await loadApps();
+    showToast("App deleted");
   }
 
-  /* ===============================
-     RESET
-  ================================ */
   function resetForm() {
     editingId = null;
     appName.value = "";
