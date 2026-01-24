@@ -1,43 +1,27 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-  <meta charset="UTF-8">
-  <title>Admin Panel – Malayali Store</title>
-  <link rel="stylesheet" href="css/admin.css">
+  <title>Admin</title>
 </head>
 <body>
 
-<h1>Admin Panel</h1>
+<h2>Add App</h2>
 
-<section class="card">
-  <h2 id="formTitle">Add App</h2>
+<input id="name" placeholder="App Name"><br>
+<input id="desc" placeholder="Description"><br>
 
-  <input id="appName" placeholder="App Name">
-  <textarea id="appDesc" placeholder="App Description"></textarea>
+<select id="platform">
+  <option value="android">Android</option>
+  <option value="ios">iOS</option>
+</select><br>
 
-  <select id="platformSelect">
-    <option value="android">Android</option>
-    <option value="ios">iOS / iPad</option>
-  </select>
+<button onclick="saveApp()">Save App</button>
 
-  <input type="file" id="appIcon" accept="image/*">
+<hr>
 
-  <h3>Plans</h3>
-  <div id="plansList"></div>
+<h2>Existing Apps</h2>
+<div id="apps"></div>
 
-  <button id="addPlanBtn">+ Add Plan</button>
-  <button id="saveAppBtn" class="primary">Save App</button>
-</section>
-
-<section class="card">
-  <h2>Existing Apps</h2>
-  <div id="appsList"></div>
-</section>
-
-<!-- TOAST -->
-<div id="toast" class="toast"></div>
-
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script src="js/admin.js"></script>
+<script src="admin.js"></script>
 </body>
 </html>
