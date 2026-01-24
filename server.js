@@ -11,10 +11,11 @@ const supabase = createClient(
   process.env.SUPABASE_SERVICE_KEY
 );
 
-/* =============================
-   GET ALL APPS (SINGLE SOURCE)
-============================= */
-app.get("/api/apps", async (req, res) => {
+/* TEST */
+app.get("/", (_, res) => res.send("Backend OK"));
+
+/* GET APPS */
+app.get("/api/apps", async (_, res) => {
   const { data, error } = await supabase
     .from("apps")
     .select(`
@@ -33,15 +34,13 @@ app.get("/api/apps", async (req, res) => {
 
   if (error) {
     console.error(error);
-    return res.status(500).json([]);
+    return res.json([]);
   }
 
   res.json(data || []);
 });
 
-/* =============================
-   ADD APP
-============================= */
+/* ADD APP */
 app.post("/api/admin/app", async (req, res) => {
   const { name, description, platform, icon_url, plans } = req.body;
 
@@ -53,51 +52,23 @@ app.post("/api/admin/app", async (req, res) => {
 
   if (error) return res.status(500).json(error);
 
-  if (Array.isArray(plans) && plans.length > 0) {
-    const rows = plans.map(p => ({
-      app_id: appRow.id,
-      label: p.label,
-      price: Number(p.price)
-    }));
-    await supabase.from("plans").insert(rows);
+  if (Array.isArray(plans)) {
+    await supabase.from("plans").insert(
+      plans.map(p => ({
+        app_id: appRow.id,
+        label: p.label,
+        price: Number(p.price)
+      }))
+    );
   }
 
   res.json({ success: true });
 });
 
-/* =============================
-   UPDATE APP
-============================= */
-app.put("/api/admin/app/:id", async (req, res) => {
-  const appId = req.params.id;
-  const { name, description, platform, icon_url, plans } = req.body;
-
-  await supabase
-    .from("apps")
-    .update({ name, description, platform, icon_url })
-    .eq("id", appId);
-
-  await supabase.from("plans").delete().eq("app_id", appId);
-
-  if (Array.isArray(plans) && plans.length > 0) {
-    const rows = plans.map(p => ({
-      app_id: appId,
-      label: p.label,
-      price: Number(p.price)
-    }));
-    await supabase.from("plans").insert(rows);
-  }
-
-  res.json({ success: true });
-});
-
-/* =============================
-   DELETE APP
-============================= */
+/* DELETE APP */
 app.delete("/api/admin/app/:id", async (req, res) => {
-  const appId = req.params.id;
-  await supabase.from("plans").delete().eq("app_id", appId);
-  await supabase.from("apps").delete().eq("id", appId);
+  await supabase.from("plans").delete().eq("app_id", req.params.id);
+  await supabase.from("apps").delete().eq("id", req.params.id);
   res.json({ success: true });
 });
 
