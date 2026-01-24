@@ -15,7 +15,7 @@
   <input id="appName" placeholder="App Name">
   <textarea id="appDesc" placeholder="App Description"></textarea>
 
-  <select id="platform">
+  <select id="platformSelect">
     <option value="android">Android</option>
     <option value="ios">iOS / iPad</option>
   </select>
@@ -24,9 +24,9 @@
 
   <h3>Plans</h3>
   <div id="plansList"></div>
-  <button onclick="addPlan()">+ Add Plan</button>
 
-  <button class="primary" onclick="saveApp()">Save App</button>
+  <button type="button" onclick="addPlan()">+ Add Plan</button>
+  <button type="button" class="primary" onclick="saveApp()">Save App</button>
 </section>
 
 <section class="card">
