@@ -17,7 +17,6 @@ document.addEventListener("DOMContentLoaded", () => {
   let PLANS = [];
   let SAVING = false;
 
-  /* ---------- TOAST ---------- */
   function showToast(msg, error = false) {
     toast.textContent = msg;
     toast.style.background = error ? "#ef4444" : "#22c55e";
@@ -28,19 +27,18 @@ document.addEventListener("DOMContentLoaded", () => {
   /* ---------- PLANS ---------- */
   function renderPlans() {
     plansBox.innerHTML = "";
-
-    PLANS.forEach((plan, index) => {
+    PLANS.forEach((p, i) => {
       const div = document.createElement("div");
 
       const label = document.createElement("input");
       label.placeholder = "1 DAY / 1 WEEK / 1 MONTH";
-      label.value = plan.label;
-      label.oninput = e => PLANS[index].label = e.target.value;
+      label.value = p.label;
+      label.oninput = e => PLANS[i].label = e.target.value;
 
       const price = document.createElement("input");
       price.placeholder = "Price";
-      price.value = plan.price;
-      price.oninput = e => PLANS[index].price = e.target.value;
+      price.value = p.price;
+      price.oninput = e => PLANS[i].price = e.target.value;
 
       div.appendChild(label);
       div.appendChild(price);
@@ -55,7 +53,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
   /* ---------- SAVE APP ---------- */
   async function saveApp() {
-    if (SAVING) return; // prevent double click
+    if (SAVING) return;
     SAVING = true;
 
     saveAppBtn.textContent = "Saving...";
@@ -68,49 +66,26 @@ document.addEventListener("DOMContentLoaded", () => {
 
     if (!name) {
       showToast("App name required", true);
-      resetSaveState();
+      resetSave();
       return;
     }
 
     let icon_url = null;
 
-    /* ---------- ICON UPLOAD ---------- */
     if (file) {
-      // Validate file
-      if (!file.type.startsWith("image/")) {
-        showToast("Icon must be an image", true);
-        resetSaveState();
-        return;
-      }
-
-      if (file.size > 2 * 1024 * 1024) {
-        showToast("Icon must be under 2MB", true);
-        resetSaveState();
-        return;
-      }
-
-      showToast("Uploading icon...");
-
       const { data, error } = await supabase.storage
         .from("app-icons")
-        .upload(`icons/${Date.now()}-${file.name}`, file, {
-          upsert: true,
-          cacheControl: "3600"
-        });
+        .upload(`icons/${Date.now()}-${file.name}`, file, { upsert: true });
 
       if (error) {
-        console.error(error);
-        showToast(error.message || "Icon upload failed", true);
-        resetSaveState();
+        showToast("Icon upload failed", true);
+        resetSave();
         return;
       }
 
       icon_url =
         `https://dytrdmvicireccasxxvj.supabase.co/storage/v1/object/public/app-icons/${data.path}`;
     }
-
-    /* ---------- SAVE APP ---------- */
-    showToast("Saving app...");
 
     const cleanPlans = PLANS.filter(p => p.label && p.price);
 
@@ -127,27 +102,24 @@ document.addEventListener("DOMContentLoaded", () => {
     });
 
     if (!res.ok) {
-      const err = await res.text();
-      console.error(err);
-      showToast("Failed to save app", true);
-      resetSaveState();
+      showToast("Save failed", true);
+      resetSave();
       return;
     }
 
-    showToast("App saved successfully");
+    showToast("App saved");
 
-    // Reset form
     PLANS = [];
     plansBox.innerHTML = "";
     document.getElementById("name").value = "";
     document.getElementById("desc").value = "";
     document.getElementById("icon").value = "";
 
-    resetSaveState();
-    loadApps();
+    resetSave();
+    await loadApps(); // 🔁 FORCE REFRESH
   }
 
-  function resetSaveState() {
+  function resetSave() {
     SAVING = false;
     saveAppBtn.textContent = "Save App";
     saveAppBtn.disabled = false;
@@ -159,9 +131,10 @@ document.addEventListener("DOMContentLoaded", () => {
     const apps = await res.json();
 
     appsBox.innerHTML = "";
+
     apps.forEach(app => {
       const div = document.createElement("div");
-      div.textContent = `${app.name} (${app.platform})`;
+      div.innerHTML = `<b>${app.name}</b> (${app.platform})`;
       appsBox.appendChild(div);
     });
   }
