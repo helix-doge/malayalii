@@ -15,33 +15,28 @@ document.addEventListener("DOMContentLoaded", () => {
   const saveAppBtn = document.getElementById("saveAppBtn");
 
   let PLANS = [];
-  let SAVING = false;
 
   function showToast(msg, error = false) {
     toast.textContent = msg;
     toast.style.background = error ? "#ef4444" : "#22c55e";
     toast.style.display = "block";
-    setTimeout(() => toast.style.display = "none", 3000);
+    setTimeout(() => toast.style.display = "none", 2500);
   }
 
-  /* ---------- PLANS ---------- */
   function renderPlans() {
     plansBox.innerHTML = "";
     PLANS.forEach((p, i) => {
       const div = document.createElement("div");
-
-      const label = document.createElement("input");
-      label.placeholder = "1 DAY / 1 WEEK / 1 MONTH";
-      label.value = p.label;
-      label.oninput = e => PLANS[i].label = e.target.value;
-
-      const price = document.createElement("input");
-      price.placeholder = "Price";
-      price.value = p.price;
-      price.oninput = e => PLANS[i].price = e.target.value;
-
-      div.appendChild(label);
-      div.appendChild(price);
+      div.innerHTML = `
+        <input placeholder="1 DAY / 1 WEEK / 1 MONTH"
+          value="${p.label}"
+          oninput="this.dispatchEvent(new Event('change'))">
+        <input placeholder="Price"
+          value="${p.price}">
+      `;
+      const [l, pr] = div.querySelectorAll("input");
+      l.oninput = e => PLANS[i].label = e.target.value;
+      pr.oninput = e => PLANS[i].price = e.target.value;
       plansBox.appendChild(div);
     });
   }
@@ -51,14 +46,7 @@ document.addEventListener("DOMContentLoaded", () => {
     renderPlans();
   }
 
-  /* ---------- SAVE APP ---------- */
   async function saveApp() {
-    if (SAVING) return;
-    SAVING = true;
-
-    saveAppBtn.textContent = "Saving...";
-    saveAppBtn.disabled = true;
-
     const name = document.getElementById("name").value.trim();
     const desc = document.getElementById("desc").value.trim();
     const platform = document.getElementById("platform").value;
@@ -66,7 +54,6 @@ document.addEventListener("DOMContentLoaded", () => {
 
     if (!name) {
       showToast("App name required", true);
-      resetSave();
       return;
     }
 
@@ -79,15 +66,12 @@ document.addEventListener("DOMContentLoaded", () => {
 
       if (error) {
         showToast("Icon upload failed", true);
-        resetSave();
         return;
       }
 
       icon_url =
         `https://dytrdmvicireccasxxvj.supabase.co/storage/v1/object/public/app-icons/${data.path}`;
     }
-
-    const cleanPlans = PLANS.filter(p => p.label && p.price);
 
     const res = await fetch(`${API}/api/admin/app`, {
       method: "POST",
@@ -97,13 +81,12 @@ document.addEventListener("DOMContentLoaded", () => {
         description: desc,
         platform,
         icon_url,
-        plans: cleanPlans
+        plans: PLANS
       })
     });
 
     if (!res.ok) {
       showToast("Save failed", true);
-      resetSave();
       return;
     }
 
@@ -115,23 +98,14 @@ document.addEventListener("DOMContentLoaded", () => {
     document.getElementById("desc").value = "";
     document.getElementById("icon").value = "";
 
-    resetSave();
-    await loadApps(); // 🔁 FORCE REFRESH
+    await loadApps(); // 🔴 forced reload
   }
 
-  function resetSave() {
-    SAVING = false;
-    saveAppBtn.textContent = "Save App";
-    saveAppBtn.disabled = false;
-  }
-
-  /* ---------- LOAD APPS ---------- */
   async function loadApps() {
-    const res = await fetch(`${API}/api/apps`);
+    const res = await fetch(`${API}/api/apps?ts=${Date.now()}`);
     const apps = await res.json();
 
     appsBox.innerHTML = "";
-
     apps.forEach(app => {
       const div = document.createElement("div");
       div.innerHTML = `<b>${app.name}</b> (${app.platform})`;
