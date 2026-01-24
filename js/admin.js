@@ -1,7 +1,7 @@
 document.addEventListener("DOMContentLoaded", () => {
 
   /* ===============================
-     SUPABASE CONFIG
+     SUPABASE CONFIG (FRONTEND)
   ================================ */
   const SUPABASE_URL = "https://dytrdmvicireccasxxvj.supabase.co";
   const SUPABASE_ANON_KEY = "sb_publishable_Rr3_s1fI61dQp14A-Hk92A_j_ZCAnuW";
@@ -51,8 +51,8 @@ document.addEventListener("DOMContentLoaded", () => {
         <button class="delete-btn">Delete</button>
       `;
 
-      div.querySelector(".edit-btn").addEventListener("click", () => editApp(app));
-      div.querySelector(".delete-btn").addEventListener("click", () => deleteApp(app.id));
+      div.querySelector(".edit-btn").onclick = () => editApp(app);
+      div.querySelector(".delete-btn").onclick = () => deleteApp(app.id);
 
       appsList.appendChild(div);
     });
@@ -92,15 +92,15 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
-  addPlanBtn.addEventListener("click", () => {
+  addPlanBtn.onclick = () => {
     plans.push({ label: "", price: "" });
     renderPlans();
-  });
+  };
 
   /* ===============================
-     SAVE APP
+     SAVE APP (ICON UPLOAD FIXED)
   ================================ */
-  saveAppBtn.addEventListener("click", async () => {
+  saveAppBtn.onclick = async () => {
 
     if (!appName.value.trim()) {
       alert("App name required");
@@ -111,12 +111,18 @@ document.addEventListener("DOMContentLoaded", () => {
     const file = appIcon.files[0];
 
     if (file) {
+      const filePath = `icons/${Date.now()}-${file.name}`;
+
       const { data, error } = await supabase.storage
         .from("app-icons")
-        .upload(Date.now() + "-" + file.name, file);
+        .upload(filePath, file, {
+          cacheControl: "3600",
+          upsert: true
+        });
 
       if (error) {
-        alert("Icon upload failed");
+        console.error(error);
+        alert("Icon upload failed (check storage policy)");
         return;
       }
 
@@ -132,11 +138,10 @@ document.addEventListener("DOMContentLoaded", () => {
       plans
     };
 
+    const method = editingId ? "PUT" : "POST";
     const url = editingId
       ? `/api/admin/app/${editingId}`
       : "/api/admin/app";
-
-    const method = editingId ? "PUT" : "POST";
 
     await fetch(url, {
       method,
@@ -146,7 +151,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     resetForm();
     loadApps();
-  });
+  };
 
   /* ===============================
      EDIT / DELETE
