@@ -1,6 +1,8 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Admin Panel</title>
   <link rel="stylesheet" href="admin.css">
 </head>
@@ -9,25 +11,33 @@
 <h1>Admin Panel</h1>
 
 <div class="card">
-  <input id="name" placeholder="App Name">
-  <input id="desc" placeholder="Description">
+  <label>App Name</label>
+  <input id="name" placeholder="App name">
 
+  <label>Description</label>
+  <textarea id="desc" placeholder="Description"></textarea>
+
+  <label>Platform</label>
   <select id="platform">
     <option value="android">Android</option>
     <option value="ios">iOS / iPad</option>
   </select>
 
-  <input type="file" id="icon">
+  <label>App Icon</label>
+  <input type="file" id="icon" accept="image/*">
 
   <h3>Plans</h3>
   <div id="plans"></div>
 
-  <button onclick="addPlan()">Add Plan</button>
-  <button class="save" onclick="saveApp()">Save App</button>
+  <button class="secondary" onclick="addPlan()">+ Add Plan</button>
+  <button class="primary" onclick="saveApp()">Save App</button>
 </div>
 
 <h2>Existing Apps</h2>
 <div id="apps"></div>
+
+<!-- TOAST -->
+<div id="toast"></div>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="admin.js"></script>
