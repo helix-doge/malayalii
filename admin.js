@@ -15,7 +15,9 @@ document.addEventListener("DOMContentLoaded", () => {
   const saveAppBtn = document.getElementById("saveAppBtn");
 
   let PLANS = [];
+  let SAVING = false;
 
+  /* ---------- TOAST ---------- */
   function showToast(msg, error = false) {
     toast.textContent = msg;
     toast.style.background = error ? "#ef4444" : "#22c55e";
@@ -23,6 +25,7 @@ document.addEventListener("DOMContentLoaded", () => {
     setTimeout(() => toast.style.display = "none", 3000);
   }
 
+  /* ---------- PLANS ---------- */
   function renderPlans() {
     plansBox.innerHTML = "";
 
@@ -50,7 +53,14 @@ document.addEventListener("DOMContentLoaded", () => {
     renderPlans();
   }
 
+  /* ---------- SAVE APP ---------- */
   async function saveApp() {
+    if (SAVING) return; // prevent double click
+    SAVING = true;
+
+    saveAppBtn.textContent = "Saving...";
+    saveAppBtn.disabled = true;
+
     const name = document.getElementById("name").value.trim();
     const desc = document.getElementById("desc").value.trim();
     const platform = document.getElementById("platform").value;
@@ -58,19 +68,40 @@ document.addEventListener("DOMContentLoaded", () => {
 
     if (!name) {
       showToast("App name required", true);
+      resetSaveState();
       return;
     }
 
     let icon_url = null;
 
+    /* ---------- ICON UPLOAD ---------- */
     if (file) {
+      // Validate file
+      if (!file.type.startsWith("image/")) {
+        showToast("Icon must be an image", true);
+        resetSaveState();
+        return;
+      }
+
+      if (file.size > 2 * 1024 * 1024) {
+        showToast("Icon must be under 2MB", true);
+        resetSaveState();
+        return;
+      }
+
+      showToast("Uploading icon...");
+
       const { data, error } = await supabase.storage
         .from("app-icons")
-        .upload(`icons/${Date.now()}-${file.name}`, file, { upsert: true });
+        .upload(`icons/${Date.now()}-${file.name}`, file, {
+          upsert: true,
+          cacheControl: "3600"
+        });
 
       if (error) {
         console.error(error);
-        showToast("Icon upload failed", true);
+        showToast(error.message || "Icon upload failed", true);
+        resetSaveState();
         return;
       }
 
@@ -78,9 +109,11 @@ document.addEventListener("DOMContentLoaded", () => {
         `https://dytrdmvicireccasxxvj.supabase.co/storage/v1/object/public/app-icons/${data.path}`;
     }
 
+    /* ---------- SAVE APP ---------- */
+    showToast("Saving app...");
+
     const cleanPlans = PLANS.filter(p => p.label && p.price);
 
-    // 🔴 THIS IS THE IMPORTANT FIX
     const res = await fetch(`${API}/api/admin/app`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -97,20 +130,30 @@ document.addEventListener("DOMContentLoaded", () => {
       const err = await res.text();
       console.error(err);
       showToast("Failed to save app", true);
+      resetSaveState();
       return;
     }
 
     showToast("App saved successfully");
 
+    // Reset form
     PLANS = [];
     plansBox.innerHTML = "";
     document.getElementById("name").value = "";
     document.getElementById("desc").value = "";
     document.getElementById("icon").value = "";
 
+    resetSaveState();
     loadApps();
   }
 
+  function resetSaveState() {
+    SAVING = false;
+    saveAppBtn.textContent = "Save App";
+    saveAppBtn.disabled = false;
+  }
+
+  /* ---------- LOAD APPS ---------- */
   async function loadApps() {
     const res = await fetch(`${API}/api/apps`);
     const apps = await res.json();
