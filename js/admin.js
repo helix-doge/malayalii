@@ -15,6 +15,7 @@ function addPlan() {
 function renderPlans() {
   const box = document.getElementById("plans");
   box.innerHTML = "";
+
   PLANS.forEach((p, i) => {
     box.innerHTML += `
       <input placeholder="1 DAY / 1 WEEK / 1 MONTH"
@@ -62,18 +63,8 @@ async function loadApps() {
   box.innerHTML = "";
 
   apps.forEach(a => {
-    box.innerHTML += `
-      <div>
-        <b>${a.name}</b> (${a.platform})
-        <button onclick="del('${a.id}')">Delete</button>
-      </div>
-    `;
+    box.innerHTML += `<div>${a.name} (${a.platform})</div>`;
   });
-}
-
-async function del(id) {
-  await fetch(`${API}/api/admin/app/${id}`, { method: "DELETE" });
-  loadApps();
 }
 
 loadApps();
