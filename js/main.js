@@ -1,109 +1,98 @@
-/* ===============================
-   SUPABASE (REALTIME)
-================================ */
-const SUPABASE_URL = "https://dytrdmvicireccasxxvj.supabase.co";
-const SUPABASE_ANON_KEY = "sb_publishable_Rr3_s1fI61dQp14A-Hk92A_j_ZCAnuW";
+const API = "https://malayali-store-backend.onrender.com"; // Render backend URL
 
-const supabase = window.supabase.createClient(
-  SUPABASE_URL,
-  SUPABASE_ANON_KEY
-);
-
-/* ===============================
-   PAGE ELEMENTS
-================================ */
 const heroPage = document.getElementById("heroPage");
 const appsPage = document.getElementById("appsPage");
-const appGrid = document.getElementById("appGrid");
-const appsTitle = document.getElementById("appsTitle");
+const plansPage = document.getElementById("plansPage");
 
-/* ===============================
-   STATE
-================================ */
+const appsTitle = document.getElementById("appsTitle");
+const plansTitle = document.getElementById("plansTitle");
+
+const appGrid = document.getElementById("appGrid");
+const plansGrid = document.getElementById("plansGrid");
+
 let ALL_APPS = [];
 let CURRENT_PLATFORM = null;
+let CURRENT_APP = null;
 
-/* ===============================
-   LOAD APPS
-================================ */
-async function fetchApps() {
-  const res = await fetch("/api/apps");
+/* LOAD APPS */
+async function loadApps() {
+  const res = await fetch(`${API}/api/apps`);
   ALL_APPS = await res.json();
-
-  // Re-render if user is already inside apps page
-  if (CURRENT_PLATFORM) {
-    renderApps(CURRENT_PLATFORM);
-  }
 }
 
-fetchApps();
+loadApps();
 
-/* ===============================
-   REALTIME LISTENER
-================================ */
-supabase
-  .channel("apps-realtime")
-  .on(
-    "postgres_changes",
-    { event: "*", schema: "public", table: "apps" },
-    () => fetchApps()
-  )
-  .on(
-    "postgres_changes",
-    { event: "*", schema: "public", table: "plans" },
-    () => fetchApps()
-  )
-  .subscribe();
-
-/* ===============================
-   OPEN PLATFORM
-================================ */
+/* HERO → APPS */
 function openApps(platform) {
   CURRENT_PLATFORM = platform;
 
   heroPage.classList.remove("active");
+  plansPage.classList.remove("active");
   appsPage.classList.add("active");
 
   appsTitle.textContent =
     platform === "android" ? "Android Apps" : "iOS / iPad Apps";
 
-  renderApps(platform);
+  renderApps();
 }
 
-/* ===============================
-   RENDER APPS
-================================ */
-function renderApps(platform) {
+/* APPS RENDER */
+function renderApps() {
   appGrid.innerHTML = "";
 
-  const filtered = ALL_APPS.filter(app => app.platform === platform);
+  ALL_APPS
+    .filter(app => app.platform === CURRENT_PLATFORM)
+    .forEach(app => {
+      const div = document.createElement("div");
+      div.className = "app-card";
 
-  if (filtered.length === 0) {
-    appGrid.innerHTML = "<p>No apps available.</p>";
-    return;
-  }
+      div.innerHTML = `
+        <img src="${app.icon_url || ''}">
+        <h4>${app.name}</h4>
+        <p>${app.description || ''}</p>
+      `;
 
-  filtered.forEach(app => {
+      div.onclick = () => openPlans(app);
+      appGrid.appendChild(div);
+    });
+}
+
+/* APPS → PLANS */
+function openPlans(app) {
+  CURRENT_APP = app;
+
+  appsPage.classList.remove("active");
+  plansPage.classList.add("active");
+
+  plansTitle.textContent = app.name + " Plans";
+
+  renderPlans();
+}
+
+/* PLANS RENDER */
+function renderPlans() {
+  plansGrid.innerHTML = "";
+
+  (CURRENT_APP.plans || []).forEach(plan => {
     const div = document.createElement("div");
-    div.className = "app-card";
+    div.className = "plan-card";
 
     div.innerHTML = `
-      <img src="${app.icon_url || ""}">
-      <div class="app-info">
-        <h4>${app.name}</h4>
-        <p>${app.description || ""}</p>
-      </div>
+      <h4>${plan.label}</h4>
+      <p>₹ ${plan.price}</p>
     `;
 
-    appGrid.appendChild(div);
+    plansGrid.appendChild(div);
   });
 }
 
-/* ===============================
-   BACK
-================================ */
+/* BACK */
 function backToHero() {
-  CURRENT_PLATFORM = null;
   appsPage.classList.remove("active");
   heroPage.classList.add("active");
+}
+
+function backToApps() {
+  plansPage.classList.remove("active");
+  appsPage.classList.add("active");
 }
