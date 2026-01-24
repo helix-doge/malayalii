@@ -5,7 +5,7 @@
 
 body {
   margin: 0;
-  background: #020617;
+  background: #000;
   color: #fff;
 }
 
@@ -27,25 +27,26 @@ body {
 .bg {
   position: absolute;
   inset: 0;
-  background: radial-gradient(circle at top, #0f172a, #020617);
+  background: url("../assets/bg.jpg") center/cover no-repeat;
+  filter: brightness(0.35);
   z-index: -1;
 }
 
 .hero-grid {
-  display: grid;
-  gap: 40px;
-  align-items: center;
   min-height: 100vh;
+  display: grid;
+  align-content: center;
+  gap: 40px;
 }
 
 .title h1 {
   font-family: 'Orbitron', sans-serif;
-  font-size: 42px;
+  font-size: 44px;
   margin: 0;
 }
 
 .title p {
-  color: #9ca3af;
+  color: #ccc;
 }
 
 .buttons {
@@ -54,11 +55,14 @@ body {
 }
 
 .buttons button {
-  padding: 18px 36px;
+  padding: 18px 40px;
   border-radius: 14px;
   border: none;
-  cursor: pointer;
   font-weight: 600;
+  cursor: pointer;
+}
+
+.buttons button:first-child {
   background: linear-gradient(135deg, #22c55e, #16a34a);
 }
 
@@ -67,16 +71,11 @@ body {
 }
 
 .vision {
-  color: #9ca3af;
-  max-width: 500px;
+  max-width: 520px;
+  color: #ccc;
 }
 
 /* APPS */
-.apps h2,
-.plans h2 {
-  font-family: 'Orbitron', sans-serif;
-}
-
 .app-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
@@ -85,8 +84,8 @@ body {
 }
 
 .app-card {
-  background: #020617;
-  border: 1px solid #1e293b;
+  background: rgba(0,0,0,0.6);
+  border: 1px solid #222;
   border-radius: 16px;
   padding: 16px;
   text-align: center;
@@ -96,11 +95,16 @@ body {
 .app-card img {
   width: 64px;
   height: 64px;
-  border-radius: 14px;
+  border-radius: 12px;
 }
 
-.app-card h4 {
-  margin: 10px 0 4px;
+.back {
+  margin-top: 30px;
+  background: transparent;
+  color: #fff;
+  border: 1px solid #444;
+  padding: 10px 16px;
+  border-radius: 8px;
 }
 
 /* PLANS */
@@ -111,16 +115,8 @@ body {
 }
 
 .plan-card {
-  border: 1px solid #334155;
+  background: rgba(0,0,0,0.6);
+  border: 1px solid #333;
   border-radius: 14px;
   padding: 16px;
-}
-
-.back {
-  margin-top: 30px;
-  background: transparent;
-  color: #fff;
-  border: 1px solid #334155;
-  padding: 10px 16px;
-  border-radius: 8px;
 }
