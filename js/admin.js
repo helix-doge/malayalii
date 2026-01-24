@@ -20,15 +20,18 @@ document.addEventListener("DOMContentLoaded", () => {
   let editingId = null;
   let plans = [];
 
+  /* ===============================
+     TOAST
+  ================================ */
   function showToast(msg) {
     toast.textContent = msg;
     toast.classList.add("show");
     setTimeout(() => toast.classList.remove("show"), 2500);
   }
 
-  /* =============================
-     LOAD APPS (ADMIN LIST)
-  ============================= */
+  /* ===============================
+     LOAD APPS
+  ================================ */
   async function loadApps() {
     const res = await fetch("/api/apps");
     const apps = await res.json();
@@ -54,11 +57,29 @@ document.addEventListener("DOMContentLoaded", () => {
 
   loadApps();
 
-  /* =============================
+  /* ===============================
+     REALTIME SYNC
+  ================================ */
+  supabase
+    .channel("admin-realtime")
+    .on(
+      "postgres_changes",
+      { event: "*", schema: "public", table: "apps" },
+      () => loadApps()
+    )
+    .on(
+      "postgres_changes",
+      { event: "*", schema: "public", table: "plans" },
+      () => loadApps()
+    )
+    .subscribe();
+
+  /* ===============================
      PLANS
-  ============================= */
+  ================================ */
   function renderPlans() {
     plansList.innerHTML = "";
+
     plans.forEach((p, i) => {
       const row = document.createElement("div");
       row.className = "plan-row";
@@ -67,12 +88,14 @@ document.addEventListener("DOMContentLoaded", () => {
         <input value="${p.price}" placeholder="Price">
         <button>X</button>
       `;
+
       row.children[0].oninput = e => plans[i].label = e.target.value;
       row.children[1].oninput = e => plans[i].price = e.target.value;
       row.children[2].onclick = () => {
         plans.splice(i, 1);
         renderPlans();
       };
+
       plansList.appendChild(row);
     });
   }
@@ -82,9 +105,9 @@ document.addEventListener("DOMContentLoaded", () => {
     renderPlans();
   };
 
-  /* =============================
+  /* ===============================
      SAVE APP
-  ============================= */
+  ================================ */
   document.getElementById("saveAppBtn").onclick = async () => {
 
     let icon_url = null;
@@ -122,7 +145,6 @@ document.addEventListener("DOMContentLoaded", () => {
     });
 
     resetForm();
-    await loadApps();          // ✅ FORCE REFRESH
     showToast("App saved");
   };
 
@@ -138,7 +160,6 @@ document.addEventListener("DOMContentLoaded", () => {
 
   async function deleteApp(id) {
     await fetch(`/api/admin/app/${id}`, { method: "DELETE" });
-    await loadApps();
     showToast("App deleted");
   }
 
