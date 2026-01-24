@@ -39,10 +39,6 @@ app.get("/api/apps", async (_, res) => {
 app.post("/api/admin/app", async (req, res) => {
   const { name, description, platform, icon_url, plans } = req.body;
 
-  if (!name || !platform) {
-    return res.status(400).json({ error: "Missing fields" });
-  }
-
   const { data: appRow, error } = await supabase
     .from("apps")
     .insert([{ name, description, platform, icon_url }])
@@ -51,16 +47,16 @@ app.post("/api/admin/app", async (req, res) => {
 
   if (error) return res.status(500).json(error);
 
-  if (Array.isArray(plans) && plans.length > 0) {
-    const rows = plans.map(p => ({
+  if (plans?.length) {
+    const planRows = plans.map(p => ({
       app_id: appRow.id,
       label: p.label,
       price: Number(p.price)
     }));
-    await supabase.from("plans").insert(rows);
+    await supabase.from("plans").insert(planRows);
   }
 
-  res.json({ success: true });
+  res.json({ success: true, app: appRow });
 });
 
 /* UPDATE APP */
@@ -75,13 +71,13 @@ app.put("/api/admin/app/:id", async (req, res) => {
 
   await supabase.from("plans").delete().eq("app_id", appId);
 
-  if (Array.isArray(plans) && plans.length > 0) {
-    const rows = plans.map(p => ({
+  if (plans?.length) {
+    const planRows = plans.map(p => ({
       app_id: appId,
       label: p.label,
       price: Number(p.price)
     }));
-    await supabase.from("plans").insert(rows);
+    await supabase.from("plans").insert(planRows);
   }
 
   res.json({ success: true });
