@@ -11,48 +11,53 @@ const supabase = createClient(
   process.env.SUPABASE_SERVICE_KEY
 );
 
-/* TEST */
-app.get("/", (req, res) => {
-  res.send("Backend running");
-});
-
-/* GET ALL APPS */
-app.get("/api/apps", async (req, res) => {
+app.get("/api/apps", async (_, res) => {
   const { data, error } = await supabase
     .from("apps")
-    .select("*")
+    .select(`
+      id,
+      name,
+      description,
+      platform,
+      icon_url,
+      plans (
+        id,
+        label,
+        price
+      )
+    `)
     .order("created_at", { ascending: false });
 
-  if (error) {
-    console.error(error);
-    return res.json([]);
-  }
-
+  if (error) return res.json([]);
   res.json(data);
 });
 
-/* ADD APP */
 app.post("/api/admin/app", async (req, res) => {
-  const { name, description, platform } = req.body;
+  const { name, description, platform, icon_url, plans } = req.body;
 
-  const { error } = await supabase.from("apps").insert([
-    { name, description, platform }
-  ]);
+  const { data: appRow } = await supabase
+    .from("apps")
+    .insert([{ name, description, platform, icon_url }])
+    .select()
+    .single();
 
-  if (error) {
-    console.error(error);
-    return res.status(500).json({ success: false });
+  if (plans?.length) {
+    await supabase.from("plans").insert(
+      plans.map(p => ({
+        app_id: appRow.id,
+        label: p.label,
+        price: Number(p.price)
+      }))
+    );
   }
 
   res.json({ success: true });
 });
 
-/* DELETE APP */
 app.delete("/api/admin/app/:id", async (req, res) => {
+  await supabase.from("plans").delete().eq("app_id", req.params.id);
   await supabase.from("apps").delete().eq("id", req.params.id);
   res.json({ success: true });
 });
 
-app.listen(process.env.PORT || 3000, () => {
-  console.log("Server running");
-});
+app.listen(process.env.PORT || 3000);
