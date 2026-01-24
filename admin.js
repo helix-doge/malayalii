@@ -1,4 +1,5 @@
 document.addEventListener("DOMContentLoaded", () => {
+
   const API = "https://malayali-store-backend.onrender.com";
 
   const supabase = window.supabase.createClient(
@@ -50,8 +51,6 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   async function saveApp() {
-    console.log("Saving app...");
-
     const name = document.getElementById("name").value.trim();
     const desc = document.getElementById("desc").value.trim();
     const platform = document.getElementById("platform").value;
@@ -81,7 +80,8 @@ document.addEventListener("DOMContentLoaded", () => {
 
     const cleanPlans = PLANS.filter(p => p.label && p.price);
 
-    const res = await fetch(`${API}/api/apps`, {
+    // 🔴 THIS IS THE IMPORTANT FIX
+    const res = await fetch(`${API}/api/admin/app`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
@@ -102,7 +102,6 @@ document.addEventListener("DOMContentLoaded", () => {
 
     showToast("App saved successfully");
 
-    // Reset form
     PLANS = [];
     plansBox.innerHTML = "";
     document.getElementById("name").value = "";
