@@ -14,23 +14,21 @@ document.addEventListener("DOMContentLoaded", () => {
   const appIcon = document.getElementById("appIcon");
   const plansList = document.getElementById("plansList");
   const appsList = document.getElementById("appsList");
-  const formTitle = document.getElementById("formTitle");
   const toast = document.getElementById("toast");
-
-  const addPlanBtn = document.getElementById("addPlanBtn");
-  const saveAppBtn = document.getElementById("saveAppBtn");
+  const formTitle = document.getElementById("formTitle");
 
   let editingId = null;
   let plans = [];
 
-  /* TOAST */
   function showToast(msg) {
     toast.textContent = msg;
     toast.classList.add("show");
     setTimeout(() => toast.classList.remove("show"), 2500);
   }
 
-  /* LOAD APPS */
+  /* =============================
+     LOAD APPS (ADMIN LIST)
+  ============================= */
   async function loadApps() {
     const res = await fetch("/api/apps");
     const apps = await res.json();
@@ -43,12 +41,12 @@ document.addEventListener("DOMContentLoaded", () => {
       div.innerHTML = `
         <strong>${app.name}</strong> (${app.platform})
         <p>${app.description || ""}</p>
-        <button class="edit">Edit</button>
-        <button class="delete">Delete</button>
+        <button>Edit</button>
+        <button>Delete</button>
       `;
 
-      div.querySelector(".edit").onclick = () => editApp(app);
-      div.querySelector(".delete").onclick = () => deleteApp(app.id);
+      div.children[2].onclick = () => editApp(app);
+      div.children[3].onclick = () => deleteApp(app.id);
 
       appsList.appendChild(div);
     });
@@ -56,47 +54,46 @@ document.addEventListener("DOMContentLoaded", () => {
 
   loadApps();
 
-  /* PLANS */
+  /* =============================
+     PLANS
+  ============================= */
   function renderPlans() {
     plansList.innerHTML = "";
-
     plans.forEach((p, i) => {
       const row = document.createElement("div");
       row.className = "plan-row";
-
       row.innerHTML = `
-        <input placeholder="1 DAY / 1 WEEK / 1 MONTH" value="${p.label}">
-        <input placeholder="Price" value="${p.price}">
+        <input value="${p.label}" placeholder="1 DAY / 1 WEEK / 1 MONTH">
+        <input value="${p.price}" placeholder="Price">
         <button>X</button>
       `;
-
       row.children[0].oninput = e => plans[i].label = e.target.value;
       row.children[1].oninput = e => plans[i].price = e.target.value;
       row.children[2].onclick = () => {
         plans.splice(i, 1);
         renderPlans();
       };
-
       plansList.appendChild(row);
     });
   }
 
-  addPlanBtn.onclick = () => {
+  document.getElementById("addPlanBtn").onclick = () => {
     plans.push({ label: "", price: "" });
     renderPlans();
   };
 
-  /* SAVE APP */
-  saveAppBtn.onclick = async () => {
+  /* =============================
+     SAVE APP
+  ============================= */
+  document.getElementById("saveAppBtn").onclick = async () => {
+
     let icon_url = null;
     const file = appIcon.files[0];
 
     if (file) {
       const { data, error } = await supabase.storage
         .from("app-icons")
-        .upload(`icons/${Date.now()}-${file.name}`, file, {
-          upsert: true
-        });
+        .upload(`icons/${Date.now()}-${file.name}`, file, { upsert: true });
 
       if (error) return showToast("Icon upload failed");
 
@@ -125,8 +122,8 @@ document.addEventListener("DOMContentLoaded", () => {
     });
 
     resetForm();
-    await loadApps();   // 👈 FORCE REFRESH
-    showToast("App saved successfully");
+    await loadApps();          // ✅ FORCE REFRESH
+    showToast("App saved");
   };
 
   function editApp(app) {
