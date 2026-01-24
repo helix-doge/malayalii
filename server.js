@@ -11,25 +11,27 @@ const supabase = createClient(
   process.env.SUPABASE_SERVICE_KEY
 );
 
-app.get("/api/apps", async (_, res) => {
-  const { data, error } = await supabase
+app.get("/api/apps", async (req, res) => {
+  const { data: apps, error } = await supabase
     .from("apps")
-    .select(`
-      id,
-      name,
-      description,
-      platform,
-      icon_url,
-      plans (
-        id,
-        label,
-        price
-      )
-    `)
+    .select("*")
     .order("created_at", { ascending: false });
 
-  if (error) return res.json([]);
-  res.json(data);
+  if (error) {
+    console.error("APPS FETCH ERROR:", error);
+    return res.status(500).json([]);
+  }
+
+  // Fetch plans separately (NO JOIN BUGS)
+  const { data: plans } = await supabase.from("plans").select("*");
+
+  const appsWithPlans = apps.map(app => ({
+    ...app,
+    plans: plans.filter(p => p.app_id === app.id)
+  }));
+
+  res.setHeader("Cache-Control", "no-store");
+  res.json(appsWithPlans);
 });
 
 app.post("/api/admin/app", async (req, res) => {
