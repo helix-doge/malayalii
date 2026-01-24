@@ -6,7 +6,6 @@ const plansPage = document.getElementById("plansPage");
 
 const appGrid = document.getElementById("appGrid");
 const plansGrid = document.getElementById("plansGrid");
-
 const appsTitle = document.getElementById("appsTitle");
 const plansTitle = document.getElementById("plansTitle");
 
@@ -61,7 +60,6 @@ function openPlans(app) {
   plansPage.classList.add("active");
 
   plansTitle.textContent = app.name + " Plans";
-
   plansGrid.innerHTML = "";
 
   (app.plans || []).forEach(p => {
