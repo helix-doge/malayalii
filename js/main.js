@@ -1,43 +1,65 @@
 /* ===============================
-   PAGE REFERENCES
+   SUPABASE (REALTIME)
+================================ */
+const SUPABASE_URL = "https://dytrdmvicireccasxxvj.supabase.co";
+const SUPABASE_ANON_KEY = "sb_publishable_Rr3_s1fI61dQp14A-Hk92A_j_ZCAnuW";
+
+const supabase = window.supabase.createClient(
+  SUPABASE_URL,
+  SUPABASE_ANON_KEY
+);
+
+/* ===============================
+   PAGE ELEMENTS
 ================================ */
 const heroPage = document.getElementById("heroPage");
 const appsPage = document.getElementById("appsPage");
-
 const appGrid = document.getElementById("appGrid");
 const appsTitle = document.getElementById("appsTitle");
 
 /* ===============================
-   GLOBAL STATE
+   STATE
 ================================ */
 let ALL_APPS = [];
-let DATA_LOADED = false;
+let CURRENT_PLATFORM = null;
 
 /* ===============================
-   LOAD APPS FROM BACKEND
+   LOAD APPS
 ================================ */
-async function loadApps() {
-  try {
-    const res = await fetch("/api/apps");
-    ALL_APPS = await res.json();
-    DATA_LOADED = true;
-    console.log("Apps loaded:", ALL_APPS);
-  } catch (err) {
-    console.error("Failed to load apps", err);
+async function fetchApps() {
+  const res = await fetch("/api/apps");
+  ALL_APPS = await res.json();
+
+  // Re-render if user is already inside apps page
+  if (CURRENT_PLATFORM) {
+    renderApps(CURRENT_PLATFORM);
   }
 }
 
-loadApps();
+fetchApps();
 
 /* ===============================
-   PLATFORM → APPS
+   REALTIME LISTENER
 ================================ */
-async function openApps(platform) {
+supabase
+  .channel("apps-realtime")
+  .on(
+    "postgres_changes",
+    { event: "*", schema: "public", table: "apps" },
+    () => fetchApps()
+  )
+  .on(
+    "postgres_changes",
+    { event: "*", schema: "public", table: "plans" },
+    () => fetchApps()
+  )
+  .subscribe();
 
-  // Ensure data is loaded
-  if (!DATA_LOADED) {
-    await loadApps();
-  }
+/* ===============================
+   OPEN PLATFORM
+================================ */
+function openApps(platform) {
+  CURRENT_PLATFORM = platform;
 
   heroPage.classList.remove("active");
   appsPage.classList.add("active");
@@ -45,6 +67,13 @@ async function openApps(platform) {
   appsTitle.textContent =
     platform === "android" ? "Android Apps" : "iOS / iPad Apps";
 
+  renderApps(platform);
+}
+
+/* ===============================
+   RENDER APPS
+================================ */
+function renderApps(platform) {
   appGrid.innerHTML = "";
 
   const filtered = ALL_APPS.filter(app => app.platform === platform);
@@ -59,7 +88,7 @@ async function openApps(platform) {
     div.className = "app-card";
 
     div.innerHTML = `
-      <img src="${app.icon_url}" alt="${app.name}">
+      <img src="${app.icon_url || ""}">
       <div class="app-info">
         <h4>${app.name}</h4>
         <p>${app.description || ""}</p>
@@ -71,9 +100,10 @@ async function openApps(platform) {
 }
 
 /* ===============================
-   BACK TO HOME
+   BACK
 ================================ */
 function backToHero() {
+  CURRENT_PLATFORM = null;
   appsPage.classList.remove("active");
   heroPage.classList.add("active");
 }
