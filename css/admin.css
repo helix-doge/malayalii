@@ -1,91 +1,40 @@
 body {
-  background: #0b0f14;
+  background: #0b1220;
   color: #fff;
-  font-family: Arial, sans-serif;
+  font-family: Poppins, sans-serif;
   padding: 20px;
-}
-
-h1 {
-  color: #ff9f1a;
 }
 
 .card {
-  background: #141923;
+  background: #020617;
   padding: 20px;
-  border-radius: 12px;
-  margin-bottom: 20px;
+  border-radius: 14px;
+  max-width: 600px;
 }
 
-input, textarea, select {
+input, select {
   width: 100%;
+  margin: 6px 0;
   padding: 10px;
-  margin: 8px 0;
-  background: #0b0f14;
-  border: 1px solid #333;
-  color: #fff;
   border-radius: 8px;
-}
-
-textarea {
-  resize: vertical;
+  border: none;
 }
 
 button {
-  padding: 10px 16px;
   margin-top: 10px;
+  padding: 10px 16px;
   border-radius: 8px;
+  border: none;
   cursor: pointer;
 }
 
-.primary {
-  background: #ff9f1a;
-  color: #000;
-  border: none;
+.save {
+  background: #22c55e;
 }
 
-.plan-row {
-  display: flex;
-  gap: 10px;
-  margin-bottom: 8px;
-}
-
-.plan-row input {
-  flex: 1;
-}
-
-.plan-row button {
-  background: #c0392b;
-  color: #fff;
-  border: none;
-}
-
-.app-item {
-  border-bottom: 1px solid #333;
-  padding: 10px 0;
-}
-
-.app-item strong {
-  color: #ff9f1a;
-}
-
-.app-actions button {
-  margin-right: 10px;
-}
-
-.toast {
-  position: fixed;
-  bottom: 20px;
-  right: 20px;
-  background: #141923;
-  color: #fff;
-  padding: 14px 20px;
-  border-radius: 10px;
-  border-left: 4px solid #2ecc71;
-  opacity: 0;
-  pointer-events: none;
-  transition: opacity 0.3s ease;
-}
-
-.toast.show {
-  opacity: 1;
+#apps div {
+  margin-top: 10px;
+  padding: 10px;
+  background: #020617;
+  border-radius: 8px;
 }
