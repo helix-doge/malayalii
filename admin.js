@@ -1,6 +1,4 @@
 document.addEventListener("DOMContentLoaded", () => {
-  console.log("Admin JS loaded");
-
   const API = "https://malayali-store-backend.onrender.com";
 
   const supabase = window.supabase.createClient(
@@ -17,10 +15,11 @@ document.addEventListener("DOMContentLoaded", () => {
 
   let PLANS = [];
 
-  function showToast(msg) {
+  function showToast(msg, error = false) {
     toast.textContent = msg;
+    toast.style.background = error ? "#ef4444" : "#22c55e";
     toast.style.display = "block";
-    setTimeout(() => toast.style.display = "none", 2500);
+    setTimeout(() => toast.style.display = "none", 3000);
   }
 
   function renderPlans() {
@@ -46,13 +45,12 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   function addPlan() {
-    console.log("Add Plan clicked");
     PLANS.push({ label: "", price: "" });
     renderPlans();
   }
 
   async function saveApp() {
-    console.log("Save App clicked");
+    console.log("Saving app...");
 
     const name = document.getElementById("name").value.trim();
     const desc = document.getElementById("desc").value.trim();
@@ -60,7 +58,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const file = document.getElementById("icon").files[0];
 
     if (!name) {
-      showToast("App name required");
+      showToast("App name required", true);
       return;
     }
 
@@ -72,7 +70,8 @@ document.addEventListener("DOMContentLoaded", () => {
         .upload(`icons/${Date.now()}-${file.name}`, file, { upsert: true });
 
       if (error) {
-        showToast("Icon upload failed");
+        console.error(error);
+        showToast("Icon upload failed", true);
         return;
       }
 
@@ -82,7 +81,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     const cleanPlans = PLANS.filter(p => p.label && p.price);
 
-    await fetch(`${API}/api/admin/app`, {
+    const res = await fetch(`${API}/api/apps`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
@@ -94,13 +93,22 @@ document.addEventListener("DOMContentLoaded", () => {
       })
     });
 
+    if (!res.ok) {
+      const err = await res.text();
+      console.error(err);
+      showToast("Failed to save app", true);
+      return;
+    }
+
+    showToast("App saved successfully");
+
+    // Reset form
     PLANS = [];
     plansBox.innerHTML = "";
     document.getElementById("name").value = "";
     document.getElementById("desc").value = "";
     document.getElementById("icon").value = "";
 
-    showToast("App saved successfully");
     loadApps();
   }
 
@@ -116,7 +124,6 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
-  // 🔗 BUTTON BINDINGS (THIS FIXES EVERYTHING)
   addPlanBtn.addEventListener("click", addPlan);
   saveAppBtn.addEventListener("click", saveApp);
 
