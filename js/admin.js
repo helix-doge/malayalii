@@ -4,7 +4,7 @@ document.addEventListener("DOMContentLoaded", () => {
      SUPABASE CONFIG
   ================================ */
   const SUPABASE_URL = "https://dytrdmvicireccasxxvj.supabase.co";
-  const SUPABASE_ANON_KEY = "sb_publishable_XXXXXXXXXXXXXXXX";
+  const SUPABASE_ANON_KEY = "sb_publishable_Rr3_s1fI61dQp14A-Hk92A_j_ZCAnuW";
 
   const supabase = window.supabase.createClient(
     SUPABASE_URL,
