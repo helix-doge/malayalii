@@ -1,39 +1,76 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta charset="UTF-8">
   <title>Admin Panel</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="admin.css">
 </head>
 <body>
 
-<h1>Admin Panel</h1>
+<div class="admin-root">
 
-<div class="card">
-  <input id="name" placeholder="App Name">
-  <textarea id="desc" placeholder="Description"></textarea>
+  <!-- SIDEBAR -->
+  <aside class="sidebar">
+    <h2>Admin</h2>
+    <button id="dashboardBtn">Dashboard</button>
+    <button id="appsBtn">Manage Apps</button>
+  </aside>
 
-  <select id="platform">
-    <option value="android">Android</option>
-    <option value="ios">iOS / iPad</option>
-  </select>
+  <!-- MAIN -->
+  <main class="content">
 
-  <input type="file" id="icon">
+    <!-- DASHBOARD -->
+    <section id="dashboard" class="page show">
+      <h1>Dashboard</h1>
 
-  <h3>Plans</h3>
-  <div id="plans"></div>
+      <div class="stats">
+        <div class="card">Total Apps<br><span id="totalApps">0</span></div>
+        <div class="card">Android Apps<br><span id="androidCount">0</span></div>
+        <div class="card">iOS Apps<br><span id="iosCount">0</span></div>
+        <div class="card">Total Plans<br><span id="planCount">0</span></div>
+      </div>
+    </section>
 
-  <button id="addPlanBtn">+ Add Plan</button>
-  <button id="saveAppBtn" class="primary">Save App</button>
+    <!-- APPS -->
+    <section id="appsPage" class="page">
+      <div class="header">
+        <h1>Apps</h1>
+        <button id="addAppBtn">➕ Add App</button>
+      </div>
+
+      <div id="appsList" class="apps-list"></div>
+    </section>
+
+    <!-- ADD / EDIT APP -->
+    <section id="addAppPage" class="page">
+      <h1>Add App</h1>
+
+      <input id="appName" placeholder="App Name">
+      <select id="platform">
+        <option value="android">Android</option>
+        <option value="ios">iOS</option>
+      </select>
+
+      <textarea id="description" placeholder="Description"></textarea>
+
+      <input type="file" id="iconFile">
+
+      <h3>Plans</h3>
+
+      <input id="dayPrice" placeholder="1 DAY price">
+      <input id="weekPrice" placeholder="1 WEEK price">
+      <input id="monthPrice" placeholder="1 MONTH price">
+
+      <button id="saveAppBtn">Save App</button>
+      <button id="cancelBtn">Cancel</button>
+    </section>
+
+  </main>
 </div>
 
-<h2>Existing Apps</h2>
-<div id="apps"></div>
-
-<div id="toast"></div>
-
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="admin.js"></script>
 </body>
 </html>
