@@ -18,7 +18,7 @@ document.addEventListener("DOMContentLoaded", () => {
   const appGrid = document.getElementById("appGrid");
   const appsTitle = document.getElementById("appsTitle");
 
-  // Details elements
+  // Details
   const detailsIcon = document.getElementById("detailsIcon");
   const detailsName = document.getElementById("detailsName");
   const planSelect = document.querySelector(".plan-select");
@@ -27,20 +27,19 @@ document.addEventListener("DOMContentLoaded", () => {
   let CURRENT_PLATFORM = "";
   let CURRENT_APP = null;
 
-  /* ================= FETCH ================= */
-
+  /* ================= FETCH FROM DB ================= */
   async function loadApps() {
     const res = await fetch(API);
     ALL_APPS = await res.json();
   }
 
   /* ================= NAVIGATION ================= */
-
   function showPage(page) {
     [home, apps, details].forEach(p => p.classList.remove("show"));
     page.classList.add("show");
   }
 
+  /* ================= HOME → APPS ================= */
   function openApps(platform) {
     CURRENT_PLATFORM = platform;
     showPage(apps);
@@ -48,10 +47,11 @@ document.addEventListener("DOMContentLoaded", () => {
     appsTitle.textContent =
       platform === "android" ? "ANDROID APPS" : "iOS / iPAD APPS";
 
-    appGrid.innerHTML = "Loading...";
+    appGrid.innerHTML = "Loading apps...";
     loadApps().then(renderApps);
   }
 
+  /* ================= APPS → DETAILS ================= */
   function openDetails(app) {
     CURRENT_APP = app;
     showPage(details);
@@ -62,12 +62,13 @@ document.addEventListener("DOMContentLoaded", () => {
     renderPlans(app.plans);
   }
 
-  /* ================= RENDER ================= */
-
+  /* ================= RENDER APPS ================= */
   function renderApps() {
     appGrid.innerHTML = "";
 
-    const list = ALL_APPS.filter(a => a.platform === CURRENT_PLATFORM);
+    const list = ALL_APPS.filter(
+      app => app.platform === CURRENT_PLATFORM
+    );
 
     if (!list.length) {
       appGrid.innerHTML = "<p style='text-align:center'>No apps available</p>";
@@ -77,16 +78,19 @@ document.addEventListener("DOMContentLoaded", () => {
     list.forEach(app => {
       const div = document.createElement("div");
       div.className = "app-card";
+
       div.innerHTML = `
         <img src="${app.icon_url || ""}">
         <h4>${app.name}</h4>
         <p>${app.description || ""}</p>
       `;
+
       div.onclick = () => openDetails(app);
       appGrid.appendChild(div);
     });
   }
 
+  /* ================= RENDER PLANS (DB ONLY) ================= */
   function renderPlans(plans) {
     planSelect.innerHTML = "<h3>Select Plan</h3>";
 
@@ -98,19 +102,20 @@ document.addEventListener("DOMContentLoaded", () => {
 
     plans.forEach(plan => {
       const label = document.createElement("label");
+
       label.innerHTML = `
-        <span>
+        <div class="plan-left">
           <input type="radio" name="plan" value="${plan.id}">
-          ${plan.label}
-        </span>
-        <span class="plan-price">₹ ${plan.price}</span>
+          <span>${plan.label}</span>
+        </div>
+        <div class="plan-price">₹ ${plan.price}</div>
       `;
+
       planSelect.appendChild(label);
     });
   }
 
   /* ================= EVENTS ================= */
-
   androidBtn.onclick = () => openApps("android");
   iosBtn.onclick = () => openApps("ios");
 
@@ -125,8 +130,9 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     const planId = selected.value;
+
     alert(
-      `Proceeding to buy plan ID ${planId} for ${CURRENT_APP.name}`
+      `Buying plan ID ${planId} for ${CURRENT_APP.name}`
     );
   };
 
