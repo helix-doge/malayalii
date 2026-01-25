@@ -29,7 +29,7 @@ async function openApps(platform) {
   appsTitle.textContent =
     platform === "android" ? "ANDROID APPS" : "iOS / iPAD APPS";
 
-  appGrid.innerHTML = "<p>Loading apps...</p>";
+  appGrid.innerHTML = "<p style='text-align:center'>Loading apps...</p>";
 
   await fetchApps();
   renderApps();
@@ -40,6 +40,7 @@ async function fetchApps() {
   try {
     const res = await fetch(`${API}/api/apps`);
     ALL_APPS = await res.json();
+    console.log("Apps from backend:", ALL_APPS);
   } catch (err) {
     console.error("Failed to load apps", err);
     ALL_APPS = [];
@@ -55,7 +56,8 @@ function renderApps() {
   );
 
   if (filtered.length === 0) {
-    appGrid.innerHTML = "<p>No apps available</p>";
+    appGrid.innerHTML =
+      "<p style='text-align:center;color:#aaa'>No apps available</p>";
     return;
   }
 
