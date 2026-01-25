@@ -258,3 +258,30 @@ html, body {
   margin-bottom: 14px;
 }
 
+/* PLAN OPTION WITH PRICE */
+.plan-select label {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 14px;
+  border-radius: 12px;
+  background: rgba(20,20,20,0.8);
+  margin-bottom: 12px;
+  cursor: pointer;
+  border: 1px solid rgba(212,175,55,0.35);
+}
+
+.plan-select label span {
+  font-weight: 600;
+}
+
+.plan-price {
+  color: #facc15;
+  font-weight: 700;
+  font-size: 14px;
+}
+
+.plan-select input {
+  margin-right: 10px;
+}
+
