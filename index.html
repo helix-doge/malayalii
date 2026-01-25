@@ -10,41 +10,46 @@
 </head>
 <body>
 
-  <!-- BACKGROUND IMAGE (HTML LEVEL – GUARANTEED LOAD) -->
-  <img src="assets/bg.jpg" class="bg-img" alt="background">
+  <!-- FIXED BACKGROUND -->
+  <div class="bg-layer"></div>
 
-  <!-- ================= HOME ================= -->
-  <section id="home" class="page show">
-    <div class="hero">
+  <!-- CONTENT WRAPPER -->
+  <div class="app-root">
 
-      <div class="title">
-        <h1>MALAYALI<br>HERE STORE</h1>
-        <p>BGMI • PUBG • iOS TOOLS</p>
+    <!-- HOME -->
+    <section id="home" class="page show">
+      <div class="hero">
+
+        <div class="title">
+          <h1>MALAYALI<br>HERE STORE</h1>
+          <p>BGMI • PUBG • iOS TOOLS</p>
+        </div>
+
+        <div class="buttons">
+          <button id="androidBtn">ANDROID</button>
+          <button id="iosBtn">iOS / iPAD</button>
+        </div>
+
+        <div class="vision">
+          <h3>VISION</h3>
+          <p>
+            We provide trusted, secure, and high-performance BGMI / PUBG
+            Android & iOS tools for Malayali gamers, ensuring smooth gameplay,
+            fast support, and a premium user experience.
+          </p>
+        </div>
+
       </div>
+    </section>
 
-      <div class="buttons">
-        <button id="androidBtn">ANDROID</button>
-        <button id="iosBtn">iOS / iPAD</button>
-      </div>
+    <!-- APPS PAGE -->
+    <section id="apps" class="page">
+      <h2 id="appsTitle"></h2>
+      <div id="appGrid" class="app-grid"></div>
+      <button id="backBtn" class="back">← Back</button>
+    </section>
 
-      <div class="vision">
-        <h3>VISION</h3>
-        <p>
-          We provide trusted, secure, and high-performance BGMI / PUBG
-          Android & iOS tools for Malayali gamers, ensuring smooth gameplay,
-          fast support, and a premium user experience.
-        </p>
-      </div>
-
-    </div>
-  </section>
-
-  <!-- ================= APPS PAGE ================= -->
-  <section id="apps" class="page">
-    <h2 id="appsTitle"></h2>
-    <div id="appGrid" class="app-grid"></div>
-    <button id="backBtn" class="back">← Back</button>
-  </section>
+  </div>
 
   <script src="js/main.js"></script>
 </body>
