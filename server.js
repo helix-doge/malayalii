@@ -12,15 +12,28 @@ const supabase = createClient(
 );
 
 app.get("/api/apps", async (req, res) => {
+  res.setHeader("Cache-Control", "no-store");
+
   const { data: apps, error } = await supabase
     .from("apps")
     .select("*")
     .order("created_at", { ascending: false });
 
   if (error) {
-    console.error("APPS FETCH ERROR:", error);
-    return res.status(500).json([]);
+    console.error(error);
+    return res.json([]);
   }
+
+  const { data: plans } = await supabase.from("plans").select("*");
+
+  const result = apps.map(app => ({
+    ...app,
+    plans: plans.filter(p => p.app_id === app.id)
+  }));
+
+  res.json(result);
+});
+
 
   // Fetch plans separately (NO JOIN BUGS)
   const { data: plans } = await supabase.from("plans").select("*");
