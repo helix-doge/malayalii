@@ -1,63 +1,49 @@
-const API = "https://malayali-store-backend.onrender.com";
+const API = "https://malayali-store-backend.onrender.com/api/apps";
 
-// DOM
-const heroSection = document.querySelector(".hero");
-const appsPage = document.getElementById("appsPage");
+// PAGES
+const homePage = document.getElementById("home");
+const appsPage = document.getElementById("apps");
+
+// ELEMENTS
+const androidBtn = document.getElementById("androidBtn");
+const iosBtn = document.getElementById("iosBtn");
+const backBtn = document.getElementById("backBtn");
 const appGrid = document.getElementById("appGrid");
 const appsTitle = document.getElementById("appsTitle");
 
-const androidBtn = document.getElementById("androidBtn");
-const iosBtn = document.getElementById("iosBtn");
-
-// STATE
-let CURRENT_PLATFORM = null;
 let ALL_APPS = [];
+let CURRENT_PLATFORM = "";
 
-/* ---------------- NAVIGATION ---------------- */
-function goHome() {
-  appsPage.style.display = "none";
-  heroSection.style.display = "block";
+// FETCH APPS
+async function loadApps() {
+  const res = await fetch(API);
+  ALL_APPS = await res.json();
 }
 
-/* ---------------- OPEN APPS ---------------- */
+// OPEN APPS PAGE
 async function openApps(platform) {
   CURRENT_PLATFORM = platform;
 
-  heroSection.style.display = "none";
-  appsPage.style.display = "block";
+  homePage.classList.remove("active");
+  appsPage.classList.add("active");
 
   appsTitle.textContent =
     platform === "android" ? "ANDROID APPS" : "iOS / iPAD APPS";
 
-  appGrid.innerHTML = "<p style='text-align:center'>Loading apps...</p>";
+  appGrid.innerHTML = "Loading...";
 
-  await fetchApps();
+  await loadApps();
   renderApps();
 }
 
-/* ---------------- FETCH APPS ---------------- */
-async function fetchApps() {
-  try {
-    const res = await fetch(`${API}/api/apps`);
-    ALL_APPS = await res.json();
-    console.log("Apps from backend:", ALL_APPS);
-  } catch (err) {
-    console.error("Failed to load apps", err);
-    ALL_APPS = [];
-  }
-}
-
-/* ---------------- RENDER APPS ---------------- */
+// RENDER APPS
 function renderApps() {
   appGrid.innerHTML = "";
 
-  const filtered = ALL_APPS.filter(
-    app => app.platform === CURRENT_PLATFORM
-  );
+  const filtered = ALL_APPS.filter(a => a.platform === CURRENT_PLATFORM);
 
   if (filtered.length === 0) {
-    appGrid.innerHTML =
-      "<p style='text-align:center;color:#aaa'>No apps available</p>";
+    appGrid.innerHTML = "<p style='text-align:center'>No apps available</p>";
     return;
   }
 
@@ -66,7 +52,7 @@ function renderApps() {
     div.className = "app-card";
 
     div.innerHTML = `
-      <img src="${app.icon_url || ''}" alt="">
+      <img src="${app.icon_url || ''}">
       <h4>${app.name}</h4>
       <p>${app.description || ''}</p>
     `;
@@ -75,6 +61,13 @@ function renderApps() {
   });
 }
 
-/* ---------------- EVENTS ---------------- */
-androidBtn.addEventListener("click", () => openApps("android"));
-iosBtn.addEventListener("click", () => openApps("ios"));
+// BACK
+function goHome() {
+  appsPage.classList.remove("active");
+  homePage.classList.add("active");
+}
+
+// EVENTS
+androidBtn.onclick = () => openApps("android");
+iosBtn.onclick = () => openApps("ios");
+backBtn.onclick = goHome;
