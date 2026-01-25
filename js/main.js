@@ -1,139 +1,66 @@
-document.addEventListener("DOMContentLoaded", () => {
+import { createClient } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm";
 
-  const API = "https://malayali-store-backend.onrender.com/api/apps";
+const supabase = createClient(
+  "https://dytrdmvicireccasxxvj.supabase.co",
+  "sb_publishable_Rr3_s1fI61dQp14A-Hk92A_j_ZCAnuW"
+);
 
-  // Pages
-  const home = document.getElementById("home");
-  const apps = document.getElementById("apps");
-  const details = document.getElementById("appDetails");
+// Pages
+const dashboard = document.getElementById("dashboard");
+const appsPage = document.getElementById("appsPage");
+const addAppPage = document.getElementById("addAppPage");
 
-  // Buttons
-  const androidBtn = document.getElementById("androidBtn");
-  const iosBtn = document.getElementById("iosBtn");
-  const backBtn = document.getElementById("backBtn");
-  const detailsBackBtn = document.getElementById("detailsBackBtn");
-  const buyBtn = document.getElementById("buyBtn");
+// Buttons
+dashboardBtn.onclick = () => showPage(dashboard);
+appsBtn.onclick = () => showPage(appsPage);
+addAppBtn.onclick = () => showPage(addAppPage);
+cancelBtn.onclick = () => showPage(appsPage);
 
-  // Containers
-  const appGrid = document.getElementById("appGrid");
-  const appsTitle = document.getElementById("appsTitle");
+// Stats
+async function loadStats() {
+  const { data: apps } = await supabase.from("apps").select("id, platform");
+  document.getElementById("totalApps").textContent = apps.length;
+  document.getElementById("androidCount").textContent =
+    apps.filter(a => a.platform === "android").length;
+  document.getElementById("iosCount").textContent =
+    apps.filter(a => a.platform === "ios").length;
+}
 
-  // Details
-  const detailsIcon = document.getElementById("detailsIcon");
-  const detailsName = document.getElementById("detailsName");
-  const planSelect = document.querySelector(".plan-select");
+// Apps list
+async function loadApps() {
+  const { data } = await supabase.from("apps").select("*");
+  appsList.innerHTML = "";
+  data.forEach(app => {
+    const div = document.createElement("div");
+    div.className = "app-item";
+    div.innerHTML = `<b>${app.name}</b><br>${app.platform}`;
+    appsList.appendChild(div);
+  });
+}
 
-  let ALL_APPS = [];
-  let CURRENT_PLATFORM = "";
-  let CURRENT_APP = null;
+// Save app
+saveAppBtn.onclick = async () => {
+  await supabase.from("apps").insert({
+    name: appName.value,
+    platform: platform.value,
+    description: description.value
+  });
+  showPage(appsPage);
+};
 
-  /* ================= FETCH FROM DB ================= */
-  async function loadApps() {
-    const res = await fetch(API);
-    ALL_APPS = await res.json();
-  }
+// Realtime
+supabase
+  .channel("apps-realtime")
+  .on("postgres_changes", { event: "*", schema: "public", table: "apps" }, () => {
+    loadStats();
+    loadApps();
+  })
+  .subscribe();
 
-  /* ================= NAVIGATION ================= */
-  function showPage(page) {
-    [home, apps, details].forEach(p => p.classList.remove("show"));
-    page.classList.add("show");
-  }
+function showPage(p) {
+  [dashboard, appsPage, addAppPage].forEach(x => x.classList.remove("show"));
+  p.classList.add("show");
+}
 
-  /* ================= HOME → APPS ================= */
-  function openApps(platform) {
-    CURRENT_PLATFORM = platform;
-    showPage(apps);
-
-    appsTitle.textContent =
-      platform === "android" ? "ANDROID APPS" : "iOS / iPAD APPS";
-
-    appGrid.innerHTML = "Loading apps...";
-    loadApps().then(renderApps);
-  }
-
-  /* ================= APPS → DETAILS ================= */
-  function openDetails(app) {
-    CURRENT_APP = app;
-    showPage(details);
-
-    detailsName.textContent = app.name;
-    detailsIcon.src = app.icon_url || "";
-
-    renderPlans(app.plans);
-  }
-
-  /* ================= RENDER APPS ================= */
-  function renderApps() {
-    appGrid.innerHTML = "";
-
-    const list = ALL_APPS.filter(
-      app => app.platform === CURRENT_PLATFORM
-    );
-
-    if (!list.length) {
-      appGrid.innerHTML = "<p style='text-align:center'>No apps available</p>";
-      return;
-    }
-
-    list.forEach(app => {
-      const div = document.createElement("div");
-      div.className = "app-card";
-
-      div.innerHTML = `
-        <img src="${app.icon_url || ""}">
-        <h4>${app.name}</h4>
-        <p>${app.description || ""}</p>
-      `;
-
-      div.onclick = () => openDetails(app);
-      appGrid.appendChild(div);
-    });
-  }
-
-  /* ================= RENDER PLANS (DB ONLY) ================= */
-  function renderPlans(plans) {
-    planSelect.innerHTML = "<h3>Select Plan</h3>";
-
-    if (!plans || plans.length === 0) {
-      planSelect.innerHTML +=
-        "<p style='text-align:center;color:#aaa'>No plans available</p>";
-      return;
-    }
-
-    plans.forEach(plan => {
-      const label = document.createElement("label");
-
-      label.innerHTML = `
-        <div class="plan-left">
-          <input type="radio" name="plan" value="${plan.id}">
-          <span>${plan.label}</span>
-        </div>
-        <div class="plan-price">₹ ${plan.price}</div>
-      `;
-
-      planSelect.appendChild(label);
-    });
-  }
-
-  /* ================= EVENTS ================= */
-  androidBtn.onclick = () => openApps("android");
-  iosBtn.onclick = () => openApps("ios");
-
-  backBtn.onclick = () => showPage(home);
-  detailsBackBtn.onclick = () => showPage(apps);
-
-  buyBtn.onclick = () => {
-    const selected = document.querySelector("input[name='plan']:checked");
-    if (!selected) {
-      alert("Please select a plan");
-      return;
-    }
-
-    const planId = selected.value;
-
-    alert(
-      `Buying plan ID ${planId} for ${CURRENT_APP.name}`
-    );
-  };
-
-});
+loadStats();
+loadApps();
