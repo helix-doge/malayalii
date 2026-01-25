@@ -5,19 +5,22 @@ document.addEventListener("DOMContentLoaded", () => {
   // Pages
   const home = document.getElementById("home");
   const apps = document.getElementById("apps");
-  const plans = document.getElementById("plans");
+  const details = document.getElementById("appDetails");
 
   // Buttons
   const androidBtn = document.getElementById("androidBtn");
   const iosBtn = document.getElementById("iosBtn");
   const backBtn = document.getElementById("backBtn");
-  const plansBackBtn = document.getElementById("plansBackBtn");
+  const detailsBackBtn = document.getElementById("detailsBackBtn");
+  const buyBtn = document.getElementById("buyBtn");
 
   // Containers
   const appGrid = document.getElementById("appGrid");
   const appsTitle = document.getElementById("appsTitle");
-  const plansGrid = document.getElementById("plansGrid");
-  const plansTitle = document.getElementById("plansTitle");
+
+  // Details elements
+  const detailsIcon = document.getElementById("detailsIcon");
+  const detailsName = document.getElementById("detailsName");
 
   let ALL_APPS = [];
   let CURRENT_PLATFORM = "";
@@ -28,42 +31,34 @@ document.addEventListener("DOMContentLoaded", () => {
     ALL_APPS = await res.json();
   }
 
-  /* ---------- NAVIGATION ---------- */
-
-  function showHome() {
-    apps.classList.remove("show");
-    plans.classList.remove("show");
-    home.classList.add("show");
+  /* ---------- PAGE HELPERS ---------- */
+  function showPage(page) {
+    [home, apps, details].forEach(p => p.classList.remove("show"));
+    page.classList.add("show");
   }
 
-  function showApps(platform) {
+  /* ---------- HOME → APPS ---------- */
+  function openApps(platform) {
     CURRENT_PLATFORM = platform;
-
-    home.classList.remove("show");
-    plans.classList.remove("show");
-    apps.classList.add("show");
+    showPage(apps);
 
     appsTitle.textContent =
       platform === "android" ? "ANDROID APPS" : "iOS / iPAD APPS";
 
     appGrid.innerHTML = "Loading...";
-
     loadApps().then(renderApps);
   }
 
-  function showPlans(app) {
+  /* ---------- APPS → DETAILS ---------- */
+  function openDetails(app) {
     CURRENT_APP = app;
+    showPage(details);
 
-    apps.classList.remove("show");
-    plans.classList.add("show");
-
-    plansTitle.textContent = app.name + " Plans";
-
-    renderPlans();
+    detailsName.textContent = app.name;
+    detailsIcon.src = app.icon_url || "";
   }
 
-  /* ---------- RENDER ---------- */
-
+  /* ---------- RENDER APPS ---------- */
   function renderApps() {
     appGrid.innerHTML = "";
 
@@ -77,47 +72,33 @@ document.addEventListener("DOMContentLoaded", () => {
     list.forEach(app => {
       const div = document.createElement("div");
       div.className = "app-card";
-
       div.innerHTML = `
         <img src="${app.icon_url || ""}">
         <h4>${app.name}</h4>
         <p>${app.description || ""}</p>
       `;
-
-      div.onclick = () => showPlans(app);
+      div.onclick = () => openDetails(app);
       appGrid.appendChild(div);
     });
   }
 
-  function renderPlans() {
-    plansGrid.innerHTML = "";
+  /* ---------- EVENTS ---------- */
+  androidBtn.onclick = () => openApps("android");
+  iosBtn.onclick = () => openApps("ios");
 
-    if (!CURRENT_APP.plans || CURRENT_APP.plans.length === 0) {
-      plansGrid.innerHTML =
-        "<p style='text-align:center'>No plans available</p>";
+  backBtn.onclick = () => showPage(home);
+  detailsBackBtn.onclick = () => showPage(apps);
+
+  buyBtn.onclick = () => {
+    const selected = document.querySelector("input[name='plan']:checked");
+    if (!selected) {
+      alert("Please select a plan");
       return;
     }
 
-    CURRENT_APP.plans.forEach(plan => {
-      const div = document.createElement("div");
-      div.className = "plan-card";
-
-      div.innerHTML = `
-        <h4>${plan.label}</h4>
-        <p>₹ ${plan.price}</p>
-        <button>Buy Now</button>
-      `;
-
-      plansGrid.appendChild(div);
-    });
-  }
-
-  /* ---------- EVENTS ---------- */
-
-  androidBtn.onclick = () => showApps("android");
-  iosBtn.onclick = () => showApps("ios");
-
-  backBtn.onclick = showHome;
-  plansBackBtn.onclick = () => showApps(CURRENT_PLATFORM);
+    alert(
+      `Buying ${selected.value} for ${CURRENT_APP.name}`
+    );
+  };
 
 });
