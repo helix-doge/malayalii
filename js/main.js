@@ -27,25 +27,20 @@ document.addEventListener("DOMContentLoaded", () => {
   let CURRENT_PLATFORM = "";
   let CURRENT_APP = null;
 
-  // Default prices (fallback)
-  const DEFAULT_PLANS = [
-    { label: "1 DAY", price: 199 },
-    { label: "1 WEEK", price: 499 },
-    { label: "1 MONTH", price: 999 }
-  ];
+  /* ================= FETCH ================= */
 
   async function loadApps() {
     const res = await fetch(API);
     ALL_APPS = await res.json();
   }
 
-  /* ---------- PAGE CONTROL ---------- */
+  /* ================= NAVIGATION ================= */
+
   function showPage(page) {
     [home, apps, details].forEach(p => p.classList.remove("show"));
     page.classList.add("show");
   }
 
-  /* ---------- HOME → APPS ---------- */
   function openApps(platform) {
     CURRENT_PLATFORM = platform;
     showPage(apps);
@@ -57,7 +52,6 @@ document.addEventListener("DOMContentLoaded", () => {
     loadApps().then(renderApps);
   }
 
-  /* ---------- APPS → DETAILS ---------- */
   function openDetails(app) {
     CURRENT_APP = app;
     showPage(details);
@@ -65,10 +59,11 @@ document.addEventListener("DOMContentLoaded", () => {
     detailsName.textContent = app.name;
     detailsIcon.src = app.icon_url || "";
 
-    renderPlans(app.plans || DEFAULT_PLANS);
+    renderPlans(app.plans);
   }
 
-  /* ---------- RENDER APPS ---------- */
+  /* ================= RENDER ================= */
+
   function renderApps() {
     appGrid.innerHTML = "";
 
@@ -92,15 +87,20 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
-  /* ---------- RENDER PLANS ---------- */
   function renderPlans(plans) {
     planSelect.innerHTML = "<h3>Select Plan</h3>";
+
+    if (!plans || plans.length === 0) {
+      planSelect.innerHTML +=
+        "<p style='text-align:center;color:#aaa'>No plans available</p>";
+      return;
+    }
 
     plans.forEach(plan => {
       const label = document.createElement("label");
       label.innerHTML = `
         <span>
-          <input type="radio" name="plan" value="${plan.label}">
+          <input type="radio" name="plan" value="${plan.id}">
           ${plan.label}
         </span>
         <span class="plan-price">₹ ${plan.price}</span>
@@ -109,7 +109,8 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
-  /* ---------- EVENTS ---------- */
+  /* ================= EVENTS ================= */
+
   androidBtn.onclick = () => openApps("android");
   iosBtn.onclick = () => openApps("ios");
 
@@ -123,8 +124,10 @@ document.addEventListener("DOMContentLoaded", () => {
       return;
     }
 
-    const plan = selected.value;
-    alert(`Buying ${plan} for ${CURRENT_APP.name}`);
+    const planId = selected.value;
+    alert(
+      `Proceeding to buy plan ID ${planId} for ${CURRENT_APP.name}`
+    );
   };
 
 });
