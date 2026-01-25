@@ -1,20 +1,20 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Malayali Here Store</title>
 
-  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@600;700&family=Poppins:wght@300;400;500&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@600;700&family=Poppins:wght@400;500&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
 
-  <!-- BACKGROUND (USED BY ALL PAGES) -->
+  <!-- BACKGROUND (GLOBAL) -->
   <div class="bg"></div>
 
-  <!-- ================= HOME / HERO ================= -->
-  <section id="home" class="page active">
+  <!-- HOME -->
+  <section id="home" class="page show">
     <div class="hero-grid">
 
       <div class="title">
@@ -23,8 +23,8 @@
       </div>
 
       <div class="buttons">
-        <button id="androidBtn">ANDROID</button>
-        <button id="iosBtn">iOS / iPAD</button>
+        <button id="androidBtn" type="button">ANDROID</button>
+        <button id="iosBtn" type="button">iOS / iPAD</button>
       </div>
 
       <div class="vision">
@@ -38,15 +38,14 @@
     </div>
   </section>
 
-  <!-- ================= APPS PAGE ================= -->
+  <!-- APPS PAGE -->
   <section id="apps" class="page">
     <h2 id="appsTitle"></h2>
-
-    <div class="app-grid" id="appGrid"></div>
-
-    <button class="back" id="backBtn">← Back</button>
+    <div id="appGrid" class="app-grid"></div>
+    <button id="backBtn" class="back" type="button">← Back</button>
   </section>
 
+  <!-- JS AT END (CRITICAL) -->
   <script src="js/main.js"></script>
 </body>
 </html>
