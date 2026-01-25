@@ -1,4 +1,4 @@
-/* ================= RESET ================= */
+/* RESET */
 * {
   margin: 0;
   padding: 0;
@@ -13,74 +13,80 @@ html, body {
   color: #fff;
 }
 
-/* ================= BACKGROUND ================= */
-.bg {
-  position: fixed;
-  inset: 0;
-  background: url("bg.jpg") center / cover no-repeat;
-  filter: brightness(0.35);
-  z-index: -1;
-
-  /* IMPORTANT: allow clicks */
-  pointer-events: none;
+/* HERO PAGE */
+.hero {
+  position: relative;
+  min-height: 100vh;
+  overflow: hidden;
 }
 
-/* ================= MAIN LAYOUT ================= */
-main {
+/* BACKGROUND IMAGE */
+.bg {
+  position: absolute;
+  inset: 0;
+  background: url("../assets/bg.jpg") center / cover no-repeat;
+  filter: brightness(0.4);
+  z-index: 0;
+  pointer-events: none; /* buttons clickable */
+}
+
+/* GRID LAYOUT (OLD UI STYLE) */
+.hero-grid {
+  position: relative;
+  z-index: 1;
   min-height: 100vh;
   padding: 24px;
-  display: flex;
-  flex-direction: column;
+  display: grid;
+  grid-template-rows: auto 1fr auto;
 }
 
-/* ================= TITLE ================= */
-h1 {
+/* TITLE */
+.title h1 {
   font-family: 'Orbitron', sans-serif;
   font-size: 36px;
   line-height: 1.1;
 }
 
-.sub {
+.title p {
   margin-top: 6px;
   font-size: 13px;
-  color: #cfcfcf;
+  color: #ccc;
 }
 
-/* ================= BUTTONS ================= */
+/* BUTTONS — CENTER */
 .buttons {
-  flex: 1;
   display: flex;
   justify-content: center;
   align-items: center;
   gap: 18px;
 }
 
-button {
+.buttons button {
   padding: 14px 28px;
   border-radius: 10px;
   border: none;
-  cursor: pointer;
-  font-weight: 600;
   font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
   transition: transform 0.15s ease, box-shadow 0.15s ease;
 }
 
-button:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 6px 16px rgba(0,0,0,0.6);
-}
-
-#androidBtn {
-  background: #ffffff;
+.buttons button:first-child {
+  background: #fff;
   color: #000;
 }
 
-#iosBtn {
+.buttons button:last-child {
   background: #1f2937;
   color: #fff;
 }
 
-/* ================= VISION ================= */
+.buttons button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 18px rgba(0,0,0,0.6);
+}
+
+/* VISION — BOTTOM */
 .vision {
   text-align: center;
 }
@@ -92,16 +98,16 @@ button:hover {
 }
 
 .vision p {
-  font-size: 13px;
-  color: #d0d0d0;
-  max-width: 560px;
+  max-width: 600px;
   margin: auto;
+  font-size: 13px;
   line-height: 1.5;
+  color: #d0d0d0;
 }
 
-/* ================= MOBILE ================= */
+/* MOBILE */
 @media (max-width: 600px) {
-  h1 {
+  .title h1 {
     font-size: 28px;
   }
 
@@ -109,7 +115,7 @@ button:hover {
     flex-direction: column;
   }
 
-  button {
+  .buttons button {
     width: 100%;
     max-width: 260px;
   }
