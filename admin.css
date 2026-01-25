@@ -1,19 +1,83 @@
 * {
+  margin: 0;
+  padding: 0;
   box-sizing: border-box;
-  font-family: Poppins, sans-serif;
+  font-family: 'Poppins', sans-serif;
 }
 
 body {
-  background: #0b1220;
+  background: #0b0b0b;
   color: #fff;
-  padding: 16px;
+}
+
+.admin-root {
+  display: flex;
+  height: 100vh;
+}
+
+.sidebar {
+  width: 220px;
+  background: #111;
+  padding: 20px;
+}
+
+.sidebar h2 {
+  margin-bottom: 20px;
+}
+
+.sidebar button {
+  width: 100%;
+  margin-bottom: 10px;
+  padding: 10px;
+  background: #1a1a1a;
+  border: none;
+  color: #fff;
+  cursor: pointer;
+}
+
+.content {
+  flex: 1;
+  padding: 20px;
+  overflow-y: auto;
+}
+
+.page {
+  display: none;
+}
+
+.page.show {
+  display: block;
+}
+
+.stats {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px,1fr));
+  gap: 16px;
 }
 
 .card {
-  background: #020617;
-  padding: 16px;
+  background: #1a1a1a;
+  padding: 20px;
   border-radius: 12px;
-  max-width: 500px;
+  text-align: center;
+}
+
+.apps-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px,1fr));
+  gap: 16px;
+}
+
+.app-item {
+  background: #1a1a1a;
+  padding: 14px;
+  border-radius: 12px;
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
 }
 
 input, textarea, select {
@@ -22,42 +86,4 @@ input, textarea, select {
   padding: 10px;
   border-radius: 8px;
   border: none;
-  background: #0f172a;
-  color: #fff;
-}
-
-button {
-  width: 100%;
-  padding: 12px;
-  margin-top: 8px;
-  border-radius: 8px;
-  border: none;
-  cursor: pointer;
-}
-
-.primary {
-  background: #22c55e;
-  color: #000;
-}
-
-#plans input {
-  margin-bottom: 6px;
-}
-
-#apps div {
-  background: #020617;
-  padding: 8px;
-  border-radius: 8px;
-  margin-top: 6px;
-}
-
-#toast {
-  position: fixed;
-  bottom: 16px;
-  right: 16px;
-  background: #22c55e;
-  color: #000;
-  padding: 12px;
-  border-radius: 8px;
-  display: none;
 }
