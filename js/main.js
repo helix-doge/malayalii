@@ -51,3 +51,4 @@ supabase
   .on("postgres_changes", { event: "*", schema: "public", table: "apps" }, fetchApps)
   .on("postgres_changes", { event: "*", schema: "public", table: "plans" }, fetchApps)
   .subscribe();
+
