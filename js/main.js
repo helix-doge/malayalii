@@ -1,105 +1,24 @@
-const API = "https://malayali-store-backend.onrender.com";
+// Make sure DOM is loaded
+document.addEventListener("DOMContentLoaded", () => {
 
-// DOM
-const heroPage = document.getElementById("heroPage");
-const appsPage = document.getElementById("appsPage");
-const plansPage = document.getElementById("plansPage");
+  const androidBtn = document.getElementById("androidBtn");
+  const iosBtn = document.getElementById("iosBtn");
 
-const appGrid = document.getElementById("appGrid");
-const plansGrid = document.getElementById("plansGrid");
-const appsTitle = document.getElementById("appsTitle");
-const plansTitle = document.getElementById("plansTitle");
-
-let ALL_APPS = [];
-let CURRENT_PLATFORM = null;
-
-/* ---------- FAST FETCH ---------- */
-async function fetchApps() {
-  try {
-    const res = await fetch(`${API}/api/apps?ts=${Date.now()}`);
-    ALL_APPS = await res.json();
-  } catch {
-    ALL_APPS = [];
-  }
-}
-
-/* ---------- OPEN APPS ---------- */
-function openApps(platform) {
-  CURRENT_PLATFORM = platform;
-
-  // Instant UI change (NO WAIT)
-  heroPage.classList.remove("active");
-  plansPage.classList.remove("active");
-  appsPage.classList.add("active");
-
-  appsTitle.textContent =
-    platform === "android" ? "Android Apps" : "iOS / iPad Apps";
-
-  appGrid.innerHTML = "<p>Loading apps...</p>";
-
-  fetchApps().then(renderApps);
-}
-
-/* ---------- RENDER APPS ---------- */
-function renderApps() {
-  appGrid.innerHTML = "";
-
-  const filtered = ALL_APPS.filter(a => a.platform === CURRENT_PLATFORM);
-
-  if (!filtered.length) {
-    appGrid.innerHTML = "<p>No apps available</p>";
+  if (!androidBtn || !iosBtn) {
+    console.error("Buttons not found in DOM");
     return;
   }
 
-  filtered.forEach(app => {
-    const div = document.createElement("div");
-    div.className = "app-card";
-
-    div.innerHTML = `
-      <img src="${app.icon_url || ''}">
-      <h4>${app.name}</h4>
-      <p>${app.description || ''}</p>
-    `;
-
-    div.onclick = () => openPlans(app);
-    appGrid.appendChild(div);
+  // ANDROID CLICK
+  androidBtn.addEventListener("click", () => {
+    alert("ANDROID button clicked");
+    // later you can navigate or load apps here
   });
-}
 
-/* ---------- OPEN PLANS ---------- */
-function openPlans(app) {
-  appsPage.classList.remove("active");
-  plansPage.classList.add("active");
-
-  plansTitle.textContent = app.name + " Plans";
-  plansGrid.innerHTML = "";
-
-  if (!app.plans || !app.plans.length) {
-    plansGrid.innerHTML = "<p>No plans available</p>";
-    return;
-  }
-
-  app.plans.forEach(p => {
-    const div = document.createElement("div");
-    div.className = "plan-card";
-    div.innerHTML = `<h4>${p.label}</h4><p>₹ ${p.price}</p>`;
-    plansGrid.appendChild(div);
+  // IOS CLICK
+  iosBtn.addEventListener("click", () => {
+    alert("iOS / iPad button clicked");
+    // later you can navigate or load apps here
   });
-}
 
-/* ---------- BACK ---------- */
-function backToHero() {
-  appsPage.classList.remove("active");
-  plansPage.classList.remove("active");
-  heroPage.classList.add("active");
-}
-
-function backToApps() {
-  plansPage.classList.remove("active");
-  appsPage.classList.add("active");
-}
-
-/* 🔴 MAKE GLOBAL */
-window.openApps = openApps;
-window.backToHero = backToHero;
-window.backToApps = backToApps;
+});
