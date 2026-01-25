@@ -12,12 +12,21 @@ html, body {
   color: #fff;
 }
 
-/* BACKGROUND – NEVER BLOCK CLICKS */
+/* GLOBAL BACKGROUND */
 .bg {
   position: fixed;
   inset: 0;
-  background: url("/assets/bg.jpg") center / cover no-repeat;
-  filter: brightness(0.4);
+
+  /* 🔴 FIXED IMAGE PATH */
+  background-image: url("/assets/bg.jpg");
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+
+  /* Fallback if image fails */
+  background-color: #000;
+
+  filter: brightness(0.45);
   z-index: -1;
   pointer-events: none;
 }
@@ -44,6 +53,7 @@ html, body {
 .title h1 {
   font-family: 'Orbitron', sans-serif;
   font-size: 36px;
+  line-height: 1.1;
 }
 
 .title p {
