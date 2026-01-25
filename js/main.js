@@ -21,17 +21,25 @@ document.addEventListener("DOMContentLoaded", () => {
   // Details elements
   const detailsIcon = document.getElementById("detailsIcon");
   const detailsName = document.getElementById("detailsName");
+  const planSelect = document.querySelector(".plan-select");
 
   let ALL_APPS = [];
   let CURRENT_PLATFORM = "";
   let CURRENT_APP = null;
+
+  // Default prices (fallback)
+  const DEFAULT_PLANS = [
+    { label: "1 DAY", price: 199 },
+    { label: "1 WEEK", price: 499 },
+    { label: "1 MONTH", price: 999 }
+  ];
 
   async function loadApps() {
     const res = await fetch(API);
     ALL_APPS = await res.json();
   }
 
-  /* ---------- PAGE HELPERS ---------- */
+  /* ---------- PAGE CONTROL ---------- */
   function showPage(page) {
     [home, apps, details].forEach(p => p.classList.remove("show"));
     page.classList.add("show");
@@ -56,6 +64,8 @@ document.addEventListener("DOMContentLoaded", () => {
 
     detailsName.textContent = app.name;
     detailsIcon.src = app.icon_url || "";
+
+    renderPlans(app.plans || DEFAULT_PLANS);
   }
 
   /* ---------- RENDER APPS ---------- */
@@ -82,6 +92,23 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
+  /* ---------- RENDER PLANS ---------- */
+  function renderPlans(plans) {
+    planSelect.innerHTML = "<h3>Select Plan</h3>";
+
+    plans.forEach(plan => {
+      const label = document.createElement("label");
+      label.innerHTML = `
+        <span>
+          <input type="radio" name="plan" value="${plan.label}">
+          ${plan.label}
+        </span>
+        <span class="plan-price">₹ ${plan.price}</span>
+      `;
+      planSelect.appendChild(label);
+    });
+  }
+
   /* ---------- EVENTS ---------- */
   androidBtn.onclick = () => openApps("android");
   iosBtn.onclick = () => openApps("ios");
@@ -96,9 +123,8 @@ document.addEventListener("DOMContentLoaded", () => {
       return;
     }
 
-    alert(
-      `Buying ${selected.value} for ${CURRENT_APP.name}`
-    );
+    const plan = selected.value;
+    alert(`Buying ${plan} for ${CURRENT_APP.name}`);
   };
 
 });
