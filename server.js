@@ -6,73 +6,81 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-const supabase = createClient(
-  process.env.SUPABASE_URL,
-  process.env.SUPABASE_SERVICE_KEY
-);
+// 🔐 SUPABASE
+const supabaseUrl = "https://dytrdmvicireccasxxvj.supabase.co";
+const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+const supabase = createClient(supabaseUrl, supabaseKey);
 
+// 🟢 HEALTH CHECK
+app.get("/", (req, res) => {
+  res.send("Malayali Store Backend Running");
+});
+
+// 🟢 GET APPS + PLANS
 app.get("/api/apps", async (req, res) => {
-  res.setHeader("Cache-Control", "no-store");
+  try {
+    const { data: apps, error: appsError } = await supabase
+      .from("apps")
+      .select("*")
+      .order("created_at", { ascending: false });
 
-  const { data: apps, error } = await supabase
-    .from("apps")
-    .select("*")
-    .order("created_at", { ascending: false });
+    if (appsError) throw appsError;
 
-  if (error) {
-    console.error(error);
-    return res.json([]);
+    const { data: plans, error: plansError } = await supabase
+      .from("plans")
+      .select("*");
+
+    if (plansError) throw plansError;
+
+    const result = apps.map(app => ({
+      ...app,
+      plans: plans.filter(p => p.app_id === app.id)
+    }));
+
+    res.setHeader("Cache-Control", "no-store");
+    res.json(result);
+  } catch (err) {
+    console.error("GET /api/apps error:", err);
+    res.status(500).json([]);
   }
-
-  const { data: plans } = await supabase.from("plans").select("*");
-
-  const result = apps.map(app => ({
-    ...app,
-    plans: plans.filter(p => p.app_id === app.id)
-  }));
-
-  res.json(result);
 });
 
-
-  // Fetch plans separately (NO JOIN BUGS)
-  const { data: plans } = await supabase.from("plans").select("*");
-
-  const appsWithPlans = apps.map(app => ({
-    ...app,
-    plans: plans.filter(p => p.app_id === app.id)
-  }));
-
-  res.setHeader("Cache-Control", "no-store");
-  res.json(appsWithPlans);
-});
-
+// 🟣 SAVE APP + PLANS
 app.post("/api/admin/app", async (req, res) => {
-  const { name, description, platform, icon_url, plans } = req.body;
+  try {
+    const { name, description, platform, icon_url, plans } = req.body;
 
-  const { data: appRow } = await supabase
-    .from("apps")
-    .insert([{ name, description, platform, icon_url }])
-    .select()
-    .single();
+    const { data: app, error: appError } = await supabase
+      .from("apps")
+      .insert([{ name, description, platform, icon_url }])
+      .select()
+      .single();
 
-  if (plans?.length) {
-    await supabase.from("plans").insert(
-      plans.map(p => ({
-        app_id: appRow.id,
+    if (appError) throw appError;
+
+    if (Array.isArray(plans) && plans.length > 0) {
+      const plansData = plans.map(p => ({
+        app_id: app.id,
         label: p.label,
-        price: Number(p.price)
-      }))
-    );
+        price: p.price
+      }));
+
+      const { error: plansError } = await supabase
+        .from("plans")
+        .insert(plansData);
+
+      if (plansError) throw plansError;
+    }
+
+    res.json({ success: true });
+  } catch (err) {
+    console.error("POST /api/admin/app error:", err);
+    res.status(500).json({ error: "Failed to save app" });
   }
-
-  res.json({ success: true });
 });
 
-app.delete("/api/admin/app/:id", async (req, res) => {
-  await supabase.from("plans").delete().eq("app_id", req.params.id);
-  await supabase.from("apps").delete().eq("id", req.params.id);
-  res.json({ success: true });
+// 🟢 START SERVER
+const PORT = process.env.PORT || 3000;
+app.listen(PORT, () => {
+  console.log("Server running on port", PORT);
 });
-
-app.listen(process.env.PORT || 3000);
