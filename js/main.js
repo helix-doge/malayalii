@@ -1,24 +1,22 @@
-// Make sure DOM is loaded
+// Wait for DOM to load
 document.addEventListener("DOMContentLoaded", () => {
 
   const androidBtn = document.getElementById("androidBtn");
   const iosBtn = document.getElementById("iosBtn");
 
   if (!androidBtn || !iosBtn) {
-    console.error("Buttons not found in DOM");
+    console.error("Buttons not found. Check index.html IDs.");
     return;
   }
 
-  // ANDROID CLICK
+  // ANDROID BUTTON
   androidBtn.addEventListener("click", () => {
     alert("ANDROID button clicked");
-    // later you can navigate or load apps here
   });
 
-  // IOS CLICK
+  // IOS BUTTON
   iosBtn.addEventListener("click", () => {
-    alert("iOS / iPad button clicked");
-    // later you can navigate or load apps here
+    alert("iOS / iPAD button clicked");
   });
 
 });
