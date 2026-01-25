@@ -1,73 +1,67 @@
-const API = "https://malayali-store-backend.onrender.com/api/apps";
+document.addEventListener("DOMContentLoaded", () => {
 
-// PAGES
-const homePage = document.getElementById("home");
-const appsPage = document.getElementById("apps");
+  const API = "https://malayali-store-backend.onrender.com/api/apps";
 
-// ELEMENTS
-const androidBtn = document.getElementById("androidBtn");
-const iosBtn = document.getElementById("iosBtn");
-const backBtn = document.getElementById("backBtn");
-const appGrid = document.getElementById("appGrid");
-const appsTitle = document.getElementById("appsTitle");
+  const home = document.getElementById("home");
+  const apps = document.getElementById("apps");
 
-let ALL_APPS = [];
-let CURRENT_PLATFORM = "";
+  const androidBtn = document.getElementById("androidBtn");
+  const iosBtn = document.getElementById("iosBtn");
+  const backBtn = document.getElementById("backBtn");
 
-// FETCH APPS
-async function loadApps() {
-  const res = await fetch(API);
-  ALL_APPS = await res.json();
-}
+  const appGrid = document.getElementById("appGrid");
+  const appsTitle = document.getElementById("appsTitle");
 
-// OPEN APPS PAGE
-async function openApps(platform) {
-  CURRENT_PLATFORM = platform;
+  let ALL_APPS = [];
+  let CURRENT_PLATFORM = "";
 
-  homePage.classList.remove("active");
-  appsPage.classList.add("active");
-
-  appsTitle.textContent =
-    platform === "android" ? "ANDROID APPS" : "iOS / iPAD APPS";
-
-  appGrid.innerHTML = "Loading...";
-
-  await loadApps();
-  renderApps();
-}
-
-// RENDER APPS
-function renderApps() {
-  appGrid.innerHTML = "";
-
-  const filtered = ALL_APPS.filter(a => a.platform === CURRENT_PLATFORM);
-
-  if (filtered.length === 0) {
-    appGrid.innerHTML = "<p style='text-align:center'>No apps available</p>";
-    return;
+  async function loadApps() {
+    const res = await fetch(API);
+    ALL_APPS = await res.json();
   }
 
-  filtered.forEach(app => {
-    const div = document.createElement("div");
-    div.className = "app-card";
+  function showApps(platform) {
+    CURRENT_PLATFORM = platform;
 
-    div.innerHTML = `
-      <img src="${app.icon_url || ''}">
-      <h4>${app.name}</h4>
-      <p>${app.description || ''}</p>
-    `;
+    home.classList.remove("show");
+    apps.classList.add("show");
 
-    appGrid.appendChild(div);
-  });
-}
+    appsTitle.textContent =
+      platform === "android" ? "ANDROID APPS" : "iOS / iPAD APPS";
 
-// BACK
-function goHome() {
-  appsPage.classList.remove("active");
-  homePage.classList.add("active");
-}
+    appGrid.innerHTML = "Loading...";
 
-// EVENTS
-androidBtn.onclick = () => openApps("android");
-iosBtn.onclick = () => openApps("ios");
-backBtn.onclick = goHome;
+    loadApps().then(renderApps);
+  }
+
+  function renderApps() {
+    appGrid.innerHTML = "";
+
+    const list = ALL_APPS.filter(a => a.platform === CURRENT_PLATFORM);
+
+    if (!list.length) {
+      appGrid.innerHTML = "<p style='text-align:center'>No apps available</p>";
+      return;
+    }
+
+    list.forEach(app => {
+      const div = document.createElement("div");
+      div.className = "app-card";
+      div.innerHTML = `
+        <img src="${app.icon_url || ""}">
+        <h4>${app.name}</h4>
+        <p>${app.description || ""}</p>
+      `;
+      appGrid.appendChild(div);
+    });
+  }
+
+  androidBtn.onclick = () => showApps("android");
+  iosBtn.onclick = () => showApps("ios");
+
+  backBtn.onclick = () => {
+    apps.classList.remove("show");
+    home.classList.add("show");
+  };
+
+});
