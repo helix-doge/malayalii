@@ -17,19 +17,18 @@ html, body {
   position: fixed;
   inset: 0;
 
-  /* 🔴 FIXED IMAGE PATH */
-  background-image: url("/assets/bg.jpg");
+  background-image: url("/assets/bg.jpeg");
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;
 
-  /* Fallback if image fails */
   background-color: #000;
 
   filter: brightness(0.45);
   z-index: -1;
   pointer-events: none;
 }
+
 
 /* PAGE SYSTEM */
 .page {
