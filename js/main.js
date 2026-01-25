@@ -1,7 +1,6 @@
-// 🔗 BACKEND
 const API = "https://malayali-store-backend.onrender.com";
 
-// DOM elements
+// DOM
 const heroPage = document.getElementById("heroPage");
 const appsPage = document.getElementById("appsPage");
 const plansPage = document.getElementById("plansPage");
@@ -11,30 +10,24 @@ const plansGrid = document.getElementById("plansGrid");
 const appsTitle = document.getElementById("appsTitle");
 const plansTitle = document.getElementById("plansTitle");
 
-// State
 let ALL_APPS = [];
 let CURRENT_PLATFORM = null;
-let CURRENT_APP = null;
 
-/* ---------------- FETCH APPS ---------------- */
+/* ---------- FAST FETCH ---------- */
 async function fetchApps() {
   try {
     const res = await fetch(`${API}/api/apps?ts=${Date.now()}`);
     ALL_APPS = await res.json();
-  } catch (err) {
-    console.error("Failed to fetch apps", err);
+  } catch {
     ALL_APPS = [];
   }
 }
 
-/* ---------------- OPEN APPS PAGE ---------------- */
-async function openApps(platform) {
-  console.log("openApps clicked:", platform);
-
+/* ---------- OPEN APPS ---------- */
+function openApps(platform) {
   CURRENT_PLATFORM = platform;
 
-  await fetchApps();
-
+  // Instant UI change (NO WAIT)
   heroPage.classList.remove("active");
   plansPage.classList.remove("active");
   appsPage.classList.add("active");
@@ -42,16 +35,18 @@ async function openApps(platform) {
   appsTitle.textContent =
     platform === "android" ? "Android Apps" : "iOS / iPad Apps";
 
-  renderApps();
+  appGrid.innerHTML = "<p>Loading apps...</p>";
+
+  fetchApps().then(renderApps);
 }
 
-/* ---------------- RENDER APPS ---------------- */
+/* ---------- RENDER APPS ---------- */
 function renderApps() {
   appGrid.innerHTML = "";
 
-  const filtered = ALL_APPS.filter(app => app.platform === CURRENT_PLATFORM);
+  const filtered = ALL_APPS.filter(a => a.platform === CURRENT_PLATFORM);
 
-  if (filtered.length === 0) {
+  if (!filtered.length) {
     appGrid.innerHTML = "<p>No apps available</p>";
     return;
   }
@@ -71,17 +66,15 @@ function renderApps() {
   });
 }
 
-/* ---------------- OPEN PLANS ---------------- */
+/* ---------- OPEN PLANS ---------- */
 function openPlans(app) {
-  CURRENT_APP = app;
-
   appsPage.classList.remove("active");
   plansPage.classList.add("active");
 
   plansTitle.textContent = app.name + " Plans";
   plansGrid.innerHTML = "";
 
-  if (!app.plans || app.plans.length === 0) {
+  if (!app.plans || !app.plans.length) {
     plansGrid.innerHTML = "<p>No plans available</p>";
     return;
   }
@@ -94,7 +87,7 @@ function openPlans(app) {
   });
 }
 
-/* ---------------- BACK BUTTONS ---------------- */
+/* ---------- BACK ---------- */
 function backToHero() {
   appsPage.classList.remove("active");
   plansPage.classList.remove("active");
@@ -106,12 +99,7 @@ function backToApps() {
   appsPage.classList.add("active");
 }
 
-/* ---------------- MAKE FUNCTIONS GLOBAL ---------------- */
-// 🔴 THIS IS THE IMPORTANT PART
+/* 🔴 MAKE GLOBAL */
 window.openApps = openApps;
-window.openPlans = openPlans;
 window.backToHero = backToHero;
 window.backToApps = backToApps;
-
-// Initial load (optional)
-fetchApps();
