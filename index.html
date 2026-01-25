@@ -5,56 +5,48 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Malayali Here Store</title>
 
-  <!-- Fonts -->
   <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@600;700&family=Poppins:wght@300;400;500&display=swap" rel="stylesheet">
-
-  <!-- CSS -->
   <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
 
-  <!-- HERO SECTION -->
-  <section class="hero">
-    <div class="bg"></div>
+  <!-- BACKGROUND (USED BY ALL PAGES) -->
+  <div class="bg"></div>
 
+  <!-- ================= HOME / HERO ================= -->
+  <section id="home" class="page active">
     <div class="hero-grid">
 
-      <!-- TITLE -->
       <div class="title">
         <h1>MALAYALI<br>HERE STORE</h1>
         <p>BGMI • PUBG • iOS TOOLS</p>
       </div>
 
-      <!-- MAIN BUTTONS -->
       <div class="buttons">
         <button id="androidBtn">ANDROID</button>
         <button id="iosBtn">iOS / iPAD</button>
       </div>
 
-      <!-- VISION -->
       <div class="vision">
         <h3>VISION</h3>
         <p>
           We provide trusted, secure, and high-performance BGMI / PUBG
-          Android & iOS tools for Malayali gamers, ensuring smooth gameplay,
-          fast support, and a premium user experience.
+          Android & iOS tools for Malayali gamers.
         </p>
       </div>
 
     </div>
   </section>
 
-  <!-- JS -->
+  <!-- ================= APPS PAGE ================= -->
+  <section id="apps" class="page">
+    <h2 id="appsTitle"></h2>
+
+    <div class="app-grid" id="appGrid"></div>
+
+    <button class="back" id="backBtn">← Back</button>
+  </section>
+
   <script src="js/main.js"></script>
-
-  <!-- APPS PAGE -->
-<section class="apps" id="appsPage" style="display:none">
-  <h2 id="appsTitle"></h2>
-
-  <div class="app-grid" id="appGrid"></div>
-
-  <button class="back" onclick="goHome()">← Back</button>
-</section>
-
 </body>
 </html>
