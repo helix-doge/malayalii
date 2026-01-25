@@ -4,85 +4,70 @@
   <meta charset="UTF-8" />
   <title>Admin Panel</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="admin.css">
 </head>
 <body>
 
-<div class="admin-layout">
+<header class="topbar">
+  <h1>Malayali Here – Admin</h1>
+</header>
 
-  <!-- TOP BAR -->
-  <header class="topbar">
-    <h1>Malayali Here — Admin</h1>
-  </header>
+<nav class="tabs">
+  <button class="tab active" data-page="dashboard">Dashboard</button>
+  <button class="tab" data-page="apps">Apps</button>
+  <button class="tab" data-page="add">Add App</button>
+</nav>
 
-  <!-- TABS -->
-  <nav class="tabs">
-    <button class="tab active" data-page="dashboard">Dashboard</button>
-    <button class="tab" data-page="apps">Apps</button>
-    <button class="tab" data-page="add">Add App</button>
-  </nav>
+<main>
 
-  <!-- PAGES -->
-  <main>
+<!-- DASHBOARD -->
+<section id="dashboard" class="page show">
+  <div class="stats">
+    <div class="stat"><span>Total Apps</span><b id="statTotal">0</b></div>
+    <div class="stat"><span>Android</span><b id="statAndroid">0</b></div>
+    <div class="stat"><span>iOS</span><b id="statIos">0</b></div>
+  </div>
+</section>
 
-    <!-- DASHBOARD -->
-    <section id="dashboard" class="page show">
-      <div class="stats">
-        <div class="stat-card">
-          <span>Total Apps</span>
-          <strong id="statTotalApps">0</strong>
-        </div>
-        <div class="stat-card">
-          <span>Android Apps</span>
-          <strong id="statAndroid">0</strong>
-        </div>
-        <div class="stat-card">
-          <span>iOS Apps</span>
-          <strong id="statIos">0</strong>
-        </div>
-        <div class="stat-card">
-          <span>Total Plans</span>
-          <strong id="statPlans">0</strong>
-        </div>
-      </div>
+<!-- APPS -->
+<section id="apps" class="page">
+  <div class="apps-header">
+    <h2>Apps</h2>
+    <select id="platformFilter">
+      <option value="all">All</option>
+      <option value="android">Android</option>
+      <option value="ios">iOS</option>
+    </select>
+  </div>
+  <div id="appsList" class="apps-grid"></div>
+</section>
 
-      <p class="hint">Live data • Updates automatically</p>
-    </section>
+<!-- ADD APP -->
+<section id="add" class="page">
+  <h2>Add App</h2>
 
-    <!-- APPS LIST -->
-    <section id="apps" class="page">
-      <h2>Apps</h2>
-      <div id="appsList" class="apps-grid"></div>
-    </section>
+  <input id="appName" placeholder="App Name">
+  <select id="platform">
+    <option value="android">Android</option>
+    <option value="ios">iOS</option>
+  </select>
 
-    <!-- ADD APP -->
-    <section id="add" class="page">
-      <h2>Add New App</h2>
+  <textarea id="description" placeholder="Description"></textarea>
 
-      <div class="form">
-        <input id="appName" placeholder="App name">
-        <select id="platform">
-          <option value="android">Android</option>
-          <option value="ios">iOS</option>
-        </select>
+  <label class="file">
+    Upload Icon
+    <input type="file" id="iconFile" accept="image/*">
+  </label>
 
-        <textarea id="description" placeholder="Description"></textarea>
+  <h3>Plans</h3>
+  <div id="plansContainer"></div>
+  <button id="addPlanBtn">+ Add Plan</button>
 
-        <input id="iconUrl" placeholder="Icon URL (image link)">
+  <button id="saveAppBtn" class="primary">Save App</button>
+</section>
 
-        <h3>Plans</h3>
-        <input id="dayPrice" placeholder="1 DAY price">
-        <input id="weekPrice" placeholder="1 WEEK price">
-        <input id="monthPrice" placeholder="1 MONTH price">
-
-        <button id="saveAppBtn" class="primary">Save App</button>
-      </div>
-    </section>
-
-  </main>
-</div>
+</main>
 
 <script type="module" src="admin.js"></script>
 </body>
