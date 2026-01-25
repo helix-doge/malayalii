@@ -15,29 +15,27 @@ document.addEventListener("DOMContentLoaded", () => {
   const saveAppBtn = document.getElementById("saveAppBtn");
 
   let PLANS = [];
+  let SAVING = false;
 
   function showToast(msg, error = false) {
     toast.textContent = msg;
     toast.style.background = error ? "#ef4444" : "#22c55e";
     toast.style.display = "block";
-    setTimeout(() => toast.style.display = "none", 2500);
+    setTimeout(() => toast.style.display = "none", 2000);
   }
 
   function renderPlans() {
     plansBox.innerHTML = "";
     PLANS.forEach((p, i) => {
-      const div = document.createElement("div");
-      div.innerHTML = `
-        <input placeholder="1 DAY / 1 WEEK / 1 MONTH"
-          value="${p.label}"
-          oninput="this.dispatchEvent(new Event('change'))">
-        <input placeholder="Price"
-          value="${p.price}">
+      const d = document.createElement("div");
+      d.innerHTML = `
+        <input placeholder="1 DAY / 1 WEEK / 1 MONTH" value="${p.label}">
+        <input placeholder="Price" value="${p.price}">
       `;
-      const [l, pr] = div.querySelectorAll("input");
+      const [l, pr] = d.querySelectorAll("input");
       l.oninput = e => PLANS[i].label = e.target.value;
       pr.oninput = e => PLANS[i].price = e.target.value;
-      plansBox.appendChild(div);
+      plansBox.appendChild(d);
     });
   }
 
@@ -47,6 +45,10 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   async function saveApp() {
+    if (SAVING) return;
+    SAVING = true;
+    saveAppBtn.disabled = true;
+
     const name = document.getElementById("name").value.trim();
     const desc = document.getElementById("desc").value.trim();
     const platform = document.getElementById("platform").value;
@@ -54,6 +56,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     if (!name) {
       showToast("App name required", true);
+      reset();
       return;
     }
 
@@ -66,6 +69,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
       if (error) {
         showToast("Icon upload failed", true);
+        reset();
         return;
       }
 
@@ -81,40 +85,51 @@ document.addEventListener("DOMContentLoaded", () => {
         description: desc,
         platform,
         icon_url,
-        plans: PLANS
+        plans: PLANS.filter(p => p.label && p.price)
       })
     });
 
     if (!res.ok) {
       showToast("Save failed", true);
+      reset();
       return;
     }
 
     showToast("App saved");
-
     PLANS = [];
     plansBox.innerHTML = "";
     document.getElementById("name").value = "";
     document.getElementById("desc").value = "";
     document.getElementById("icon").value = "";
 
-    await loadApps(); // 🔴 forced reload
+    reset();
+  }
+
+  function reset() {
+    SAVING = false;
+    saveAppBtn.disabled = false;
   }
 
   async function loadApps() {
     const res = await fetch(`${API}/api/apps?ts=${Date.now()}`);
     const apps = await res.json();
-
     appsBox.innerHTML = "";
-    apps.forEach(app => {
-      const div = document.createElement("div");
-      div.innerHTML = `<b>${app.name}</b> (${app.platform})`;
-      appsBox.appendChild(div);
+    apps.forEach(a => {
+      const d = document.createElement("div");
+      d.textContent = `${a.name} (${a.platform})`;
+      appsBox.appendChild(d);
     });
   }
 
-  addPlanBtn.addEventListener("click", addPlan);
-  saveAppBtn.addEventListener("click", saveApp);
+  // 🔥 REALTIME TRIGGER
+  supabase
+    .channel("admin-realtime")
+    .on("postgres_changes", { event: "*", schema: "public", table: "apps" }, loadApps)
+    .on("postgres_changes", { event: "*", schema: "public", table: "plans" }, loadApps)
+    .subscribe();
+
+  addPlanBtn.onclick = addPlan;
+  saveAppBtn.onclick = saveApp;
 
   loadApps();
 });
