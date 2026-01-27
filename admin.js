@@ -130,3 +130,4 @@ deleteAppBtn.onclick = async () => {
 
 /* INIT */
 loadApps();
+
