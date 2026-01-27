@@ -9,7 +9,6 @@ body {
   color: #fff;
 }
 
-/* HEADER */
 .header {
   padding: 16px;
   text-align: center;
@@ -20,46 +19,26 @@ body {
   margin: 0;
 }
 
-.header p {
-  margin: 4px 0 0;
+.header span {
+  font-size: 14px;
   opacity: 0.7;
 }
 
-/* NAV */
-.nav {
-  display: flex;
-  justify-content: space-around;
-  padding: 10px;
-  background: #151515;
-  position: sticky;
-  top: 0;
-  z-index: 10;
+main {
+  padding: 16px;
+  padding-bottom: 90px; /* space for bottom nav */
 }
 
-.nav button {
-  flex: 1;
-  margin: 0 4px;
-  background: #1a1a1a;
-  color: #fff;
-  border: none;
-  padding: 10px;
-  border-radius: 8px;
-  cursor: pointer;
-}
-
-.nav button.active {
-  background: #d4af37;
-  color: #000;
-}
-
-/* PAGES */
 .page {
   display: none;
-  padding: 16px;
 }
 
 .page.active {
   display: block;
+}
+
+h2 {
+  margin-top: 0;
 }
 
 /* DASHBOARD */
@@ -72,16 +51,21 @@ body {
 .stat {
   background: #151515;
   padding: 16px;
-  border-radius: 14px;
+  border-radius: 12px;
   text-align: center;
-  font-size: 14px;
 }
 
-/* FILTER */
-.filter-bar {
-  margin-bottom: 12px;
+.stat b {
+  font-size: 22px;
+  display: block;
 }
 
+.stat span {
+  font-size: 12px;
+  opacity: 0.7;
+}
+
+/* APPS */
 select, input, textarea {
   width: 100%;
   padding: 10px;
@@ -92,30 +76,21 @@ select, input, textarea {
   border-radius: 6px;
 }
 
-/* APPS GRID */
-.apps-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
-  gap: 12px;
+.apps-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
 }
 
 .app-card {
   background: #151515;
   padding: 14px;
-  border-radius: 14px;
-}
-
-.app-card b {
-  display: block;
-}
-
-.app-card small {
-  opacity: 0.7;
+  border-radius: 12px;
 }
 
 .app-card button {
-  width: 100%;
   margin-top: 8px;
+  width: 100%;
 }
 
 /* PLANS */
@@ -126,11 +101,10 @@ select, input, textarea {
 }
 
 .plan button {
-  background: #400;
-  color: #fff;
+  background: #500;
   border: none;
+  color: #fff;
   border-radius: 6px;
-  padding: 6px;
 }
 
 /* BUTTONS */
@@ -144,15 +118,6 @@ select, input, textarea {
   width: 100%;
 }
 
-.secondary {
-  background: #2563eb;
-  color: #fff;
-  padding: 10px;
-  border: none;
-  border-radius: 8px;
-  width: 100%;
-}
-
 .danger {
   background: #dc2626;
   color: #fff;
@@ -161,4 +126,32 @@ select, input, textarea {
   border-radius: 8px;
   width: 100%;
   margin-top: 8px;
+}
+
+.hidden {
+  display: none;
+}
+
+/* BOTTOM NAV */
+.bottom-nav {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: #151515;
+  display: flex;
+  border-top: 1px solid #222;
+}
+
+.bottom-nav button {
+  flex: 1;
+  padding: 14px;
+  border: none;
+  background: none;
+  color: #fff;
+}
+
+.bottom-nav button.active {
+  background: #d4af37;
+  color: #000;
 }
