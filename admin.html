@@ -1,36 +1,22 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-  <meta charset="UTF-8">
   <title>Admin Panel</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="admin.css">
 </head>
 <body>
 
 <header>
-  <h1>Malayali Here – Admin</h1>
+  <h1>Admin Panel</h1>
 </header>
 
 <nav>
-  <button id="btnDashboard">Dashboard</button>
-  <button id="btnApps">Apps</button>
-  <button id="btnAdd">Add App</button>
+  <button onclick="showPage('apps')">Apps</button>
+  <button onclick="showPage('add')">Add App</button>
 </nav>
 
-<main>
-
-<!-- DASHBOARD -->
-<section id="dashboard" class="page show">
-  <div class="stats">
-    <div>Total Apps: <b id="statTotal">0</b></div>
-    <div>Android: <b id="statAndroid">0</b></div>
-    <div>iOS: <b id="statIos">0</b></div>
-  </div>
-</section>
-
-<!-- APPS -->
 <section id="apps" class="page">
   <select id="filter">
     <option value="all">All</option>
@@ -38,10 +24,9 @@
     <option value="ios">iOS</option>
   </select>
 
-  <div id="appsList" class="apps"></div>
+  <div id="appsList" class="grid"></div>
 </section>
 
-<!-- ADD APP -->
 <section id="add" class="page">
   <input id="appName" placeholder="App Name">
   <select id="platform">
@@ -54,12 +39,10 @@
 
   <h3>Plans</h3>
   <div id="plans"></div>
-  <button id="addPlan">+ Add Plan</button>
+  <button onclick="addPlan()">+ Add Plan</button>
 
   <button id="saveApp">Save App</button>
 </section>
-
-</main>
 
 <script type="module" src="admin.js"></script>
 </body>
