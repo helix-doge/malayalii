@@ -20,7 +20,6 @@
 <!-- DASHBOARD -->
 <section id="page-dashboard" class="page active">
   <h2>Dashboard</h2>
-
   <div class="stats">
     <div class="stat"><b id="statTotal">0</b><span>Apps</span></div>
     <div class="stat"><b id="statAndroid">0</b><span>Android</span></div>
@@ -32,17 +31,10 @@
 <!-- APPS -->
 <section id="page-apps" class="page">
   <h2>Apps</h2>
-
-  <select id="filter">
-    <option value="all">All</option>
-    <option value="android">Android</option>
-    <option value="ios">iOS</option>
-  </select>
-
   <div id="appsList" class="apps-list"></div>
 </section>
 
-<!-- ADD / EDIT -->
+<!-- ADD / EDIT APP -->
 <section id="page-add" class="page">
   <h2 id="formTitle">Add App</h2>
 
@@ -51,7 +43,6 @@
     <option value="android">Android</option>
     <option value="ios">iOS</option>
   </select>
-
   <textarea id="description" placeholder="Description"></textarea>
 
   <input type="file" id="iconFile" accept="image/*">
@@ -64,7 +55,8 @@
   <button id="deleteBtn" class="danger hidden">Delete App</button>
 </section>
 
-  <section id="page-keys" class="page">
+<!-- KEYS -->
+<section id="page-keys" class="page">
   <h2>Manage Keys</h2>
 
   <select id="keyApp"></select>
@@ -74,8 +66,7 @@
 
   <button id="saveKeysBtn" class="primary">Save Keys</button>
 
-  <h3>Key Stats</h3>
-  <div class="stats">
+  <div class="stats small">
     <div class="stat"><b id="totalKeys">0</b><span>Total</span></div>
     <div class="stat"><b id="usedKeys">0</b><span>Used</span></div>
     <div class="stat"><b id="freeKeys">0</b><span>Available</span></div>
@@ -85,17 +76,18 @@
   <div id="ordersList"></div>
 </section>
 
-
 </main>
 
-<!-- BOTTOM NAV (MOBILE FRIENDLY) -->
+<!-- BOTTOM NAV -->
 <nav class="bottom-nav">
   <button id="navDashboard" class="active">Dashboard</button>
   <button id="navApps">Apps</button>
   <button id="navAdd">Add App</button>
   <button id="navKeys">Keys</button>
-
 </nav>
+
+<!-- TOAST -->
+<div id="toast"></div>
 
 <script type="module" src="admin.js"></script>
 </body>
