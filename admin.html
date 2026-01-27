@@ -64,6 +64,28 @@
   <button id="deleteBtn" class="danger hidden">Delete App</button>
 </section>
 
+  <section id="page-keys" class="page">
+  <h2>Manage Keys</h2>
+
+  <select id="keyApp"></select>
+  <select id="keyPlan"></select>
+
+  <textarea id="keyBulk" placeholder="Paste keys here (one per line)"></textarea>
+
+  <button id="saveKeysBtn" class="primary">Save Keys</button>
+
+  <h3>Key Stats</h3>
+  <div class="stats">
+    <div class="stat"><b id="totalKeys">0</b><span>Total</span></div>
+    <div class="stat"><b id="usedKeys">0</b><span>Used</span></div>
+    <div class="stat"><b id="freeKeys">0</b><span>Available</span></div>
+  </div>
+
+  <h3>Orders</h3>
+  <div id="ordersList"></div>
+</section>
+
+
 </main>
 
 <!-- BOTTOM NAV (MOBILE FRIENDLY) -->
@@ -71,6 +93,8 @@
   <button id="navDashboard" class="active">Dashboard</button>
   <button id="navApps">Apps</button>
   <button id="navAdd">Add App</button>
+  <button id="navKeys">Keys</button>
+
 </nav>
 
 <script type="module" src="admin.js"></script>
