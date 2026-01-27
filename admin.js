@@ -8,58 +8,76 @@ const supabase = createClient(
 let APPS = [];
 let EDIT_ID = null;
 
-/* ---------- NAV ---------- */
-document.querySelectorAll("nav button").forEach(btn => {
-  btn.onclick = () => showPage(btn.dataset.page);
-});
+/* ---------- PAGE SWITCH ---------- */
+const pages = {
+  dashboard: document.getElementById("page-dashboard"),
+  apps: document.getElementById("page-apps"),
+  add: document.getElementById("page-add"),
+  keys: document.getElementById("page-keys")
+};
 
-function showPage(id) {
-  document.querySelectorAll(".page").forEach(p => p.classList.remove("active"));
-  document.getElementById(id).classList.add("active");
-}
+document.querySelectorAll(".bottom-nav button").forEach(btn => {
+  btn.onclick = () => {
+    document.querySelectorAll(".bottom-nav button").forEach(b => b.classList.remove("active"));
+    btn.classList.add("active");
+
+    Object.values(pages).forEach(p => p.classList.remove("active"));
+    pages[btn.dataset.page].classList.add("active");
+
+    if (btn.dataset.page === "keys") {
+      loadKeyDropdowns();
+      loadKeyStats();
+    }
+  };
+});
 
 /* ---------- LOAD APPS ---------- */
 async function loadApps() {
   const { data } = await supabase.from("apps").select("*, plans(*)");
   APPS = data || [];
   renderApps();
-  statApps.textContent = APPS.length;
-  statPlans.textContent = APPS.reduce((s,a)=>s+a.plans.length,0);
+  updateStats();
 }
 
+/* ---------- DASHBOARD ---------- */
+function updateStats() {
+  statApps.textContent = APPS.length;
+  statPlans.textContent = APPS.reduce((s, a) => s + a.plans.length, 0);
+}
+
+/* ---------- APPS LIST ---------- */
 function renderApps() {
   appsList.innerHTML = "";
-  const filter = appFilter.value;
+  const f = appFilter.value;
 
   APPS
-    .filter(a => filter === "all" || a.platform === filter)
+    .filter(a => f === "all" || a.platform === f)
     .forEach(app => {
       const d = document.createElement("div");
+      d.className = "card";
       d.innerHTML = `
         <b>${app.name}</b><br>
-        ${app.platform}<br>
+        <small>${app.platform}</small>
         <button>Edit</button>
       `;
-      d.querySelector("button").onclick = () => editApp(app);
+      d.querySelector("button").onclick = () => openEdit(app);
       appsList.appendChild(d);
     });
 }
 
 appFilter.onchange = renderApps;
 
-/* ---------- ADD APP ---------- */
-goAddApp.onclick = () => {
+/* ---------- ADD / EDIT APP ---------- */
+function openAdd() {
   EDIT_ID = null;
   formTitle.textContent = "Add App";
   deleteAppBtn.classList.add("hidden");
   appName.value = "";
   description.value = "";
   plans.innerHTML = "";
-  showPage("appFormPage");
-};
+}
 
-/* ---------- EDIT APP ---------- */
-function editApp(app) {
+function openEdit(app) {
   EDIT_ID = app.id;
   formTitle.textContent = "Edit App";
   deleteAppBtn.classList.remove("hidden");
@@ -70,10 +88,10 @@ function editApp(app) {
 
   plans.innerHTML = "";
   app.plans.forEach(p => addPlanRow(p.label, p.price));
-  showPage("appFormPage");
+
+  document.querySelector('[data-page="add"]').click();
 }
 
-/* ---------- PLANS (FIXED) ---------- */
 addPlanBtn.onclick = () => addPlanRow();
 
 function addPlanRow(label = "", price = "") {
@@ -82,13 +100,12 @@ function addPlanRow(label = "", price = "") {
   row.innerHTML = `
     <input placeholder="Plan name" value="${label}">
     <input type="number" placeholder="Price" value="${price}">
-    <button>✕</button>
+    <button type="button">✕</button>
   `;
   row.querySelector("button").onclick = () => row.remove();
   plans.appendChild(row);
 }
 
-/* ---------- SAVE APP ---------- */
 saveAppBtn.onclick = async () => {
   if (!appName.value) return;
 
@@ -117,17 +134,63 @@ saveAppBtn.onclick = async () => {
     }
   }
 
-  showPage("appsPage");
   loadApps();
+  document.querySelector('[data-page="apps"]').click();
 };
 
-/* ---------- DELETE ---------- */
 deleteAppBtn.onclick = async () => {
   await supabase.from("apps").delete().eq("id", EDIT_ID);
-  showPage("appsPage");
   loadApps();
+  document.querySelector('[data-page="apps"]').click();
 };
 
-/* INIT */
-loadApps();
+/* ---------- KEYS ---------- */
+function loadKeyDropdowns() {
+  keyApp.innerHTML = "";
+  APPS.forEach(a => {
+    const o = document.createElement("option");
+    o.value = a.id;
+    o.textContent = a.name;
+    keyApp.appendChild(o);
+  });
+  loadKeyPlans();
+}
 
+function loadKeyPlans() {
+  keyPlan.innerHTML = "";
+  const app = APPS.find(a => a.id === keyApp.value);
+  if (!app) return;
+  app.plans.forEach(p => {
+    const o = document.createElement("option");
+    o.value = p.id;
+    o.textContent = p.label;
+    keyPlan.appendChild(o);
+  });
+}
+
+keyApp.onchange = loadKeyPlans;
+
+saveKeysBtn.onclick = async () => {
+  const keys = keyBulk.value.split("\n").map(k => k.trim()).filter(Boolean);
+  for (const k of keys) {
+    await supabase.from("keys").insert({
+      app_id: keyApp.value,
+      plan_id: keyPlan.value,
+      key_value: k
+    });
+  }
+  keyBulk.value = "";
+  loadKeyStats();
+};
+
+async function loadKeyStats() {
+  const { data } = await supabase.from("keys").select("*");
+  statKeys.textContent = data.length;
+  totalKeys.textContent = data.length;
+  usedKeys.textContent = data.filter(k => k.is_used).length;
+  freeKeys.textContent = data.filter(k => !k.is_used).length;
+}
+
+/* INIT */
+openAdd();
+loadApps();
