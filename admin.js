@@ -5,50 +5,60 @@ const supabase = createClient(
   "sb_publishable_Rr3_s1fI61dQp14A-Hk92A_j_ZCAnuW"
 );
 
-const pages = document.querySelectorAll(".page");
-function showPage(id) {
-  pages.forEach(p => p.classList.remove("active"));
-  document.getElementById(id).classList.add("active");
-}
-showPage("apps");
+/* ---------- PAGE SWITCH ---------- */
+const appsPage = document.getElementById("appsPage");
+const addPage = document.getElementById("addPage");
+
+btnApps.onclick = () => {
+  appsPage.classList.add("active");
+  addPage.classList.remove("active");
+};
+
+btnAdd.onclick = () => {
+  addPage.classList.add("active");
+  appsPage.classList.remove("active");
+};
 
 /* ---------- PLANS ---------- */
-window.addPlan = () => {
-  const div = document.createElement("div");
-  div.className = "plan";
-  div.innerHTML = `
-    <input placeholder="Label">
+addPlanBtn.onclick = () => {
+  const row = document.createElement("div");
+  row.className = "plan";
+  row.innerHTML = `
+    <input placeholder="Label (1 DAY)">
     <input type="number" placeholder="Price">
-    <button onclick="this.parentElement.remove()">X</button>
+    <button type="button">✕</button>
   `;
-  plans.appendChild(div);
+  row.querySelector("button").onclick = () => row.remove();
+  plans.appendChild(row);
 };
 
 /* ---------- SAVE APP ---------- */
-saveApp.onclick = async () => {
+saveAppBtn.onclick = async () => {
   try {
-    if (!appName.value) return alert("Name required");
+    if (!appName.value.trim()) return alert("App name required");
     if (!iconFile.files[0]) return alert("Icon required");
 
+    // upload icon
     const file = iconFile.files[0];
     const path = `${Date.now()}-${file.name}`;
 
-    const upload = await supabase
-      .storage.from("app-icons")
+    const up = await supabase.storage
+      .from("app-icons")
       .upload(path, file, { upsert: true });
 
-    if (upload.error) throw upload.error;
+    if (up.error) throw up.error;
 
-    const { data: url } = supabase
-      .storage.from("app-icons")
+    const { data: url } = supabase.storage
+      .from("app-icons")
       .getPublicUrl(path);
 
+    // insert app
     const { data: app, error } = await supabase
       .from("apps")
       .insert({
-        name: appName.value,
+        name: appName.value.trim(),
         platform: platform.value,
-        description: description.value,
+        description: description.value.trim(),
         icon_url: url.publicUrl
       })
       .select()
@@ -56,6 +66,7 @@ saveApp.onclick = async () => {
 
     if (error) throw error;
 
+    // insert plans
     for (const row of plans.children) {
       const label = row.children[0].value;
       const price = row.children[1].value;
@@ -64,17 +75,19 @@ saveApp.onclick = async () => {
       await supabase.from("plans").insert({
         app_id: app.id,
         label,
-        price
+        price: Number(price)
       });
     }
 
     alert("App saved");
     plans.innerHTML = "";
+    appName.value = "";
+    description.value = "";
     loadApps();
-    showPage("apps");
+    btnApps.click();
 
-  } catch (e) {
-    console.error(e);
+  } catch (err) {
+    console.error(err);
     alert("FAILED – open console");
   }
 };
@@ -85,13 +98,14 @@ let allApps = [];
 async function loadApps() {
   const { data } = await supabase
     .from("apps")
-    .select("*, plans(*)");
+    .select("*, plans(*)")
+    .order("created_at", { ascending: false });
 
   allApps = data || [];
-  render();
+  renderApps();
 }
 
-function render() {
+function renderApps() {
   appsList.innerHTML = "";
   const f = filter.value;
 
@@ -109,6 +123,6 @@ function render() {
     });
 }
 
-filter.onchange = render;
+filter.onchange = renderApps;
 
 loadApps();
