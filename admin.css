@@ -1,9 +1,17 @@
-* { box-sizing: border-box; font-family: Poppins; }
-body { margin:0; background:#0b0b0b; color:#fff; }
+* {
+  font-family: Poppins;
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  background: #0b0b0b;
+  color: #fff;
+}
 
 header {
   padding: 16px;
-  border-bottom: 1px solid #222;
+  background: #111;
 }
 
 nav {
@@ -13,65 +21,66 @@ nav {
 }
 
 nav button {
-  background:#1a1a1a;
-  color:#fff;
-  border:none;
-  padding:10px 16px;
-  border-radius:8px;
-  cursor:pointer;
+  background: #1a1a1a;
+  border: none;
+  color: white;
+  padding: 10px 16px;
+  border-radius: 8px;
+  cursor: pointer;
 }
 
-.page { display:none; padding:20px; }
-.page.show { display:block; }
-
-.stats {
-  display:flex;
-  gap:20px;
+.page {
+  display: none;
+  padding: 20px;
 }
 
-.apps {
-  display:grid;
-  grid-template-columns:repeat(auto-fill,minmax(200px,1fr));
-  gap:16px;
-  margin-top:16px;
-}
-
-.app {
-  background:#151515;
-  padding:14px;
-  border-radius:10px;
+.page.active {
+  display: block;
 }
 
 input, textarea, select {
-  width:100%;
-  padding:10px;
-  margin-bottom:10px;
-  background:#1a1a1a;
-  border:none;
-  color:#fff;
-  border-radius:6px;
+  width: 100%;
+  padding: 10px;
+  margin-bottom: 10px;
+  background: #1a1a1a;
+  border: none;
+  color: white;
+  border-radius: 6px;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px,1fr));
+  gap: 14px;
+}
+
+.card {
+  background: #151515;
+  padding: 14px;
+  border-radius: 10px;
 }
 
 .plan {
-  display:flex;
-  gap:8px;
-  margin-bottom:8px;
+  display: flex;
+  gap: 8px;
+  margin-bottom: 8px;
 }
 
 .plan button {
-  background:#400;
-  border:none;
-  color:#fff;
-  padding:6px 10px;
-  cursor:pointer;
+  background: red;
+  border: none;
+  color: white;
+  padding: 6px;
+  cursor: pointer;
 }
 
 #saveApp {
-  background:#d4af37;
-  color:#000;
-  font-weight:600;
-  padding:12px;
-  border:none;
-  border-radius:8px;
-  cursor:pointer;
+  margin-top: 10px;
+  padding: 12px;
+  background: gold;
+  color: black;
+  font-weight: bold;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
 }
