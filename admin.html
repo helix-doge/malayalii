@@ -1,6 +1,7 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
+  <meta charset="UTF-8">
   <title>Admin Panel</title>
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
@@ -8,20 +9,19 @@
 </head>
 <body>
 
-<header class="top">
+<header class="topbar">
   <h1>Malayali Here – Admin</h1>
 </header>
 
-<nav class="nav">
-  <button id="btnDashboard">Dashboard</button>
-  <button id="btnApps">Apps</button>
-  <button id="btnAdd">Add App</button>
+<nav class="sidebar">
+  <button id="navDashboard" class="active">Dashboard</button>
+  <button id="navApps">Apps</button>
 </nav>
 
 <main>
 
 <!-- DASHBOARD -->
-<section id="dashboardPage" class="page active">
+<section id="dashboard" class="page active">
   <div class="stats">
     <div class="stat">Total Apps<br><b id="statTotal">0</b></div>
     <div class="stat">Android Apps<br><b id="statAndroid">0</b></div>
@@ -30,28 +30,16 @@
   </div>
 </section>
 
-<!-- APPS -->
-<section id="appsPage" class="page">
-  <div class="toolbar">
-    <select id="filter">
-      <option value="all">All</option>
-      <option value="android">Android</option>
-      <option value="ios">iOS</option>
-    </select>
-  </div>
-
-  <div id="appsList" class="grid"></div>
+<!-- APPS LIST -->
+<section id="apps" class="page">
+  <div id="appsList" class="apps-grid"></div>
 </section>
 
-<!-- ADD / EDIT -->
-<section id="addPage" class="page">
-  <h2 id="formTitle">Add App</h2>
+<!-- EDIT APP -->
+<section id="edit" class="page">
+  <h2>Edit App</h2>
 
-  <input id="appName" placeholder="App name">
-  <select id="platform">
-    <option value="android">Android</option>
-    <option value="ios">iOS</option>
-  </select>
+  <input id="appName" placeholder="App Name">
   <textarea id="description" placeholder="Description"></textarea>
 
   <input type="file" id="iconFile">
@@ -60,7 +48,8 @@
   <div id="plans"></div>
   <button id="addPlanBtn">+ Add Plan</button>
 
-  <button id="saveAppBtn">Save</button>
+  <button id="saveBtn">Save Changes</button>
+  <button id="deleteBtn" class="danger">Delete App</button>
 </section>
 
 </main>
