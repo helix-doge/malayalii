@@ -1,67 +1,45 @@
 * { box-sizing: border-box; font-family: Poppins; }
-body { margin: 0; background: #0b0b0b; color: #fff; }
+body { margin:0; background:#0b0b0b; color:#fff; }
 
-.topbar { padding: 16px; border-bottom: 1px solid #222; }
+header {
+  padding: 16px;
+  border-bottom: 1px solid #222;
+}
 
-.tabs {
+nav {
   display: flex;
   gap: 10px;
   padding: 10px;
 }
 
-.tab {
+nav button {
   background:#1a1a1a;
   color:#fff;
   border:none;
   padding:10px 16px;
-  border-radius:10px;
+  border-radius:8px;
   cursor:pointer;
-}
-
-.tab.active {
-  background:#d4af37;
-  color:#000;
 }
 
 .page { display:none; padding:20px; }
 .page.show { display:block; }
 
 .stats {
-  display:grid;
-  grid-template-columns:repeat(auto-fit,minmax(140px,1fr));
-  gap:16px;
-}
-
-.stat {
-  background:#151515;
-  padding:20px;
-  border-radius:14px;
-  text-align:center;
-}
-
-.apps-header {
   display:flex;
-  justify-content:space-between;
-  align-items:center;
+  gap:20px;
 }
 
-.apps-grid {
+.apps {
   display:grid;
   grid-template-columns:repeat(auto-fill,minmax(200px,1fr));
   gap:16px;
   margin-top:16px;
 }
 
-.app-card {
+.app {
   background:#151515;
   padding:14px;
-  border-radius:12px;
-}
-
-.app-card img {
-  width:50px;
-  height:50px;
-  object-fit:contain;
+  border-radius:10px;
 }
 
 input, textarea, select {
@@ -69,38 +47,31 @@ input, textarea, select {
   padding:10px;
   margin-bottom:10px;
   background:#1a1a1a;
-  color:#fff;
   border:none;
-  border-radius:8px;
+  color:#fff;
+  border-radius:6px;
 }
 
-.file { display:block; margin-bottom:10px; }
-
-.plan-row {
+.plan {
   display:flex;
   gap:8px;
   margin-bottom:8px;
 }
 
-.plan-row input {
-  flex:1;
-}
-
-.plan-row button {
+.plan button {
   background:#400;
-  color:#fff;
   border:none;
-  border-radius:6px;
+  color:#fff;
   padding:6px 10px;
   cursor:pointer;
 }
 
-.primary {
-  background:linear-gradient(135deg,#d4af37,#facc15);
+#saveApp {
+  background:#d4af37;
   color:#000;
-  font-weight:700;
-  border:none;
+  font-weight:600;
   padding:12px;
-  border-radius:10px;
+  border:none;
+  border-radius:8px;
   cursor:pointer;
 }
