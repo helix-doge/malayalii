@@ -1,6 +1,6 @@
 * {
-  font-family: Poppins;
   box-sizing: border-box;
+  font-family: Poppins;
 }
 
 body {
@@ -9,21 +9,21 @@ body {
   color: #fff;
 }
 
-header {
+.top {
   padding: 16px;
   background: #111;
 }
 
-nav {
+.nav {
   display: flex;
   gap: 10px;
   padding: 10px;
 }
 
-nav button {
+.nav button {
   background: #1a1a1a;
+  color: #fff;
   border: none;
-  color: white;
   padding: 10px 16px;
   border-radius: 8px;
   cursor: pointer;
@@ -38,19 +38,23 @@ nav button {
   display: block;
 }
 
+.toolbar {
+  margin-bottom: 12px;
+}
+
 input, textarea, select {
   width: 100%;
   padding: 10px;
   margin-bottom: 10px;
   background: #1a1a1a;
+  color: #fff;
   border: none;
-  color: white;
   border-radius: 6px;
 }
 
 .grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(200px,1fr));
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
   gap: 14px;
 }
 
@@ -67,19 +71,18 @@ input, textarea, select {
 }
 
 .plan button {
-  background: red;
+  background: #500;
+  color: #fff;
   border: none;
-  color: white;
-  padding: 6px;
+  padding: 6px 10px;
   cursor: pointer;
 }
 
-#saveApp {
-  margin-top: 10px;
+#saveAppBtn {
+  background: #d4af37;
+  color: #000;
+  font-weight: 600;
   padding: 12px;
-  background: gold;
-  color: black;
-  font-weight: bold;
   border: none;
   border-radius: 8px;
   cursor: pointer;
