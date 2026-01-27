@@ -155,3 +155,17 @@ select, input, textarea {
   background: #d4af37;
   color: #000;
 }
+
+#ordersList {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.order {
+  background: #151515;
+  padding: 12px;
+  border-radius: 10px;
+  font-size: 14px;
+}
+
