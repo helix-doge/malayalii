@@ -2,54 +2,69 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Admin Panel</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Malayali Here – Admin</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="admin.css">
 </head>
 <body>
 
-<header class="topbar">
-  <h1>Malayali Here – Admin</h1>
+<header class="header">
+  <h1>Malayali Here</h1>
+  <p>Admin Panel</p>
 </header>
 
-<nav class="sidebar">
-  <button id="navDashboard" class="active">Dashboard</button>
-  <button id="navApps">Apps</button>
+<nav class="nav">
+  <button id="btnDashboard" class="active">Dashboard</button>
+  <button id="btnApps">Apps</button>
+  <button id="btnAdd">Add App</button>
 </nav>
 
 <main>
 
 <!-- DASHBOARD -->
-<section id="dashboard" class="page active">
+<section id="dashboardPage" class="page active">
   <div class="stats">
     <div class="stat">Total Apps<br><b id="statTotal">0</b></div>
-    <div class="stat">Android Apps<br><b id="statAndroid">0</b></div>
-    <div class="stat">iOS Apps<br><b id="statIos">0</b></div>
-    <div class="stat">Total Plans<br><b id="statPlans">0</b></div>
+    <div class="stat">Android<br><b id="statAndroid">0</b></div>
+    <div class="stat">iOS<br><b id="statIos">0</b></div>
+    <div class="stat">Plans<br><b id="statPlans">0</b></div>
   </div>
 </section>
 
-<!-- APPS LIST -->
-<section id="apps" class="page">
+<!-- APPS -->
+<section id="appsPage" class="page">
+  <div class="filter-bar">
+    <select id="filter">
+      <option value="all">All</option>
+      <option value="android">Android</option>
+      <option value="ios">iOS</option>
+    </select>
+  </div>
+
   <div id="appsList" class="apps-grid"></div>
 </section>
 
-<!-- EDIT APP -->
-<section id="edit" class="page">
-  <h2>Edit App</h2>
+<!-- ADD / EDIT -->
+<section id="addPage" class="page">
+  <h2 id="formTitle">Add App</h2>
 
-  <input id="appName" placeholder="App Name">
+  <input id="appName" placeholder="App name">
+  <select id="platform">
+    <option value="android">Android</option>
+    <option value="ios">iOS</option>
+  </select>
   <textarea id="description" placeholder="Description"></textarea>
 
-  <input type="file" id="iconFile">
+  <input type="file" id="iconFile" accept="image/*">
 
   <h3>Plans</h3>
   <div id="plans"></div>
-  <button id="addPlanBtn">+ Add Plan</button>
+  <button id="addPlanBtn" class="secondary">+ Add Plan</button>
 
-  <button id="saveBtn">Save Changes</button>
-  <button id="deleteBtn" class="danger">Delete App</button>
+  <button id="saveAppBtn" class="primary">Save</button>
+  <button id="deleteBtn" class="danger" style="display:none">Delete App</button>
 </section>
 
 </main>
