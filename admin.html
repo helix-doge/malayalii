@@ -12,42 +12,38 @@
 
 <header class="header">
   <h1>Malayali Here</h1>
-  <p>Admin Panel</p>
+  <span>Admin Panel</span>
 </header>
-
-<nav class="nav">
-  <button id="btnDashboard" class="active">Dashboard</button>
-  <button id="btnApps">Apps</button>
-  <button id="btnAdd">Add App</button>
-</nav>
 
 <main>
 
 <!-- DASHBOARD -->
-<section id="dashboardPage" class="page active">
+<section id="page-dashboard" class="page active">
+  <h2>Dashboard</h2>
+
   <div class="stats">
-    <div class="stat">Total Apps<br><b id="statTotal">0</b></div>
-    <div class="stat">Android<br><b id="statAndroid">0</b></div>
-    <div class="stat">iOS<br><b id="statIos">0</b></div>
-    <div class="stat">Plans<br><b id="statPlans">0</b></div>
+    <div class="stat"><b id="statTotal">0</b><span>Apps</span></div>
+    <div class="stat"><b id="statAndroid">0</b><span>Android</span></div>
+    <div class="stat"><b id="statIos">0</b><span>iOS</span></div>
+    <div class="stat"><b id="statPlans">0</b><span>Plans</span></div>
   </div>
 </section>
 
 <!-- APPS -->
-<section id="appsPage" class="page">
-  <div class="filter-bar">
-    <select id="filter">
-      <option value="all">All</option>
-      <option value="android">Android</option>
-      <option value="ios">iOS</option>
-    </select>
-  </div>
+<section id="page-apps" class="page">
+  <h2>Apps</h2>
 
-  <div id="appsList" class="apps-grid"></div>
+  <select id="filter">
+    <option value="all">All</option>
+    <option value="android">Android</option>
+    <option value="ios">iOS</option>
+  </select>
+
+  <div id="appsList" class="apps-list"></div>
 </section>
 
 <!-- ADD / EDIT -->
-<section id="addPage" class="page">
+<section id="page-add" class="page">
   <h2 id="formTitle">Add App</h2>
 
   <input id="appName" placeholder="App name">
@@ -55,19 +51,27 @@
     <option value="android">Android</option>
     <option value="ios">iOS</option>
   </select>
+
   <textarea id="description" placeholder="Description"></textarea>
 
   <input type="file" id="iconFile" accept="image/*">
 
   <h3>Plans</h3>
   <div id="plans"></div>
-  <button id="addPlanBtn" class="secondary">+ Add Plan</button>
+  <button id="addPlanBtn">+ Add Plan</button>
 
-  <button id="saveAppBtn" class="primary">Save</button>
-  <button id="deleteBtn" class="danger" style="display:none">Delete App</button>
+  <button id="saveBtn" class="primary">Save</button>
+  <button id="deleteBtn" class="danger hidden">Delete App</button>
 </section>
 
 </main>
+
+<!-- BOTTOM NAV (MOBILE FRIENDLY) -->
+<nav class="bottom-nav">
+  <button id="navDashboard" class="active">Dashboard</button>
+  <button id="navApps">Apps</button>
+  <button id="navAdd">Add App</button>
+</nav>
 
 <script type="module" src="admin.js"></script>
 </body>
