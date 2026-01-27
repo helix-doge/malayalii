@@ -1,7 +1,4 @@
-* {
-  box-sizing: border-box;
-  font-family: Poppins;
-}
+* { box-sizing: border-box; font-family: Poppins; }
 
 body {
   margin: 0;
@@ -17,20 +14,15 @@ header {
 
 main {
   padding: 16px;
-  padding-bottom: 80px;
+  padding-bottom: 70px;
 }
 
-.page {
-  display: none;
-}
-
-.page.active {
-  display: block;
-}
+.page { display: none; }
+.page.active { display: block; }
 
 .stats {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: repeat(2, 1fr);
   gap: 12px;
 }
 
@@ -51,9 +43,7 @@ input, select, textarea, button {
   border-radius: 6px;
 }
 
-button {
-  cursor: pointer;
-}
+button { cursor: pointer; }
 
 #appsList div {
   background: #151515;
@@ -62,12 +52,23 @@ button {
   margin-bottom: 10px;
 }
 
-.danger {
+.plan-row {
+  display: flex;
+  gap: 6px;
+}
+
+.plan-row input {
+  flex: 1;
+}
+
+.plan-row button {
   background: #b91c1c;
 }
 
-.hidden {
-  display: none;
+.hidden { display: none; }
+
+.danger {
+  background: #b91c1c;
 }
 
 nav {
