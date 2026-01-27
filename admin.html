@@ -1,22 +1,22 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
+  <meta charset="UTF-8">
   <title>Admin Panel</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="admin.css">
 </head>
 <body>
 
-<header class="topbar">
-  <h1>Malayali Here — Admin</h1>
+<header>
+  <h1>Malayali Here – Admin</h1>
 </header>
 
-<nav class="tabs">
-  <button class="tab active" data-page="dashboard">Dashboard</button>
-  <button class="tab" data-page="apps">Apps</button>
-  <button class="tab" data-page="add">Add App</button>
+<nav>
+  <button id="btnDashboard">Dashboard</button>
+  <button id="btnApps">Apps</button>
+  <button id="btnAdd">Add App</button>
 </nav>
 
 <main>
@@ -24,47 +24,39 @@
 <!-- DASHBOARD -->
 <section id="dashboard" class="page show">
   <div class="stats">
-    <div class="stat"><span>Total Apps</span><b id="statTotal">0</b></div>
-    <div class="stat"><span>Android</span><b id="statAndroid">0</b></div>
-    <div class="stat"><span>iOS</span><b id="statIos">0</b></div>
+    <div>Total Apps: <b id="statTotal">0</b></div>
+    <div>Android: <b id="statAndroid">0</b></div>
+    <div>iOS: <b id="statIos">0</b></div>
   </div>
 </section>
 
 <!-- APPS -->
 <section id="apps" class="page">
-  <div class="apps-header">
-    <h2>Apps</h2>
-    <select id="platformFilter">
-      <option value="all">All</option>
-      <option value="android">Android</option>
-      <option value="ios">iOS</option>
-    </select>
-  </div>
-  <div id="appsList" class="apps-grid"></div>
+  <select id="filter">
+    <option value="all">All</option>
+    <option value="android">Android</option>
+    <option value="ios">iOS</option>
+  </select>
+
+  <div id="appsList" class="apps"></div>
 </section>
 
 <!-- ADD APP -->
 <section id="add" class="page">
-  <h2>Add App</h2>
-
   <input id="appName" placeholder="App Name">
   <select id="platform">
     <option value="android">Android</option>
     <option value="ios">iOS</option>
   </select>
-
   <textarea id="description" placeholder="Description"></textarea>
 
-  <label class="file">
-    Upload Icon
-    <input type="file" id="iconFile" accept="image/*">
-  </label>
+  <input type="file" id="iconFile">
 
   <h3>Plans</h3>
-  <div id="plansContainer"></div>
-  <button id="addPlanBtn" type="button">+ Add Plan</button>
+  <div id="plans"></div>
+  <button id="addPlan">+ Add Plan</button>
 
-  <button id="saveAppBtn" class="primary" type="button">Save App</button>
+  <button id="saveApp">Save App</button>
 </section>
 
 </main>
