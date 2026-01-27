@@ -1,7 +1,4 @@
-* {
-  box-sizing: border-box;
-  font-family: Poppins;
-}
+* { box-sizing: border-box; font-family: Poppins; }
 
 body {
   margin: 0;
@@ -15,38 +12,21 @@ body {
   background: #111;
 }
 
-.header h1 {
-  margin: 0;
-}
-
-.header span {
-  font-size: 14px;
-  opacity: 0.7;
-}
-
 main {
   padding: 16px;
-  padding-bottom: 90px; /* space for bottom nav */
+  padding-bottom: 90px;
 }
 
-.page {
-  display: none;
-}
+.page { display: none; }
+.page.active { display: block; }
 
-.page.active {
-  display: block;
-}
-
-h2 {
-  margin-top: 0;
-}
-
-/* DASHBOARD */
 .stats {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
   gap: 12px;
 }
+
+.stats.small { margin-top: 12px; }
 
 .stat {
   background: #151515;
@@ -65,7 +45,6 @@ h2 {
   opacity: 0.7;
 }
 
-/* APPS */
 select, input, textarea {
   width: 100%;
   padding: 10px;
@@ -75,6 +54,8 @@ select, input, textarea {
   border: none;
   border-radius: 6px;
 }
+
+textarea { min-height: 80px; }
 
 .apps-list {
   display: flex;
@@ -88,12 +69,6 @@ select, input, textarea {
   border-radius: 12px;
 }
 
-.app-card button {
-  margin-top: 8px;
-  width: 100%;
-}
-
-/* PLANS */
 .plan {
   display: flex;
   gap: 8px;
@@ -102,12 +77,11 @@ select, input, textarea {
 
 .plan button {
   background: #500;
-  border: none;
   color: #fff;
+  border: none;
   border-radius: 6px;
 }
 
-/* BUTTONS */
 .primary {
   background: #d4af37;
   color: #000;
@@ -128,9 +102,7 @@ select, input, textarea {
   margin-top: 8px;
 }
 
-.hidden {
-  display: none;
-}
+.hidden { display: none; }
 
 /* BOTTOM NAV */
 .bottom-nav {
@@ -140,7 +112,6 @@ select, input, textarea {
   right: 0;
   background: #151515;
   display: flex;
-  border-top: 1px solid #222;
 }
 
 .bottom-nav button {
@@ -156,16 +127,22 @@ select, input, textarea {
   color: #000;
 }
 
-#ordersList {
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-}
-
-.order {
-  background: #151515;
-  padding: 12px;
+/* TOAST */
+#toast {
+  position: fixed;
+  bottom: 100px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: #222;
+  color: #fff;
+  padding: 12px 18px;
   border-radius: 10px;
-  font-size: 14px;
+  opacity: 0;
+  pointer-events: none;
+  transition: all 0.3s ease;
 }
 
+#toast.show {
+  opacity: 1;
+  transform: translate(-50%, -10px);
+}
