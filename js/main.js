@@ -137,3 +137,68 @@ document.addEventListener("DOMContentLoaded", () => {
   };
 
 });
+
+async function deliverKey(appId, planId) {
+  const orderId = "ORD-" + Date.now();
+
+  // 1. Get one unused key
+  const { data: key, error } = await supabase
+    .from("keys")
+    .select("*")
+    .eq("app_id", appId)
+    .eq("plan_id", planId)
+    .eq("is_used", false)
+    .limit(1)
+    .single();
+
+  if (error || !key) {
+    alert("No keys available for this plan");
+    return;
+  }
+
+  // 2. Mark key as used
+  await supabase
+    .from("keys")
+    .update({
+      is_used: true,
+      used_at: new Date()
+    })
+    .eq("id", key.id);
+
+  // 3. Create order
+  await supabase.from("orders").insert({
+    order_id: orderId,
+    app_id: appId,
+    plan_id: planId,
+    key_id: key.id
+  });
+
+  // 4. Auto copy to clipboard
+  navigator.clipboard.writeText(key.key_value);
+
+  // 5. Show key ONE TIME ONLY
+  document.body.innerHTML = `
+    <div style="padding:20px; font-family:Poppins">
+      <h2>✅ Payment Successful</h2>
+
+      <p><b>Order ID:</b> ${orderId}</p>
+
+      <p><b>Your Key (shown only once):</b></p>
+
+      <div style="background:#111;padding:15px;border-radius:8px">
+        <code>${key.key_value}</code>
+      </div>
+
+      <br>
+
+      <button onclick="navigator.clipboard.writeText('${key.key_value}')"
+        style="padding:10px 16px;background:#d4af37;border:none;border-radius:6px">
+        Copy Key
+      </button>
+
+      <p style="margin-top:10px;color:#aaa">
+        ⚠ Save this key now. It will not be shown again.
+      </p>
+    </div>
+  `;
+}
