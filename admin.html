@@ -4,12 +4,13 @@
   <meta charset="UTF-8">
   <title>Admin Panel</title>
   <meta name="viewport" content="width=device-width, initial-scale=1">
+
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="admin.css">
 </head>
 <body>
 
-<header>
+<header class="top">
   <h1>Malayali Here</h1>
   <p>Admin Panel</p>
 </header>
@@ -17,16 +18,17 @@
 <main>
 
 <!-- DASHBOARD -->
-<section id="dashboard" class="page active">
+<section id="page-dashboard" class="page active">
   <h2>Dashboard</h2>
   <div class="stats">
-    <div><b id="statApps">0</b><span>Apps</span></div>
-    <div><b id="statPlans">0</b><span>Plans</span></div>
+    <div class="stat"><b id="statApps">0</b><span>Apps</span></div>
+    <div class="stat"><b id="statPlans">0</b><span>Plans</span></div>
+    <div class="stat"><b id="statKeys">0</b><span>Keys</span></div>
   </div>
 </section>
 
-<!-- APPS LIST -->
-<section id="appsPage" class="page">
+<!-- APPS -->
+<section id="page-apps" class="page">
   <h2>Apps</h2>
 
   <select id="appFilter">
@@ -35,13 +37,11 @@
     <option value="ios">iOS</option>
   </select>
 
-  <button id="goAddApp">+ Add New App</button>
-
-  <div id="appsList"></div>
+  <div id="appsList" class="list"></div>
 </section>
 
 <!-- ADD / EDIT APP -->
-<section id="appFormPage" class="page">
+<section id="page-add" class="page">
   <h2 id="formTitle">Add App</h2>
 
   <input id="appName" placeholder="App name">
@@ -49,21 +49,44 @@
     <option value="android">Android</option>
     <option value="ios">iOS</option>
   </select>
+
   <textarea id="description" placeholder="Description"></textarea>
 
   <h3>Plans</h3>
   <div id="plans"></div>
-  <button id="addPlanBtn">+ Add Plan</button>
 
-  <button id="saveAppBtn">Save</button>
+  <button id="addPlanBtn" class="outline">+ Add Plan</button>
+
+  <button id="saveAppBtn" class="primary">Save App</button>
   <button id="deleteAppBtn" class="danger hidden">Delete App</button>
+</section>
+
+<!-- KEYS -->
+<section id="page-keys" class="page">
+  <h2>Keys</h2>
+
+  <select id="keyApp"></select>
+  <select id="keyPlan"></select>
+
+  <textarea id="keyBulk" placeholder="Paste keys (one per line)"></textarea>
+
+  <button id="saveKeysBtn" class="primary">Save Keys</button>
+
+  <div class="stats small">
+    <div class="stat"><b id="totalKeys">0</b><span>Total</span></div>
+    <div class="stat"><b id="usedKeys">0</b><span>Used</span></div>
+    <div class="stat"><b id="freeKeys">0</b><span>Free</span></div>
+  </div>
 </section>
 
 </main>
 
-<nav>
-  <button data-page="dashboard">Dashboard</button>
-  <button data-page="appsPage">Apps</button>
+<!-- BOTTOM NAV -->
+<nav class="bottom-nav">
+  <button data-page="dashboard" class="active">Dashboard</button>
+  <button data-page="apps">Apps</button>
+  <button data-page="add">Add App</button>
+  <button data-page="keys">Keys</button>
 </nav>
 
 <script type="module" src="admin.js"></script>
