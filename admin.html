@@ -2,92 +2,77 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Malayali Here – Admin</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin Panel</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
 
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="admin.css">
 </head>
 <body>
 
-<header class="header">
+<header>
   <h1>Malayali Here</h1>
-  <span>Admin Panel</span>
+  <p>Admin Panel</p>
 </header>
 
 <main>
+  <!-- DASHBOARD -->
+  <section id="dashboard" class="page active">
+    <h2>Dashboard</h2>
+    <div class="stats">
+      <div><b id="statApps">0</b><span>Apps</span></div>
+      <div><b id="statPlans">0</b><span>Plans</span></div>
+      <div><b id="statKeys">0</b><span>Keys</span></div>
+    </div>
+  </section>
 
-<!-- DASHBOARD -->
-<section id="page-dashboard" class="page active">
-  <h2>Dashboard</h2>
-  <div class="stats">
-    <div class="stat"><b id="statTotal">0</b><span>Apps</span></div>
-    <div class="stat"><b id="statAndroid">0</b><span>Android</span></div>
-    <div class="stat"><b id="statIos">0</b><span>iOS</span></div>
-    <div class="stat"><b id="statPlans">0</b><span>Plans</span></div>
-  </div>
-</section>
+  <!-- APPS -->
+  <section id="apps" class="page">
+    <h2>Apps</h2>
+    <button id="openAdd">+ Add App</button>
+    <div id="appsList"></div>
+  </section>
 
-<!-- APPS -->
-<section id="page-apps" class="page">
-  <h2>Apps</h2>
-  <div id="appsList" class="apps-list"></div>
-</section>
+  <!-- ADD / EDIT APP -->
+  <section id="appForm" class="page">
+    <h2 id="formTitle">Add App</h2>
 
-<!-- ADD / EDIT APP -->
-<section id="page-add" class="page">
-  <h2 id="formTitle">Add App</h2>
+    <input id="appName" placeholder="App name">
+    <select id="platform">
+      <option value="android">Android</option>
+      <option value="ios">iOS</option>
+    </select>
+    <textarea id="description" placeholder="Description"></textarea>
 
-  <input id="appName" placeholder="App name">
-  <select id="platform">
-    <option value="android">Android</option>
-    <option value="ios">iOS</option>
-  </select>
-  <textarea id="description" placeholder="Description"></textarea>
+    <input type="file" id="iconFile">
 
-  <input type="file" id="iconFile" accept="image/*">
+    <h3>Plans</h3>
+    <div id="plans"></div>
+    <button id="addPlan">+ Add Plan</button>
 
-  <h3>Plans</h3>
-  <div id="plans"></div>
-  <button id="addPlanBtn">+ Add Plan</button>
+    <button id="saveApp">Save App</button>
+    <button id="deleteApp" class="danger hidden">Delete App</button>
+  </section>
 
-  <button id="saveBtn" class="primary">Save</button>
-  <button id="deleteBtn" class="danger hidden">Delete App</button>
-</section>
+  <!-- KEYS -->
+  <section id="keys" class="page">
+    <h2>Keys</h2>
 
-<!-- KEYS -->
-<section id="page-keys" class="page">
-  <h2>Manage Keys</h2>
+    <select id="keyApp"></select>
+    <select id="keyPlan"></select>
 
-  <select id="keyApp"></select>
-  <select id="keyPlan"></select>
+    <textarea id="keyInput" placeholder="One key per line"></textarea>
+    <button id="saveKeys">Save Keys</button>
 
-  <textarea id="keyBulk" placeholder="Paste keys here (one per line)"></textarea>
-
-  <button id="saveKeysBtn" class="primary">Save Keys</button>
-
-  <div class="stats small">
-    <div class="stat"><b id="totalKeys">0</b><span>Total</span></div>
-    <div class="stat"><b id="usedKeys">0</b><span>Used</span></div>
-    <div class="stat"><b id="freeKeys">0</b><span>Available</span></div>
-  </div>
-
-  <h3>Orders</h3>
-  <div id="ordersList"></div>
-</section>
-
+    <p id="keyInfo"></p>
+  </section>
 </main>
 
-<!-- BOTTOM NAV -->
-<nav class="bottom-nav">
-  <button id="navDashboard" class="active">Dashboard</button>
-  <button id="navApps">Apps</button>
-  <button id="navAdd">Add App</button>
-  <button id="navKeys">Keys</button>
+<nav>
+  <button data-page="dashboard">Dashboard</button>
+  <button data-page="apps">Apps</button>
+  <button data-page="keys">Keys</button>
 </nav>
-
-<!-- TOAST -->
-<div id="toast"></div>
 
 <script type="module" src="admin.js"></script>
 </body>
