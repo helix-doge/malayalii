@@ -1,89 +1,95 @@
-* {
-  box-sizing: border-box;
-  font-family: Poppins;
-}
+* { box-sizing: border-box; font-family: Poppins; }
+body { margin:0; background:#0b0b0b; color:#fff; }
 
-body {
-  margin: 0;
-  background: #0b0b0b;
-  color: #fff;
-}
-
-.top {
-  padding: 16px;
-  background: #111;
-}
-
-.nav {
-  display: flex;
-  gap: 10px;
-  padding: 10px;
-}
+.top { padding:16px; background:#111; }
+.nav { display:flex; gap:10px; padding:10px; }
 
 .nav button {
-  background: #1a1a1a;
-  color: #fff;
-  border: none;
-  padding: 10px 16px;
-  border-radius: 8px;
-  cursor: pointer;
+  background:#1a1a1a;
+  color:#fff;
+  border:none;
+  padding:10px 16px;
+  border-radius:8px;
+  cursor:pointer;
 }
 
-.page {
-  display: none;
-  padding: 20px;
+.page { display:none; padding:20px; }
+.page.active { display:block; }
+
+.stats {
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(160px,1fr));
+  gap:16px;
 }
 
-.page.active {
-  display: block;
+.stat {
+  background:#151515;
+  padding:20px;
+  border-radius:14px;
+  text-align:center;
 }
 
-.toolbar {
-  margin-bottom: 12px;
-}
+.toolbar { margin-bottom:12px; }
 
 input, textarea, select {
-  width: 100%;
-  padding: 10px;
-  margin-bottom: 10px;
-  background: #1a1a1a;
-  color: #fff;
-  border: none;
-  border-radius: 6px;
+  width:100%;
+  padding:10px;
+  margin-bottom:10px;
+  background:#1a1a1a;
+  border:none;
+  color:#fff;
+  border-radius:6px;
 }
 
 .grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-  gap: 14px;
+  display:grid;
+  grid-template-columns:repeat(auto-fill,minmax(220px,1fr));
+  gap:14px;
 }
 
 .card {
-  background: #151515;
-  padding: 14px;
-  border-radius: 10px;
+  background:#151515;
+  padding:14px;
+  border-radius:10px;
 }
 
+.card .actions {
+  margin-top:8px;
+  display:flex;
+  gap:6px;
+}
+
+.card button {
+  flex:1;
+  padding:6px;
+  border:none;
+  border-radius:6px;
+  cursor:pointer;
+}
+
+.edit { background:#2563eb; color:#fff; }
+.delete { background:#dc2626; color:#fff; }
+
 .plan {
-  display: flex;
-  gap: 8px;
-  margin-bottom: 8px;
+  display:flex;
+  gap:8px;
+  margin-bottom:8px;
 }
 
 .plan button {
-  background: #500;
-  color: #fff;
-  border: none;
-  padding: 6px 10px;
-  cursor: pointer;
+  background:#500;
+  color:#fff;
+  border:none;
+  padding:6px 10px;
+  cursor:pointer;
 }
 
 #saveAppBtn {
-  background: #d4af37;
-  color: #000;
-  font-weight: 600;
-  padding: 12px;
-  border: none;
-  border-radius: 8px;
-  cursor: pointer;
+  background:#d4af37;
+  color:#000;
+  font-weight:600;
+  padding:12px;
+  border:none;
+  border-radius:8px;
+  cursor:pointer;
 }
