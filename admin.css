@@ -1,95 +1,117 @@
 * { box-sizing: border-box; font-family: Poppins; }
-body { margin:0; background:#0b0b0b; color:#fff; }
 
-.top { padding:16px; background:#111; }
-.nav { display:flex; gap:10px; padding:10px; }
-
-.nav button {
-  background:#1a1a1a;
-  color:#fff;
-  border:none;
-  padding:10px 16px;
-  border-radius:8px;
-  cursor:pointer;
+body {
+  margin: 0;
+  background: #0b0b0b;
+  color: #fff;
+  display: flex;
 }
 
-.page { display:none; padding:20px; }
-.page.active { display:block; }
+.topbar {
+  position: fixed;
+  width: 100%;
+  padding: 16px;
+  background: #111;
+  z-index: 10;
+}
+
+.sidebar {
+  margin-top: 70px;
+  width: 200px;
+  padding: 10px;
+  background: #121212;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.sidebar button {
+  padding: 10px;
+  border: none;
+  background: #1a1a1a;
+  color: #fff;
+  cursor: pointer;
+  border-radius: 8px;
+}
+
+.sidebar button.active {
+  background: #d4af37;
+  color: #000;
+}
+
+main {
+  margin-top: 70px;
+  margin-left: 220px;
+  padding: 20px;
+  flex: 1;
+}
+
+.page { display: none; }
+.page.active { display: block; }
 
 .stats {
-  display:grid;
-  grid-template-columns:repeat(auto-fit,minmax(160px,1fr));
-  gap:16px;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px,1fr));
+  gap: 16px;
 }
 
 .stat {
-  background:#151515;
-  padding:20px;
-  border-radius:14px;
-  text-align:center;
+  background: #151515;
+  padding: 20px;
+  border-radius: 14px;
+  text-align: center;
 }
 
-.toolbar { margin-bottom:12px; }
-
-input, textarea, select {
-  width:100%;
-  padding:10px;
-  margin-bottom:10px;
-  background:#1a1a1a;
-  border:none;
-  color:#fff;
-  border-radius:6px;
+.apps-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(240px,1fr));
+  gap: 16px;
 }
 
-.grid {
-  display:grid;
-  grid-template-columns:repeat(auto-fill,minmax(220px,1fr));
-  gap:14px;
+.app-card {
+  background: #151515;
+  padding: 16px;
+  border-radius: 12px;
 }
 
-.card {
-  background:#151515;
-  padding:14px;
-  border-radius:10px;
+.app-card button {
+  margin-top: 10px;
+  width: 100%;
 }
 
-.card .actions {
-  margin-top:8px;
-  display:flex;
-  gap:6px;
+input, textarea {
+  width: 100%;
+  padding: 10px;
+  margin-bottom: 10px;
+  background: #1a1a1a;
+  color: #fff;
+  border: none;
+  border-radius: 6px;
 }
-
-.card button {
-  flex:1;
-  padding:6px;
-  border:none;
-  border-radius:6px;
-  cursor:pointer;
-}
-
-.edit { background:#2563eb; color:#fff; }
-.delete { background:#dc2626; color:#fff; }
 
 .plan {
-  display:flex;
-  gap:8px;
-  margin-bottom:8px;
+  display: flex;
+  gap: 8px;
+  margin-bottom: 8px;
 }
 
 .plan button {
-  background:#500;
-  color:#fff;
-  border:none;
-  padding:6px 10px;
-  cursor:pointer;
+  background: #500;
+  border: none;
+  color: #fff;
+  cursor: pointer;
 }
 
-#saveAppBtn {
-  background:#d4af37;
-  color:#000;
-  font-weight:600;
-  padding:12px;
-  border:none;
-  border-radius:8px;
-  cursor:pointer;
+#saveBtn {
+  background: #d4af37;
+  color: #000;
+  padding: 12px;
+  border: none;
+  border-radius: 8px;
+  margin-top: 10px;
+}
+
+.danger {
+  background: #dc2626;
+  margin-top: 10px;
 }
