@@ -1,4 +1,7 @@
-* { box-sizing: border-box; font-family: Poppins; }
+* {
+  box-sizing: border-box;
+  font-family: Poppins;
+}
 
 body {
   margin: 0;
@@ -6,19 +9,27 @@ body {
   color: #fff;
 }
 
-header {
+.top {
+  background: #111;
   padding: 16px;
   text-align: center;
-  background: #111;
 }
 
 main {
   padding: 16px;
-  padding-bottom: 70px;
+  padding-bottom: 90px;
 }
 
-.page { display: none; }
-.page.active { display: block; }
+.page {
+  display: none;
+}
+.page.active {
+  display: block;
+}
+
+h2 {
+  margin-top: 0;
+}
 
 .stats {
   display: grid;
@@ -26,35 +37,92 @@ main {
   gap: 12px;
 }
 
-.stats div {
+.stats.small {
+  margin-top: 16px;
+}
+
+.stat {
   background: #151515;
   padding: 14px;
-  border-radius: 10px;
+  border-radius: 12px;
   text-align: center;
 }
 
-input, select, textarea, button {
+.stat b {
+  font-size: 22px;
+  display: block;
+}
+
+.stat span {
+  font-size: 12px;
+  opacity: 0.7;
+}
+
+input, select, textarea {
   width: 100%;
-  margin-bottom: 10px;
   padding: 10px;
+  margin-bottom: 10px;
   background: #1a1a1a;
   color: #fff;
   border: none;
-  border-radius: 6px;
+  border-radius: 8px;
 }
 
-button { cursor: pointer; }
+textarea {
+  min-height: 80px;
+}
 
-#appsList div {
-  background: #151515;
+button {
+  width: 100%;
   padding: 12px;
+  border: none;
   border-radius: 8px;
-  margin-bottom: 10px;
+  cursor: pointer;
+}
+
+.primary {
+  background: #d4af37;
+  color: #000;
+  font-weight: 600;
+}
+
+.outline {
+  background: transparent;
+  border: 1px dashed #555;
+  color: #aaa;
+  margin-bottom: 12px;
+}
+
+.danger {
+  background: #b91c1c;
+  color: #fff;
+  margin-top: 8px;
+}
+
+.hidden {
+  display: none;
+}
+
+.list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.card {
+  background: #151515;
+  padding: 14px;
+  border-radius: 12px;
+}
+
+.card button {
+  margin-top: 8px;
 }
 
 .plan-row {
   display: flex;
-  gap: 6px;
+  gap: 8px;
+  margin-bottom: 8px;
 }
 
 .plan-row input {
@@ -62,25 +130,27 @@ button { cursor: pointer; }
 }
 
 .plan-row button {
-  background: #b91c1c;
+  width: auto;
+  background: #333;
 }
 
-.hidden { display: none; }
-
-.danger {
-  background: #b91c1c;
-}
-
-nav {
+/* Bottom Nav */
+.bottom-nav {
   position: fixed;
   bottom: 0;
   left: 0;
   right: 0;
-  display: flex;
   background: #151515;
+  display: flex;
 }
 
-nav button {
+.bottom-nav button {
   flex: 1;
-  border-radius: 0;
+  background: none;
+  color: #aaa;
+}
+
+.bottom-nav button.active {
+  background: #d4af37;
+  color: #000;
 }
