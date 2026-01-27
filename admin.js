@@ -251,3 +251,95 @@ supabase.channel("admin-realtime")
 /* INIT */
 openAddMode();
 loadApps();
+
+/* ---------------- KEYS PAGE ---------------- */
+const keyPage = document.getElementById("page-keys");
+const keyApp = document.getElementById("keyApp");
+const keyPlan = document.getElementById("keyPlan");
+
+navKeys.onclick = () => showPage("keys");
+
+/* Populate app dropdown */
+function loadKeyApps() {
+  keyApp.innerHTML = "";
+  APPS.forEach(a => {
+    const o = document.createElement("option");
+    o.value = a.id;
+    o.textContent = a.name;
+    keyApp.appendChild(o);
+  });
+  loadKeyPlans();
+}
+
+function loadKeyPlans() {
+  keyPlan.innerHTML = "";
+  const app = APPS.find(a => a.id === keyApp.value);
+  if (!app) return;
+  app.plans.forEach(p => {
+    const o = document.createElement("option");
+    o.value = p.id;
+    o.textContent = `${p.label} – ₹${p.price}`;
+    keyPlan.appendChild(o);
+  });
+}
+
+keyApp.onchange = loadKeyPlans;
+
+/* Save keys */
+saveKeysBtn.onclick = async () => {
+  const keys = keyBulk.value
+    .split("\n")
+    .map(k => k.trim())
+    .filter(Boolean);
+
+  if (!keys.length) return alert("No keys");
+
+  for (const k of keys) {
+    await supabase.from("keys").insert({
+      app_id: keyApp.value,
+      plan_id: keyPlan.value,
+      key_value: k
+    });
+  }
+
+  keyBulk.value = "";
+  loadKeyStats();
+  alert("Keys saved");
+};
+
+/* Stats */
+async function loadKeyStats() {
+  const { data } = await supabase.from("keys").select("*");
+
+  totalKeys.textContent = data.length;
+  usedKeys.textContent = data.filter(k => k.is_used).length;
+  freeKeys.textContent = data.filter(k => !k.is_used).length;
+}
+
+/* Orders list */
+async function loadOrders() {
+  const { data } = await supabase
+    .from("orders")
+    .select("order_id, created_at, apps(name), plans(label)");
+
+  ordersList.innerHTML = "";
+  data.forEach(o => {
+    const div = document.createElement("div");
+    div.className = "order";
+    div.innerHTML = `
+      Order ID: <b>${o.order_id}</b><br>
+      ${o.apps.name} – ${o.plans.label}<br>
+      ${new Date(o.created_at).toLocaleString()}
+    `;
+    ordersList.appendChild(div);
+  });
+}
+
+/* Load when opening */
+navKeys.onclick = async () => {
+  showPage("keys");
+  loadKeyApps();
+  loadKeyStats();
+  loadOrders();
+};
+
