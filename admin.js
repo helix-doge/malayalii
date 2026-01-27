@@ -5,27 +5,27 @@ const supabase = createClient(
   "sb_publishable_Rr3_s1fI61dQp14A-Hk92A_j_ZCAnuW"
 );
 
-let ALL_APPS = [];
+let APPS = [];
 let EDIT_ID = null;
 
-/* ---------- NAV ---------- */
+/* ---------- PAGE SWITCH ---------- */
 const pages = {
-  dashboard: dashboardPage,
-  apps: appsPage,
-  add: addPage
+  dashboard: document.getElementById("page-dashboard"),
+  apps: document.getElementById("page-apps"),
+  add: document.getElementById("page-add")
 };
 
 function show(page) {
   Object.values(pages).forEach(p => p.classList.remove("active"));
   pages[page].classList.add("active");
 
-  document.querySelectorAll(".nav button").forEach(b => b.classList.remove("active"));
-  document.getElementById("btn" + page.charAt(0).toUpperCase() + page.slice(1)).classList.add("active");
+  document.querySelectorAll(".bottom-nav button").forEach(b => b.classList.remove("active"));
+  document.getElementById("nav" + page.charAt(0).toUpperCase() + page.slice(1)).classList.add("active");
 }
 
-btnDashboard.onclick = () => show("dashboard");
-btnApps.onclick = () => show("apps");
-btnAdd.onclick = () => {
+navDashboard.onclick = () => show("dashboard");
+navApps.onclick = () => show("apps");
+navAdd.onclick = () => {
   resetForm();
   show("add");
 };
@@ -33,16 +33,16 @@ btnAdd.onclick = () => {
 /* ---------- LOAD ---------- */
 async function loadApps() {
   const { data } = await supabase.from("apps").select("*, plans(*)");
-  ALL_APPS = data || [];
+  APPS = data || [];
   renderApps();
   updateStats();
 }
 
 function updateStats() {
-  statTotal.textContent = ALL_APPS.length;
-  statAndroid.textContent = ALL_APPS.filter(a=>a.platform==="android").length;
-  statIos.textContent = ALL_APPS.filter(a=>a.platform==="ios").length;
-  statPlans.textContent = ALL_APPS.reduce((s,a)=>s+a.plans.length,0);
+  statTotal.textContent = APPS.length;
+  statAndroid.textContent = APPS.filter(a => a.platform === "android").length;
+  statIos.textContent = APPS.filter(a => a.platform === "ios").length;
+  statPlans.textContent = APPS.reduce((s, a) => s + a.plans.length, 0);
 }
 
 /* ---------- APPS ---------- */
@@ -50,13 +50,13 @@ function renderApps() {
   appsList.innerHTML = "";
   const f = filter.value;
 
-  ALL_APPS
+  APPS
     .filter(a => f === "all" || a.platform === f)
     .forEach(app => {
       const div = document.createElement("div");
       div.className = "app-card";
       div.innerHTML = `
-        <b>${app.name}</b>
+        <b>${app.name}</b><br>
         <small>${app.platform}</small><br>
         Plans: ${app.plans.length}
         <button>Edit</button>
@@ -72,7 +72,7 @@ filter.onchange = renderApps;
 function editApp(app) {
   EDIT_ID = app.id;
   formTitle.textContent = "Edit App";
-  deleteBtn.style.display = "block";
+  deleteBtn.classList.remove("hidden");
 
   appName.value = app.name;
   platform.value = app.platform;
@@ -86,7 +86,7 @@ function editApp(app) {
 
 addPlanBtn.onclick = () => addPlan();
 
-function addPlan(label="", price="") {
+function addPlan(label = "", price = "") {
   const div = document.createElement("div");
   div.className = "plan";
   div.innerHTML = `
@@ -99,7 +99,7 @@ function addPlan(label="", price="") {
 }
 
 /* ---------- SAVE ---------- */
-saveAppBtn.onclick = async () => {
+saveBtn.onclick = async () => {
   if (!appName.value) return alert("Name required");
 
   let iconUrl = null;
@@ -107,7 +107,7 @@ saveAppBtn.onclick = async () => {
   if (iconFile.files[0]) {
     const file = iconFile.files[0];
     const path = `${Date.now()}-${file.name}`;
-    await supabase.storage.from("app-icons").upload(path, file, { upsert:true });
+    await supabase.storage.from("app-icons").upload(path, file, { upsert: true });
     iconUrl = supabase.storage.from("app-icons").getPublicUrl(path).data.publicUrl;
   }
 
@@ -152,15 +152,16 @@ deleteBtn.onclick = async () => {
 function resetForm() {
   EDIT_ID = null;
   formTitle.textContent = "Add App";
-  deleteBtn.style.display = "none";
+  deleteBtn.classList.add("hidden");
   appName.value = "";
   description.value = "";
   plans.innerHTML = "";
 }
 
-supabase.channel("admin-live")
-  .on("postgres_changes", { event:"*", schema:"public", table:"apps" }, loadApps)
-  .on("postgres_changes", { event:"*", schema:"public", table:"plans" }, loadApps)
+/* ---------- REALTIME (SAFE) ---------- */
+supabase.channel("admin-mobile")
+  .on("postgres_changes", { event: "*", schema: "public", table: "apps" }, loadApps)
+  .on("postgres_changes", { event: "*", schema: "public", table: "plans" }, loadApps)
   .subscribe();
 
 loadApps();
