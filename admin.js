@@ -5,52 +5,42 @@ const supabase = createClient(
   "sb_publishable_Rr3_s1fI61dQp14A-Hk92A_j_ZCAnuW"
 );
 
-/* ---------- NAV ---------- */
-const pages = {
-  dashboard: document.getElementById("dashboard"),
-  apps: document.getElementById("apps"),
-  add: document.getElementById("add")
-};
-
-function show(page) {
-  Object.values(pages).forEach(p => p.classList.remove("show"));
-  pages[page].classList.add("show");
+const pages = document.querySelectorAll(".page");
+function showPage(id) {
+  pages.forEach(p => p.classList.remove("active"));
+  document.getElementById(id).classList.add("active");
 }
-
-btnDashboard.onclick = () => show("dashboard");
-btnApps.onclick = () => show("apps");
-btnAdd.onclick = () => show("add");
+showPage("apps");
 
 /* ---------- PLANS ---------- */
-addPlan.onclick = () => {
+window.addPlan = () => {
   const div = document.createElement("div");
   div.className = "plan";
   div.innerHTML = `
     <input placeholder="Label">
     <input type="number" placeholder="Price">
-    <button>✕</button>
+    <button onclick="this.parentElement.remove()">X</button>
   `;
-  div.querySelector("button").onclick = () => div.remove();
   plans.appendChild(div);
 };
 
 /* ---------- SAVE APP ---------- */
 saveApp.onclick = async () => {
   try {
-    if (!appName.value) return alert("App name required");
+    if (!appName.value) return alert("Name required");
     if (!iconFile.files[0]) return alert("Icon required");
 
     const file = iconFile.files[0];
     const path = `${Date.now()}-${file.name}`;
 
-    const upload = await supabase.storage
-      .from("app-icons")
-      .upload(path, file, { upsert:true });
+    const upload = await supabase
+      .storage.from("app-icons")
+      .upload(path, file, { upsert: true });
 
     if (upload.error) throw upload.error;
 
-    const { data: url } = supabase.storage
-      .from("app-icons")
+    const { data: url } = supabase
+      .storage.from("app-icons")
       .getPublicUrl(path);
 
     const { data: app, error } = await supabase
@@ -74,17 +64,18 @@ saveApp.onclick = async () => {
       await supabase.from("plans").insert({
         app_id: app.id,
         label,
-        price: Number(price)
+        price
       });
     }
 
-    alert("App saved successfully");
+    alert("App saved");
+    plans.innerHTML = "";
     loadApps();
-    show("apps");
+    showPage("apps");
 
   } catch (e) {
     console.error(e);
-    alert("Save failed – check console");
+    alert("FAILED – open console");
   }
 };
 
@@ -97,25 +88,27 @@ async function loadApps() {
     .select("*, plans(*)");
 
   allApps = data || [];
-  renderApps();
-  statTotal.textContent = allApps.length;
-  statAndroid.textContent = allApps.filter(a=>a.platform==="android").length;
-  statIos.textContent = allApps.filter(a=>a.platform==="ios").length;
+  render();
 }
 
-function renderApps() {
+function render() {
   appsList.innerHTML = "";
   const f = filter.value;
+
   allApps
-    .filter(a => f==="all" || a.platform===f)
-    .forEach(app => {
+    .filter(a => f === "all" || a.platform === f)
+    .forEach(a => {
       const d = document.createElement("div");
-      d.className = "app";
-      d.innerHTML = `<b>${app.name}</b><br>${app.platform}`;
+      d.className = "card";
+      d.innerHTML = `
+        <b>${a.name}</b><br>
+        ${a.platform}<br>
+        Plans: ${a.plans.length}
+      `;
       appsList.appendChild(d);
     });
 }
 
-filter.onchange = renderApps;
+filter.onchange = render;
 
 loadApps();
