@@ -5,75 +5,117 @@ const supabase = createClient(
   "sb_publishable_Rr3_s1fI61dQp14A-Hk92A_j_ZCAnuW"
 );
 
-/* ---------------- SAVE APP (FIXED) ---------------- */
-document.getElementById("saveAppBtn").onclick = async () => {
+/* ---------- NAV ---------- */
+const pages = {
+  dashboard: document.getElementById("dashboard"),
+  apps: document.getElementById("apps"),
+  add: document.getElementById("add")
+};
+
+function show(page) {
+  Object.values(pages).forEach(p => p.classList.remove("show"));
+  pages[page].classList.add("show");
+}
+
+btnDashboard.onclick = () => show("dashboard");
+btnApps.onclick = () => show("apps");
+btnAdd.onclick = () => show("add");
+
+/* ---------- PLANS ---------- */
+addPlan.onclick = () => {
+  const div = document.createElement("div");
+  div.className = "plan";
+  div.innerHTML = `
+    <input placeholder="Label">
+    <input type="number" placeholder="Price">
+    <button>✕</button>
+  `;
+  div.querySelector("button").onclick = () => div.remove();
+  plans.appendChild(div);
+};
+
+/* ---------- SAVE APP ---------- */
+saveApp.onclick = async () => {
   try {
-    console.log("Saving app...");
+    if (!appName.value) return alert("App name required");
+    if (!iconFile.files[0]) return alert("Icon required");
 
-    if (!appName.value.trim()) throw "App name required";
-    if (!iconFile.files[0]) throw "Icon file required";
-
-    /* 1️⃣ UPLOAD ICON */
     const file = iconFile.files[0];
     const path = `${Date.now()}-${file.name}`;
 
-    const upload = await supabase
-      .storage
+    const upload = await supabase.storage
       .from("app-icons")
-      .upload(path, file, { upsert: true });
+      .upload(path, file, { upsert:true });
 
     if (upload.error) throw upload.error;
 
-    const { data: urlData } = supabase
-      .storage
+    const { data: url } = supabase.storage
       .from("app-icons")
       .getPublicUrl(path);
 
-    if (!urlData?.publicUrl) throw "Icon URL failed";
-
-    /* 2️⃣ INSERT APP */
-    const appInsert = await supabase
+    const { data: app, error } = await supabase
       .from("apps")
       .insert({
-        name: appName.value.trim(),
+        name: appName.value,
         platform: platform.value,
-        description: description.value.trim(),
-        icon_url: urlData.publicUrl
+        description: description.value,
+        icon_url: url.publicUrl
       })
       .select()
       .single();
 
-    if (appInsert.error) throw appInsert.error;
+    if (error) throw error;
 
-    const app = appInsert.data;
-    if (!app?.id) throw "App ID missing";
-
-    /* 3️⃣ INSERT PLANS */
-    for (const row of plansContainer.children) {
-      const label = row.children[0].value.trim();
+    for (const row of plans.children) {
+      const label = row.children[0].value;
       const price = row.children[1].value;
-
       if (!label || !price) continue;
 
-      const planInsert = await supabase
-        .from("plans")
-        .insert({
-          app_id: app.id,
-          label,
-          price: Number(price)
-        });
-
-      if (planInsert.error) throw planInsert.error;
+      await supabase.from("plans").insert({
+        app_id: app.id,
+        label,
+        price: Number(price)
+      });
     }
 
-    alert("✅ App saved successfully");
+    alert("App saved successfully");
+    loadApps();
+    show("apps");
 
-    appName.value = "";
-    description.value = "";
-    plansContainer.innerHTML = "";
-
-  } catch (err) {
-    console.error("SAVE APP ERROR:", err);
-    alert("❌ Failed to save app\n\nCheck console for details");
+  } catch (e) {
+    console.error(e);
+    alert("Save failed – check console");
   }
 };
+
+/* ---------- LOAD APPS ---------- */
+let allApps = [];
+
+async function loadApps() {
+  const { data } = await supabase
+    .from("apps")
+    .select("*, plans(*)");
+
+  allApps = data || [];
+  renderApps();
+  statTotal.textContent = allApps.length;
+  statAndroid.textContent = allApps.filter(a=>a.platform==="android").length;
+  statIos.textContent = allApps.filter(a=>a.platform==="ios").length;
+}
+
+function renderApps() {
+  appsList.innerHTML = "";
+  const f = filter.value;
+  allApps
+    .filter(a => f==="all" || a.platform===f)
+    .forEach(app => {
+      const d = document.createElement("div");
+      d.className = "app";
+      d.innerHTML = `<b>${app.name}</b><br>${app.platform}`;
+      appsList.appendChild(d);
+    });
+}
+
+filter.onchange = renderApps;
+
+loadApps();
