@@ -1,4 +1,7 @@
-* { box-sizing: border-box; font-family: Poppins; }
+* {
+  box-sizing: border-box;
+  font-family: Poppins;
+}
 
 body {
   margin: 0;
@@ -6,7 +9,7 @@ body {
   color: #fff;
 }
 
-.header {
+header {
   padding: 16px;
   text-align: center;
   background: #111;
@@ -14,135 +17,69 @@ body {
 
 main {
   padding: 16px;
-  padding-bottom: 90px;
+  padding-bottom: 80px;
 }
 
-.page { display: none; }
-.page.active { display: block; }
-
-.stats {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 12px;
+.page {
+  display: none;
 }
 
-.stats.small { margin-top: 12px; }
-
-.stat {
-  background: #151515;
-  padding: 16px;
-  border-radius: 12px;
-  text-align: center;
-}
-
-.stat b {
-  font-size: 22px;
+.page.active {
   display: block;
 }
 
-.stat span {
-  font-size: 12px;
-  opacity: 0.7;
+.stats {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
 }
 
-select, input, textarea {
+.stats div {
+  background: #151515;
+  padding: 14px;
+  border-radius: 10px;
+  text-align: center;
+}
+
+input, select, textarea, button {
   width: 100%;
-  padding: 10px;
   margin-bottom: 10px;
+  padding: 10px;
   background: #1a1a1a;
   color: #fff;
   border: none;
   border-radius: 6px;
 }
 
-textarea { min-height: 80px; }
-
-.apps-list {
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
+button {
+  cursor: pointer;
 }
 
-.app-card {
+#appsList div {
   background: #151515;
-  padding: 14px;
-  border-radius: 12px;
-}
-
-.plan {
-  display: flex;
-  gap: 8px;
-  margin-bottom: 8px;
-}
-
-.plan button {
-  background: #500;
-  color: #fff;
-  border: none;
-  border-radius: 6px;
-}
-
-.primary {
-  background: #d4af37;
-  color: #000;
-  font-weight: 600;
   padding: 12px;
-  border: none;
   border-radius: 8px;
-  width: 100%;
+  margin-bottom: 10px;
 }
 
 .danger {
-  background: #dc2626;
-  color: #fff;
-  padding: 10px;
-  border: none;
-  border-radius: 8px;
-  width: 100%;
-  margin-top: 8px;
+  background: #b91c1c;
 }
 
-.hidden { display: none; }
+.hidden {
+  display: none;
+}
 
-/* BOTTOM NAV */
-.bottom-nav {
+nav {
   position: fixed;
   bottom: 0;
   left: 0;
   right: 0;
-  background: #151515;
   display: flex;
+  background: #151515;
 }
 
-.bottom-nav button {
+nav button {
   flex: 1;
-  padding: 14px;
-  border: none;
-  background: none;
-  color: #fff;
-}
-
-.bottom-nav button.active {
-  background: #d4af37;
-  color: #000;
-}
-
-/* TOAST */
-#toast {
-  position: fixed;
-  bottom: 100px;
-  left: 50%;
-  transform: translateX(-50%);
-  background: #222;
-  color: #fff;
-  padding: 12px 18px;
-  border-radius: 10px;
-  opacity: 0;
-  pointer-events: none;
-  transition: all 0.3s ease;
-}
-
-#toast.show {
-  opacity: 1;
-  transform: translate(-50%, -10px);
+  border-radius: 0;
 }
