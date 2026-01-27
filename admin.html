@@ -1,7 +1,6 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-  <meta charset="UTF-8">
   <title>Admin Panel</title>
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
@@ -14,14 +13,25 @@
 </header>
 
 <nav class="nav">
+  <button id="btnDashboard">Dashboard</button>
   <button id="btnApps">Apps</button>
   <button id="btnAdd">Add App</button>
 </nav>
 
 <main>
 
-<!-- APPS PAGE -->
-<section id="appsPage" class="page active">
+<!-- DASHBOARD -->
+<section id="dashboardPage" class="page active">
+  <div class="stats">
+    <div class="stat">Total Apps<br><b id="statTotal">0</b></div>
+    <div class="stat">Android Apps<br><b id="statAndroid">0</b></div>
+    <div class="stat">iOS Apps<br><b id="statIos">0</b></div>
+    <div class="stat">Total Plans<br><b id="statPlans">0</b></div>
+  </div>
+</section>
+
+<!-- APPS -->
+<section id="appsPage" class="page">
   <div class="toolbar">
     <select id="filter">
       <option value="all">All</option>
@@ -33,9 +43,9 @@
   <div id="appsList" class="grid"></div>
 </section>
 
-<!-- ADD APP PAGE -->
+<!-- ADD / EDIT -->
 <section id="addPage" class="page">
-  <h2>Add App</h2>
+  <h2 id="formTitle">Add App</h2>
 
   <input id="appName" placeholder="App name">
   <select id="platform">
@@ -44,13 +54,13 @@
   </select>
   <textarea id="description" placeholder="Description"></textarea>
 
-  <input type="file" id="iconFile" accept="image/*">
+  <input type="file" id="iconFile">
 
   <h3>Plans</h3>
   <div id="plans"></div>
-  <button id="addPlanBtn" type="button">+ Add Plan</button>
+  <button id="addPlanBtn">+ Add Plan</button>
 
-  <button id="saveAppBtn">Save App</button>
+  <button id="saveAppBtn">Save</button>
 </section>
 
 </main>
