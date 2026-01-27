@@ -5,133 +5,75 @@ const supabase = createClient(
   "sb_publishable_Rr3_s1fI61dQp14A-Hk92A_j_ZCAnuW"
 );
 
-/* ---------------- TABS ---------------- */
-document.querySelectorAll(".tab").forEach(tab => {
-  tab.onclick = () => {
-    document.querySelectorAll(".tab").forEach(t => t.classList.remove("active"));
-    document.querySelectorAll(".page").forEach(p => p.classList.remove("show"));
-    tab.classList.add("active");
-    document.getElementById(tab.dataset.page).classList.add("show");
-  };
-});
-
-/* ---------------- PLANS ---------------- */
-const plansContainer = document.getElementById("plansContainer");
-
-document.getElementById("addPlanBtn").onclick = () => {
-  const row = document.createElement("div");
-  row.className = "plan-row";
-  row.innerHTML = `
-    <input placeholder="Label (1 DAY)">
-    <input type="number" placeholder="Price">
-    <button type="button">✕</button>
-  `;
-  row.querySelector("button").onclick = () => row.remove();
-  plansContainer.appendChild(row);
-};
-
-/* ---------------- SAVE APP ---------------- */
+/* ---------------- SAVE APP (FIXED) ---------------- */
 document.getElementById("saveAppBtn").onclick = async () => {
   try {
-    if (!appName.value.trim()) return alert("App name required");
-    if (!iconFile.files[0]) return alert("Icon required");
+    console.log("Saving app...");
 
-    // Upload icon
+    if (!appName.value.trim()) throw "App name required";
+    if (!iconFile.files[0]) throw "Icon file required";
+
+    /* 1️⃣ UPLOAD ICON */
     const file = iconFile.files[0];
     const path = `${Date.now()}-${file.name}`;
 
-    const { error: uploadError } = await supabase
-      .storage.from("app-icons")
-      .upload(path, file);
+    const upload = await supabase
+      .storage
+      .from("app-icons")
+      .upload(path, file, { upsert: true });
 
-    if (uploadError) throw uploadError;
+    if (upload.error) throw upload.error;
 
     const { data: urlData } = supabase
-      .storage.from("app-icons")
+      .storage
+      .from("app-icons")
       .getPublicUrl(path);
 
-    // Insert app
-    const { data: app, error: appError } = await supabase
+    if (!urlData?.publicUrl) throw "Icon URL failed";
+
+    /* 2️⃣ INSERT APP */
+    const appInsert = await supabase
       .from("apps")
       .insert({
-        name: appName.value,
+        name: appName.value.trim(),
         platform: platform.value,
-        description: description.value,
+        description: description.value.trim(),
         icon_url: urlData.publicUrl
       })
       .select()
       .single();
 
-    if (appError) throw appError;
+    if (appInsert.error) throw appInsert.error;
 
-    // Insert plans
+    const app = appInsert.data;
+    if (!app?.id) throw "App ID missing";
+
+    /* 3️⃣ INSERT PLANS */
     for (const row of plansContainer.children) {
-      const label = row.children[0].value;
+      const label = row.children[0].value.trim();
       const price = row.children[1].value;
+
       if (!label || !price) continue;
 
-      await supabase.from("plans").insert({
-        app_id: app.id,
-        label,
-        price: Number(price)
-      });
+      const planInsert = await supabase
+        .from("plans")
+        .insert({
+          app_id: app.id,
+          label,
+          price: Number(price)
+        });
+
+      if (planInsert.error) throw planInsert.error;
     }
 
-    alert("App saved successfully");
+    alert("✅ App saved successfully");
 
-    appName.value = description.value = "";
+    appName.value = "";
+    description.value = "";
     plansContainer.innerHTML = "";
 
   } catch (err) {
-    console.error(err);
-    alert("Failed to save app");
+    console.error("SAVE APP ERROR:", err);
+    alert("❌ Failed to save app\n\nCheck console for details");
   }
 };
-
-/* ---------------- LOAD APPS ---------------- */
-let ALL_APPS = [];
-
-async function loadApps() {
-  const { data } = await supabase
-    .from("apps")
-    .select("*, plans(*)")
-    .order("created_at", { ascending: false });
-
-  ALL_APPS = data || [];
-  renderApps();
-  updateStats();
-}
-
-function renderApps() {
-  const filter = platformFilter.value;
-  appsList.innerHTML = "";
-
-  ALL_APPS
-    .filter(app => filter === "all" || app.platform === filter)
-    .forEach(app => {
-      const div = document.createElement("div");
-      div.className = "app-card";
-      div.innerHTML = `
-        <img src="${app.icon_url}">
-        <b>${app.name}</b><br>
-        <small>${app.platform}</small>
-      `;
-      appsList.appendChild(div);
-    });
-}
-
-platformFilter.onchange = renderApps;
-
-function updateStats() {
-  statTotal.textContent = ALL_APPS.length;
-  statAndroid.textContent = ALL_APPS.filter(a => a.platform === "android").length;
-  statIos.textContent = ALL_APPS.filter(a => a.platform === "ios").length;
-}
-
-/* ---------------- REALTIME ---------------- */
-supabase.channel("live")
-  .on("postgres_changes", { event: "*", schema: "public", table: "apps" }, loadApps)
-  .on("postgres_changes", { event: "*", schema: "public", table: "plans" }, loadApps)
-  .subscribe();
-
-loadApps();
