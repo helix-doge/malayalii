@@ -1,85 +1,88 @@
-* { box-sizing: border-box; font-family: Poppins; }
+* {
+  box-sizing: border-box;
+  font-family: Poppins;
+}
 
 body {
   margin: 0;
   background: #0b0b0b;
   color: #fff;
-  display: flex;
 }
 
-.topbar {
-  position: fixed;
-  width: 100%;
+/* HEADER */
+.header {
   padding: 16px;
+  text-align: center;
   background: #111;
+}
+
+.header h1 {
+  margin: 0;
+}
+
+.header p {
+  margin: 4px 0 0;
+  opacity: 0.7;
+}
+
+/* NAV */
+.nav {
+  display: flex;
+  justify-content: space-around;
+  padding: 10px;
+  background: #151515;
+  position: sticky;
+  top: 0;
   z-index: 10;
 }
 
-.sidebar {
-  margin-top: 70px;
-  width: 200px;
-  padding: 10px;
-  background: #121212;
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-}
-
-.sidebar button {
-  padding: 10px;
-  border: none;
+.nav button {
+  flex: 1;
+  margin: 0 4px;
   background: #1a1a1a;
   color: #fff;
-  cursor: pointer;
+  border: none;
+  padding: 10px;
   border-radius: 8px;
+  cursor: pointer;
 }
 
-.sidebar button.active {
+.nav button.active {
   background: #d4af37;
   color: #000;
 }
 
-main {
-  margin-top: 70px;
-  margin-left: 220px;
-  padding: 20px;
-  flex: 1;
+/* PAGES */
+.page {
+  display: none;
+  padding: 16px;
 }
 
-.page { display: none; }
-.page.active { display: block; }
+.page.active {
+  display: block;
+}
 
+/* DASHBOARD */
 .stats {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(160px,1fr));
-  gap: 16px;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px;
 }
 
 .stat {
   background: #151515;
-  padding: 20px;
+  padding: 16px;
   border-radius: 14px;
   text-align: center;
+  font-size: 14px;
 }
 
-.apps-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(240px,1fr));
-  gap: 16px;
+/* FILTER */
+.filter-bar {
+  margin-bottom: 12px;
 }
 
-.app-card {
-  background: #151515;
-  padding: 16px;
-  border-radius: 12px;
-}
-
-.app-card button {
-  margin-top: 10px;
-  width: 100%;
-}
-
-input, textarea {
+select, input, textarea {
   width: 100%;
   padding: 10px;
   margin-bottom: 10px;
@@ -89,6 +92,33 @@ input, textarea {
   border-radius: 6px;
 }
 
+/* APPS GRID */
+.apps-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+  gap: 12px;
+}
+
+.app-card {
+  background: #151515;
+  padding: 14px;
+  border-radius: 14px;
+}
+
+.app-card b {
+  display: block;
+}
+
+.app-card small {
+  opacity: 0.7;
+}
+
+.app-card button {
+  width: 100%;
+  margin-top: 8px;
+}
+
+/* PLANS */
 .plan {
   display: flex;
   gap: 8px;
@@ -96,22 +126,39 @@ input, textarea {
 }
 
 .plan button {
-  background: #500;
-  border: none;
+  background: #400;
   color: #fff;
-  cursor: pointer;
+  border: none;
+  border-radius: 6px;
+  padding: 6px;
 }
 
-#saveBtn {
+/* BUTTONS */
+.primary {
   background: #d4af37;
   color: #000;
+  font-weight: 600;
   padding: 12px;
   border: none;
   border-radius: 8px;
-  margin-top: 10px;
+  width: 100%;
+}
+
+.secondary {
+  background: #2563eb;
+  color: #fff;
+  padding: 10px;
+  border: none;
+  border-radius: 8px;
+  width: 100%;
 }
 
 .danger {
   background: #dc2626;
-  margin-top: 10px;
+  color: #fff;
+  padding: 10px;
+  border: none;
+  border-radius: 8px;
+  width: 100%;
+  margin-top: 8px;
 }
