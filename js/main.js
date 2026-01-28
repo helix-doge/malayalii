@@ -1,16 +1,27 @@
 import { createClient } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm";
 
-/* ---------- SUPABASE ---------- */
+/* ================= SUPABASE ================= */
 const supabase = createClient(
   "https://dytrdmvicireccasxxvj.supabase.co",
   "sb_publishable_Rr3_s1fI61dQp14A-Hk92A_j_ZCAnuW"
 );
 
-/* ---------- STATE ---------- */
+/* ================= STATE ================= */
 let APPS = [];
 let CURRENT_APP = null;
 
-/* ---------- LOAD DATA ---------- */
+/* ================= ELEMENTS ================= */
+const heroPage = document.getElementById("heroPage");
+const appsPage = document.getElementById("appsPage");
+const plansPage = document.getElementById("plansPage");
+
+const appGrid = document.getElementById("appGrid");
+const plansGrid = document.getElementById("plansGrid");
+
+const appsTitle = document.getElementById("appsTitle");
+const plansTitle = document.getElementById("plansTitle");
+
+/* ================= LOAD DATA ================= */
 async function loadAppsWithKeys() {
   const { data: apps } = await supabase
     .from("apps")
@@ -36,49 +47,44 @@ async function loadAppsWithKeys() {
   APPS = apps;
 }
 
-/* ---------- GLOBAL NAV (FIXED) ---------- */
-window.openApps = async function (platform) {
-  if (!APPS.length) await loadAppsWithKeys();
-
+/* ================= APPS PAGE ================= */
+function openApps(platform) {
   heroPage.classList.remove("active");
+  plansPage.classList.remove("active");
   appsPage.classList.add("active");
 
+  appsTitle.textContent = platform.toUpperCase();
   appGrid.innerHTML = "";
 
   APPS
     .filter(a => a.platform === platform)
     .forEach(app => {
-      const totalKeys = app.plans.reduce((s,p)=>s+p.availableKeys,0);
+      const totalKeys = app.plans.reduce((s, p) => s + p.availableKeys, 0);
 
-      const div = document.createElement("div");
-      div.className = "app-card";
+      const card = document.createElement("div");
+      card.className = "app-card";
 
-      div.innerHTML = `
+      card.innerHTML = `
         <img src="${app.icon_url}">
         <h3>${app.name}</h3>
         <p>${app.description || ""}</p>
         ${
           totalKeys === 0
-          ? `<p class="no-keys">❌ No keys available for this app</p>`
-          : `<button onclick="openPlans('${app.id}')">View Plans</button>`
+            ? `<p class="no-keys">❌ No keys available for this app</p>`
+            : `<button class="primary">View Plans</button>`
         }
       `;
-      appGrid.appendChild(div);
+
+      if (totalKeys > 0) {
+        card.querySelector("button").onclick = () => openPlans(app.id);
+      }
+
+      appGrid.appendChild(card);
     });
-};
+}
 
-window.backToHero = function () {
-  appsPage.classList.remove("active");
-  heroPage.classList.add("active");
-};
-
-window.backToApps = function () {
-  plansPage.classList.remove("active");
-  appsPage.classList.add("active");
-};
-
-/* ---------- PLANS ---------- */
-window.openPlans = function (appId) {
+/* ================= PLANS PAGE ================= */
+function openPlans(appId) {
   CURRENT_APP = APPS.find(a => a.id === appId);
   if (!CURRENT_APP) return;
 
@@ -90,29 +96,30 @@ window.openPlans = function (appId) {
 
   CURRENT_APP.plans.forEach(p => {
     const disabled = p.availableKeys === 0;
-    const div = document.createElement("div");
-    div.className = `plan-card ${disabled ? "disabled" : ""}`;
 
-    div.innerHTML = `
+    const card = document.createElement("div");
+    card.className = `plan-card ${disabled ? "disabled" : ""}`;
+
+    card.innerHTML = `
       <h4>${p.label}</h4>
       <p>${disabled ? `<s>₹${p.price}</s>` : `₹${p.price}`}</p>
       ${
         disabled
           ? `<span class="no-keys-text">No keys available</span>`
-          : `<button onclick="buyPlan('${CURRENT_APP.id}','${p.id}')">Buy Key</button>`
+          : `<button class="primary">Buy Key</button>`
       }
     `;
-    plansGrid.appendChild(div);
+
+    if (!disabled) {
+      card.querySelector("button").onclick = () => buyPlan(appId, p.id);
+    }
+
+    plansGrid.appendChild(card);
   });
-};
+}
 
-/* ---------- BUY (TEST MODE) ---------- */
-window.buyPlan = async function (appId, planId) {
-  await deliverKey(appId, planId);
-};
-
-/* ---------- KEY DELIVERY ---------- */
-async function deliverKey(appId, planId) {
+/* ================= BUY (TEST MODE) ================= */
+async function buyPlan(appId, planId) {
   const orderId = "ORD-" + Date.now();
 
   const { data: key } = await supabase
@@ -140,15 +147,35 @@ async function deliverKey(appId, planId) {
   navigator.clipboard.writeText(key.key_value);
 
   document.body.innerHTML = `
-    <div style="padding:20px">
-      <h2>Payment Successful</h2>
+    <div style="padding:20px;font-family:Poppins">
+      <h2>✅ Payment Successful</h2>
       <p><b>Order ID:</b> ${orderId}</p>
-      <code>${key.key_value}</code><br><br>
-      <button onclick="navigator.clipboard.writeText('${key.key_value}')">Copy Key</button>
+      <code>${key.key_value}</code>
       <p style="color:red">Key shown only once</p>
     </div>
   `;
 }
 
-/* ---------- INIT ---------- */
+/* ================= NAV BUTTONS (FIXED) ================= */
+document.getElementById("btnAndroid").onclick = async () => {
+  if (!APPS.length) await loadAppsWithKeys();
+  openApps("android");
+};
+
+document.getElementById("btnIos").onclick = async () => {
+  if (!APPS.length) await loadAppsWithKeys();
+  openApps("ios");
+};
+
+document.getElementById("backToHero").onclick = () => {
+  appsPage.classList.remove("active");
+  heroPage.classList.add("active");
+};
+
+document.getElementById("backToApps").onclick = () => {
+  plansPage.classList.remove("active");
+  appsPage.classList.add("active");
+};
+
+/* ================= INIT ================= */
 loadAppsWithKeys();
