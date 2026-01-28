@@ -1,16 +1,12 @@
 import { createClient } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm";
 
-/* ================= SUPABASE ================= */
+/* ---------------- SUPABASE ---------------- */
 const supabase = createClient(
   "https://dytrdmvicireccasxxvj.supabase.co",
   "sb_publishable_Rr3_s1fI61dQp14A-Hk92A_j_ZCAnuW"
 );
 
-/* ================= STATE ================= */
-let APPS = [];
-let CURRENT_APP = null;
-
-/* ================= ELEMENTS ================= */
+/* ---------------- ELEMENTS ---------------- */
 const heroPage = document.getElementById("heroPage");
 const appsPage = document.getElementById("appsPage");
 const plansPage = document.getElementById("plansPage");
@@ -21,7 +17,20 @@ const plansGrid = document.getElementById("plansGrid");
 const appsTitle = document.getElementById("appsTitle");
 const plansTitle = document.getElementById("plansTitle");
 
-/* ================= LOAD DATA ================= */
+const toastBox = document.getElementById("toast");
+
+/* ---------------- STATE ---------------- */
+let APPS = [];
+let CURRENT_APP = null;
+
+/* ---------------- TOAST ---------------- */
+function toast(msg) {
+  toastBox.textContent = msg;
+  toastBox.classList.add("show");
+  setTimeout(() => toastBox.classList.remove("show"), 2500);
+}
+
+/* ---------------- LOAD DATA ---------------- */
 async function loadAppsWithKeys() {
   const { data: apps } = await supabase
     .from("apps")
@@ -47,7 +56,7 @@ async function loadAppsWithKeys() {
   APPS = apps;
 }
 
-/* ================= APPS PAGE ================= */
+/* ---------------- OPEN APPS ---------------- */
 function openApps(platform) {
   heroPage.classList.remove("active");
   plansPage.classList.remove("active");
@@ -57,9 +66,9 @@ function openApps(platform) {
   appGrid.innerHTML = "";
 
   APPS
-    .filter(a => a.platform === platform)
+    .filter(app => app.platform === platform)
     .forEach(app => {
-      const totalKeys = app.plans.reduce((s, p) => s + p.availableKeys, 0);
+      const totalKeys = app.plans.reduce((s,p)=>s+p.availableKeys,0);
 
       const card = document.createElement("div");
       card.className = "app-card";
@@ -83,7 +92,7 @@ function openApps(platform) {
     });
 }
 
-/* ================= PLANS PAGE ================= */
+/* ---------------- OPEN PLANS ---------------- */
 function openPlans(appId) {
   CURRENT_APP = APPS.find(a => a.id === appId);
   if (!CURRENT_APP) return;
@@ -118,7 +127,7 @@ function openPlans(appId) {
   });
 }
 
-/* ================= BUY (TEST MODE) ================= */
+/* ---------------- BUY ---------------- */
 async function buyPlan(appId, planId) {
   const orderId = "ORD-" + Date.now();
 
@@ -132,7 +141,7 @@ async function buyPlan(appId, planId) {
     .single();
 
   if (!key) {
-    alert("No keys available");
+    toast("No keys available");
     return;
   }
 
@@ -145,18 +154,23 @@ async function buyPlan(appId, planId) {
   });
 
   navigator.clipboard.writeText(key.key_value);
+  toast("Key copied to clipboard");
 
   document.body.innerHTML = `
     <div style="padding:20px;font-family:Poppins">
-      <h2>✅ Payment Successful</h2>
+      <h2>Payment Successful</h2>
       <p><b>Order ID:</b> ${orderId}</p>
-      <code>${key.key_value}</code>
-      <p style="color:red">Key shown only once</p>
+      <div style="background:#111;padding:14px;border-radius:8px">
+        <code>${key.key_value}</code>
+      </div>
+      <p style="color:#ff4d4d;margin-top:10px">
+        ⚠ This key will not be shown again
+      </p>
     </div>
   `;
 }
 
-/* ================= NAV BUTTONS (FIXED) ================= */
+/* ---------------- BUTTON FIX (IMPORTANT) ---------------- */
 document.getElementById("btnAndroid").onclick = async () => {
   if (!APPS.length) await loadAppsWithKeys();
   openApps("android");
@@ -177,5 +191,5 @@ document.getElementById("backToApps").onclick = () => {
   appsPage.classList.add("active");
 };
 
-/* ================= INIT ================= */
+/* ---------------- INIT ---------------- */
 loadAppsWithKeys();
