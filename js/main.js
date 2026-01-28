@@ -1,36 +1,20 @@
-import { createClient } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm";
+/* ================= SUPABASE ================= */
+/* uses your existing supabase client */
+const supabase = window.supabaseClient;
 
-/* ---------------- SUPABASE ---------------- */
-const supabase = createClient(
-  "https://dytrdmvicireccasxxvj.supabase.co",
-  "sb_publishable_Rr3_s1fI61dQp14A-Hk92A_j_ZCAnuW"
-);
-
-/* ---------------- ELEMENTS ---------------- */
-const heroPage = document.getElementById("heroPage");
-const appsPage = document.getElementById("appsPage");
-const plansPage = document.getElementById("plansPage");
-
-const appGrid = document.getElementById("appGrid");
-const plansGrid = document.getElementById("plansGrid");
-
-const appsTitle = document.getElementById("appsTitle");
-const plansTitle = document.getElementById("plansTitle");
-
-const toastBox = document.getElementById("toast");
-
-/* ---------------- STATE ---------------- */
+/* ================= STATE ================= */
 let APPS = [];
 let CURRENT_APP = null;
 
-/* ---------------- TOAST ---------------- */
-function toast(msg) {
-  toastBox.textContent = msg;
-  toastBox.classList.add("show");
-  setTimeout(() => toastBox.classList.remove("show"), 2500);
+/* ================= TOAST ================= */
+function showToast(msg) {
+  const t = document.getElementById("toast");
+  t.innerText = msg;
+  t.classList.add("show");
+  setTimeout(() => t.classList.remove("show"), 2500);
 }
 
-/* ---------------- LOAD DATA ---------------- */
+/* ================= LOAD DATA ================= */
 async function loadAppsWithKeys() {
   const { data: apps } = await supabase
     .from("apps")
@@ -56,13 +40,13 @@ async function loadAppsWithKeys() {
   APPS = apps;
 }
 
-/* ---------------- OPEN APPS ---------------- */
+/* ================= ANDROID / IOS ================= */
 function openApps(platform) {
   heroPage.classList.remove("active");
-  plansPage.classList.remove("active");
   appsPage.classList.add("active");
+  plansPage.classList.remove("active");
 
-  appsTitle.textContent = platform.toUpperCase();
+  appsTitle.innerText = platform.toUpperCase();
   appGrid.innerHTML = "";
 
   APPS
@@ -70,29 +54,24 @@ function openApps(platform) {
     .forEach(app => {
       const totalKeys = app.plans.reduce((s,p)=>s+p.availableKeys,0);
 
-      const card = document.createElement("div");
-      card.className = "app-card";
+      const div = document.createElement("div");
+      div.className = "app-card";
 
-      card.innerHTML = `
+      div.innerHTML = `
         <img src="${app.icon_url}">
         <h3>${app.name}</h3>
         <p>${app.description || ""}</p>
         ${
           totalKeys === 0
             ? `<p class="no-keys">❌ No keys available for this app</p>`
-            : `<button class="primary">View Plans</button>`
+            : `<button onclick="openPlans('${app.id}')">View Plans</button>`
         }
       `;
-
-      if (totalKeys > 0) {
-        card.querySelector("button").onclick = () => openPlans(app.id);
-      }
-
-      appGrid.appendChild(card);
+      appGrid.appendChild(div);
     });
 }
 
-/* ---------------- OPEN PLANS ---------------- */
+/* ================= PLANS ================= */
 function openPlans(appId) {
   CURRENT_APP = APPS.find(a => a.id === appId);
   if (!CURRENT_APP) return;
@@ -100,37 +79,30 @@ function openPlans(appId) {
   appsPage.classList.remove("active");
   plansPage.classList.add("active");
 
-  plansTitle.textContent = CURRENT_APP.name;
+  plansTitle.innerText = CURRENT_APP.name;
   plansGrid.innerHTML = "";
 
   CURRENT_APP.plans.forEach(p => {
     const disabled = p.availableKeys === 0;
 
-    const card = document.createElement("div");
-    card.className = `plan-card ${disabled ? "disabled" : ""}`;
+    const div = document.createElement("div");
+    div.className = `plan-card ${disabled ? "disabled" : ""}`;
 
-    card.innerHTML = `
+    div.innerHTML = `
       <h4>${p.label}</h4>
       <p>${disabled ? `<s>₹${p.price}</s>` : `₹${p.price}`}</p>
       ${
         disabled
           ? `<span class="no-keys-text">No keys available</span>`
-          : `<button class="primary">Buy Key</button>`
+          : `<button onclick="buyPlan('${CURRENT_APP.id}','${p.id}')">Buy Key</button>`
       }
     `;
-
-    if (!disabled) {
-      card.querySelector("button").onclick = () => buyPlan(appId, p.id);
-    }
-
-    plansGrid.appendChild(card);
+    plansGrid.appendChild(div);
   });
 }
 
-/* ---------------- BUY ---------------- */
+/* ================= BUY ================= */
 async function buyPlan(appId, planId) {
-  const orderId = "ORD-" + Date.now();
-
   const { data: key } = await supabase
     .from("keys")
     .select("*")
@@ -141,55 +113,34 @@ async function buyPlan(appId, planId) {
     .single();
 
   if (!key) {
-    toast("No keys available");
+    showToast("No keys available");
     return;
   }
 
   await supabase.from("keys").update({ is_used: true }).eq("id", key.id);
-  await supabase.from("orders").insert({
-    order_id: orderId,
-    app_id: appId,
-    plan_id: planId,
-    key_id: key.id
-  });
-
   navigator.clipboard.writeText(key.key_value);
-  toast("Key copied to clipboard");
+  showToast("Key copied to clipboard");
 
   document.body.innerHTML = `
     <div style="padding:20px;font-family:Poppins">
       <h2>Payment Successful</h2>
-      <p><b>Order ID:</b> ${orderId}</p>
-      <div style="background:#111;padding:14px;border-radius:8px">
-        <code>${key.key_value}</code>
-      </div>
-      <p style="color:#ff4d4d;margin-top:10px">
-        ⚠ This key will not be shown again
-      </p>
+      <p><b>Key:</b></p>
+      <code>${key.key_value}</code>
+      <p style="color:red">Shown only once</p>
     </div>
   `;
 }
 
-/* ---------------- BUTTON FIX (IMPORTANT) ---------------- */
-document.getElementById("btnAndroid").onclick = async () => {
-  if (!APPS.length) await loadAppsWithKeys();
-  openApps("android");
-};
-
-document.getElementById("btnIos").onclick = async () => {
-  if (!APPS.length) await loadAppsWithKeys();
-  openApps("ios");
-};
-
-document.getElementById("backToHero").onclick = () => {
+/* ================= BACK ================= */
+function backToHero() {
   appsPage.classList.remove("active");
   heroPage.classList.add("active");
-};
+}
 
-document.getElementById("backToApps").onclick = () => {
+function backToApps() {
   plansPage.classList.remove("active");
   appsPage.classList.add("active");
-};
+}
 
-/* ---------------- INIT ---------------- */
+/* ================= INIT ================= */
 loadAppsWithKeys();
