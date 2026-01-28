@@ -257,3 +257,17 @@ html, body {
   font-size: 13px;
 }
 
+.no-keys {
+  color: #ff4d4d;
+  font-weight: 500;
+}
+
+.no-keys-text {
+  color: #ff4d4d;
+  font-size: 13px;
+}
+
+.plan-card.disabled {
+  opacity: 0.5;
+  pointer-events: none;
+}
