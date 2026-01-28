@@ -306,3 +306,36 @@ html, body {
   opacity: 0.5;
   pointer-events: none;
 }
+
+.bg {
+  background: url("../assets/bg.jpg") center/cover no-repeat;
+}
+
+#toast {
+  position: fixed;
+  bottom: 30px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: #111;
+  color: #fff;
+  padding: 12px 18px;
+  border-radius: 8px;
+  opacity: 0;
+  transition: 0.3s;
+  z-index: 9999;
+}
+
+#toast.show {
+  opacity: 1;
+}
+
+.no-keys,
+.no-keys-text {
+  color: #ff4d4d;
+}
+
+.plan-card.disabled {
+  opacity: 0.5;
+  pointer-events: none;
+}
+
