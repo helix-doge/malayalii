@@ -1,98 +1,54 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta charset="UTF-8">
   <title>Malayali Here Store</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@600;700&family=Poppins:wght@400;500&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="css/style.css">
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@600;700&family=Poppins:wght@300;400;500&display=swap" rel="stylesheet">
 </head>
 <body>
 
-  <!-- FIXED BACKGROUND -->
-  <div class="bg-layer"></div>
+<!-- HERO -->
+<section class="page hero active" id="heroPage">
+  <div class="bg"></div>
 
-  <!-- CONTENT WRAPPER -->
-  <div class="app-root">
-
-    <!-- HOME -->
-    <section id="home" class="page show">
-      <div class="hero">
-
-        <div class="title">
-          <h1>MALAYALI<br>HERE STORE</h1>
-          <p>BGMI • PUBG • iOS TOOLS</p>
-        </div>
-
-        <div class="buttons">
-          <button id="androidBtn">ANDROID</button>
-          <button id="iosBtn">iOS / iPAD</button>
-        </div>
-
-        <div class="vision">
-          <h3>VISION</h3>
-          <p>
-            We provide trusted, secure, and high-performance BGMI / PUBG
-            Android & iOS tools for Malayali gamers, ensuring smooth gameplay,
-            fast support, and a premium user experience.
-          </p>
-        </div>
-
-      </div>
-    </section>
-
-    <!-- APPS PAGE -->
-    <section id="apps" class="page">
-      <h2 id="appsTitle"></h2>
-      <div id="appGrid" class="app-grid"></div>
-      <button id="backBtn" class="back">← Back</button>
-    </section>
-
-    <!-- PLANS PAGE -->
-<section id="plans" class="page">
-  <h2 id="plansTitle"></h2>
-
-  <div id="plansGrid" class="plans-grid"></div>
-
-  <button id="plansBackBtn" class="back">← Back</button>
-</section>
-
-    <!-- APP DETAILS / BUY PAGE -->
-<section id="appDetails" class="page">
-  <div class="app-details">
-
-    <img id="detailsIcon" class="details-icon" src="" alt="">
-    <h2 id="detailsName"></h2>
-
-    <div class="plan-select">
-      <h3>Select Plan</h3>
-
-      <label>
-        <input type="radio" name="plan" value="1 DAY">
-        1 DAY
-      </label>
-
-      <label>
-        <input type="radio" name="plan" value="1 WEEK">
-        1 WEEK
-      </label>
-
-      <label>
-        <input type="radio" name="plan" value="1 MONTH">
-        1 MONTH
-      </label>
+  <div class="hero-grid">
+    <div class="title">
+      <h1>MALAYALI<br>HERE STORE</h1>
+      <p>BGMI • PUBG • iOS TOOLS</p>
     </div>
 
-    <button id="buyBtn" class="buy-btn">Buy Key</button>
+    <div class="buttons">
+      <!-- NO inline onclick -->
+      <button id="btnAndroid">ANDROID</button>
+      <button id="btnIos">iOS / iPAD</button>
+    </div>
 
-    <button id="detailsBackBtn" class="back">← Back</button>
+    <div class="vision">
+      <h3>Malayali Here</h3>
+      <p>
+        Trusted, secure and premium Android & iOS tools for gamers.
+      </p>
+    </div>
   </div>
 </section>
 
+<!-- APPS -->
+<section class="page apps" id="appsPage">
+  <h2 id="appsTitle"></h2>
+  <div class="app-grid" id="appGrid"></div>
+  <button class="back" id="backToHero">← Back</button>
+</section>
 
-  </div>
+<!-- PLANS -->
+<section class="page plans" id="plansPage">
+  <h2 id="plansTitle"></h2>
+  <div class="plans-grid" id="plansGrid"></div>
+  <button class="back" id="backToApps">← Back</button>
+</section>
 
-  <script src="js/main.js"></script>
+<script type="module" src="js/main.js"></script>
 </body>
 </html>
