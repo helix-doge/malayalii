@@ -239,4 +239,21 @@ html, body {
   .title h1 {
     font-size: 26px;
   }
+
 }
+.no-keys-app {
+  color: #ff4d4d;
+  font-weight: 500;
+  margin-top: 6px;
+}
+
+.plan-card.disabled {
+  opacity: 0.5;
+  pointer-events: none;
+}
+
+.no-keys-plan {
+  color: #ff4d4d;
+  font-size: 13px;
+}
+
