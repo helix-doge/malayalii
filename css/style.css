@@ -239,3 +239,28 @@ html, body {
   margin-right: 10px;
 }
 
+/* SOLD OUT PLAN */
+.plan-disabled {
+  opacity: 0.5;
+  border-color: #ff4d4d !important;
+  background: rgba(60, 0, 0, 0.5);
+  cursor: not-allowed;
+}
+
+.plan-disabled span:first-child {
+  text-decoration: line-through;
+  color: #ff4d4d;
+}
+
+.plan-disabled .plan-price {
+  color: #ff4d4d;
+}
+
+/* SOLD OUT BADGE */
+.sold-out-badge {
+  font-size: 11px;
+  color: #ff4d4d;
+  font-weight: 700;
+  margin-left: 6px;
+}
+
