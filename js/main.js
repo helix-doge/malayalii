@@ -5,64 +5,64 @@ document.addEventListener("DOMContentLoaded", () => {
   // Pages
   const home = document.getElementById("home");
   const apps = document.getElementById("apps");
-  const plans = document.getElementById("plans");
+  const details = document.getElementById("appDetails");
 
   // Buttons
   const androidBtn = document.getElementById("androidBtn");
   const iosBtn = document.getElementById("iosBtn");
   const backBtn = document.getElementById("backBtn");
-  const plansBackBtn = document.getElementById("plansBackBtn");
+  const detailsBackBtn = document.getElementById("detailsBackBtn");
+  const buyBtn = document.getElementById("buyBtn");
 
   // Containers
   const appGrid = document.getElementById("appGrid");
   const appsTitle = document.getElementById("appsTitle");
-  const plansGrid = document.getElementById("plansGrid");
-  const plansTitle = document.getElementById("plansTitle");
+
+  // Details elements
+  const detailsIcon = document.getElementById("detailsIcon");
+  const detailsName = document.getElementById("detailsName");
+  const planSelect = document.querySelector(".plan-select");
 
   let ALL_APPS = [];
   let CURRENT_PLATFORM = "";
   let CURRENT_APP = null;
+
+  /* ================= FETCH ================= */
 
   async function loadApps() {
     const res = await fetch(API);
     ALL_APPS = await res.json();
   }
 
-  /* ---------- NAVIGATION ---------- */
+  /* ================= NAVIGATION ================= */
 
-  function showHome() {
-    apps.classList.remove("show");
-    plans.classList.remove("show");
-    home.classList.add("show");
+  function showPage(page) {
+    [home, apps, details].forEach(p => p.classList.remove("show"));
+    page.classList.add("show");
   }
 
-  function showApps(platform) {
+  function openApps(platform) {
     CURRENT_PLATFORM = platform;
-
-    home.classList.remove("show");
-    plans.classList.remove("show");
-    apps.classList.add("show");
+    showPage(apps);
 
     appsTitle.textContent =
       platform === "android" ? "ANDROID APPS" : "iOS / iPAD APPS";
 
     appGrid.innerHTML = "Loading...";
-
     loadApps().then(renderApps);
   }
 
-  function showPlans(app) {
+  function openDetails(app) {
     CURRENT_APP = app;
+    showPage(details);
 
-    apps.classList.remove("show");
-    plans.classList.add("show");
+    detailsName.textContent = app.name;
+    detailsIcon.src = app.icon_url || "";
 
-    plansTitle.textContent = app.name + " Plans";
-
-    renderPlans();
+    renderPlans(app.plans);
   }
 
-  /* ---------- RENDER ---------- */
+  /* ================= RENDER ================= */
 
   function renderApps() {
     appGrid.innerHTML = "";
@@ -77,47 +77,57 @@ document.addEventListener("DOMContentLoaded", () => {
     list.forEach(app => {
       const div = document.createElement("div");
       div.className = "app-card";
-
       div.innerHTML = `
         <img src="${app.icon_url || ""}">
         <h4>${app.name}</h4>
         <p>${app.description || ""}</p>
       `;
-
-      div.onclick = () => showPlans(app);
+      div.onclick = () => openDetails(app);
       appGrid.appendChild(div);
     });
   }
 
-  function renderPlans() {
-    plansGrid.innerHTML = "";
+  function renderPlans(plans) {
+    planSelect.innerHTML = "<h3>Select Plan</h3>";
 
-    if (!CURRENT_APP.plans || CURRENT_APP.plans.length === 0) {
-      plansGrid.innerHTML =
-        "<p style='text-align:center'>No plans available</p>";
+    if (!plans || plans.length === 0) {
+      planSelect.innerHTML +=
+        "<p style='text-align:center;color:#aaa'>No plans available</p>";
       return;
     }
 
-    CURRENT_APP.plans.forEach(plan => {
-      const div = document.createElement("div");
-      div.className = "plan-card";
-
-      div.innerHTML = `
-        <h4>${plan.label}</h4>
-        <p>₹ ${plan.price}</p>
-        <button>Buy Now</button>
+    plans.forEach(plan => {
+      const label = document.createElement("label");
+      label.innerHTML = `
+        <span>
+          <input type="radio" name="plan" value="${plan.id}">
+          ${plan.label}
+        </span>
+        <span class="plan-price">₹ ${plan.price}</span>
       `;
-
-      plansGrid.appendChild(div);
+      planSelect.appendChild(label);
     });
   }
 
-  /* ---------- EVENTS ---------- */
+  /* ================= EVENTS ================= */
 
-  androidBtn.onclick = () => showApps("android");
-  iosBtn.onclick = () => showApps("ios");
+  androidBtn.onclick = () => openApps("android");
+  iosBtn.onclick = () => openApps("ios");
 
-  backBtn.onclick = showHome;
-  plansBackBtn.onclick = () => showApps(CURRENT_PLATFORM);
+  backBtn.onclick = () => showPage(home);
+  detailsBackBtn.onclick = () => showPage(apps);
+
+  buyBtn.onclick = () => {
+    const selected = document.querySelector("input[name='plan']:checked");
+    if (!selected) {
+      alert("Please select a plan");
+      return;
+    }
+
+    const planId = selected.value;
+    alert(
+      `Proceeding to buy plan ID ${planId} for ${CURRENT_APP.name}`
+    );
+  };
 
 });
