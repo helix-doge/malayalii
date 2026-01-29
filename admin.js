@@ -213,6 +213,72 @@ deleteAppBtn.onclick = async () => {
   document.querySelector('[data-page="apps"]').click();
 };
 
+async function loadKeys() {
+  const res = await fetch("/api/admin/keys");
+  const keys = await res.json();
+
+  const filterApp = document.getElementById("filterApp").value;
+  const filterStatus = document.getElementById("filterStatus").value;
+
+  let filtered = keys;
+
+  if (filterApp) {
+    filtered = filtered.filter(k => k.app_id === filterApp);
+  }
+
+  if (filterStatus === "available") {
+    filtered = filtered.filter(k => !k.is_used);
+  }
+
+  if (filterStatus === "used") {
+    filtered = filtered.filter(k => k.is_used);
+  }
+
+  renderKeys(filtered);
+}
+
+function renderKeys(keys) {
+  const tbody = document.getElementById("keysTableBody");
+  tbody.innerHTML = "";
+
+  let total = keys.length;
+  let available = keys.filter(k => !k.is_used).length;
+  let used = keys.filter(k => k.is_used).length;
+
+  document.getElementById("totalKeys").textContent = total;
+  document.getElementById("availableKeys").textContent = available;
+  document.getElementById("usedKeys").textContent = used;
+
+  keys.forEach(k => {
+    const tr = document.createElement("tr");
+
+    tr.innerHTML = `
+      <td>${k.app_name}</td>
+      <td>${k.plan_label}</td>
+      <td>${k.key_value}</td>
+      <td>${k.is_used ? "Used" : "Available"}</td>
+      <td>
+        <button class="delete-btn" onclick="deleteKey('${k.id}')">
+          Delete
+        </button>
+      </td>
+    `;
+
+    tbody.appendChild(tr);
+  });
+}
+
+async function deleteKey(keyId) {
+  if (!confirm("Delete this key permanently?")) return;
+
+  await fetch(`/api/admin/keys/${keyId}`, {
+    method: "DELETE"
+  });
+
+  loadKeys();
+}
+
+
 /* ================= KEYS ================= */
 function loadKeyDropdowns() {
   keyApp.innerHTML = "";
