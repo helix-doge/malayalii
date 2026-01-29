@@ -5,7 +5,10 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Malayali Here Store</title>
 
+  <!-- Fonts -->
   <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@600;700&family=Poppins:wght@400;500&display=swap" rel="stylesheet">
+
+  <!-- CSS -->
   <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
@@ -13,10 +16,10 @@
   <!-- FIXED BACKGROUND -->
   <div class="bg-layer"></div>
 
-  <!-- CONTENT WRAPPER -->
+  <!-- APP ROOT -->
   <div class="app-root">
 
-    <!-- HOME -->
+    <!-- ================= HOME PAGE ================= -->
     <section id="home" class="page show">
       <div class="hero">
 
@@ -26,8 +29,8 @@
         </div>
 
         <div class="buttons">
-          <button id="androidBtn">ANDROID</button>
-          <button id="iosBtn">iOS / iPAD</button>
+          <button id="androidBtn" type="button">ANDROID</button>
+          <button id="iosBtn" type="button">iOS / iPAD</button>
         </div>
 
         <div class="vision">
@@ -42,15 +45,47 @@
       </div>
     </section>
 
-    <!-- APPS PAGE -->
+    <!-- ================= APPS PAGE ================= -->
     <section id="apps" class="page">
       <h2 id="appsTitle"></h2>
+
       <div id="appGrid" class="app-grid"></div>
-      <button id="backBtn" class="back">← Back</button>
+
+      <button id="backBtn" class="back" type="button">← Back</button>
+    </section>
+
+    <!-- ================= APP DETAILS / BUY PAGE ================= -->
+    <section id="appDetails" class="page">
+      <div class="app-details">
+
+        <!-- APP ICON -->
+        <img id="detailsIcon" class="details-icon" src="" alt="App Icon">
+
+        <!-- APP NAME -->
+        <h2 id="detailsName"></h2>
+
+        <!-- PLAN SELECTION -->
+        <div class="plan-select">
+          <h3>Select Plan</h3>
+          <!-- Plans injected by JS -->
+        </div>
+
+        <!-- BUY BUTTON -->
+        <button id="buyBtn" class="buy-btn" type="button">
+          Buy Key
+        </button>
+
+        <!-- BACK -->
+        <button id="detailsBackBtn" class="back" type="button">
+          ← Back
+        </button>
+
+      </div>
     </section>
 
   </div>
 
+  <!-- JS -->
   <script src="js/main.js"></script>
 </body>
 </html>
