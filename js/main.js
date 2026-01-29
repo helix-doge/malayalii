@@ -97,14 +97,25 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     plans.forEach(plan => {
+      const isSoldOut = !plan.available_keys || plan.available_keys <= 0;
+
       const label = document.createElement("label");
+      label.className = isSoldOut ? "plan-disabled" : "";
+
       label.innerHTML = `
         <span>
-          <input type="radio" name="plan" value="${plan.id}">
+          <input 
+            type="radio" 
+            name="plan" 
+            value="${plan.id}"
+            ${isSoldOut ? "disabled" : ""}
+          >
           ${plan.label}
+          ${isSoldOut ? '<span class="sold-out-badge">SOLD OUT</span>' : ''}
         </span>
         <span class="plan-price">₹ ${plan.price}</span>
       `;
+
       planSelect.appendChild(label);
     });
   }
@@ -119,14 +130,14 @@ document.addEventListener("DOMContentLoaded", () => {
 
   buyBtn.onclick = () => {
     const selected = document.querySelector("input[name='plan']:checked");
+
     if (!selected) {
-      alert("Please select a plan");
+      alert("Please select an available plan");
       return;
     }
 
-    const planId = selected.value;
     alert(
-      `Proceeding to buy plan ID ${planId} for ${CURRENT_APP.name}`
+      `Proceeding to buy plan for ${CURRENT_APP.name}`
     );
   };
 
