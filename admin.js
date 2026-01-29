@@ -1,21 +1,20 @@
 import { createClient } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm";
 
-/* ================= SUPABASE ================= */
 const supabase = createClient(
   "https://dytrdmvicireccasxxvj.supabase.co",
   "sb_publishable_Rr3_s1fI61dQp14A-Hk92A_j_ZCAnuW"
 );
 
-/* ================= STATE ================= */
 let APPS = [];
 let KEY_INTERVAL = null;
 
-/* ================= PAGE SWITCH ================= */
+/* ---------------- PAGE SWITCH ---------------- */
 const pages = {
-  dashboard: document.getElementById("page-dashboard"),
-  apps: document.getElementById("page-apps"),
-  add: document.getElementById("page-add"),
-  keys: document.getElementById("page-keys")
+  dashboard: page-dashboard,
+  apps: page-apps,
+  add: page-add,
+  keys: page-keys,
+  "add-keys": page-add-keys
 };
 
 document.querySelectorAll(".bottom-nav button").forEach(btn => {
@@ -27,15 +26,13 @@ document.querySelectorAll(".bottom-nav button").forEach(btn => {
     Object.values(pages).forEach(p => p.classList.remove("active"));
     pages[btn.dataset.page].classList.add("active");
 
-    if (btn.dataset.page === "keys") {
-      initKeys();
-    } else {
-      stopKeyLive();
-    }
+    if (btn.dataset.page === "keys") initKeys();
+    if (btn.dataset.page === "add-keys") initAddKeys();
+    else stopKeyLive();
   };
 });
 
-/* ================= LOAD APPS ================= */
+/* ---------------- LOAD APPS ---------------- */
 async function loadApps() {
   const { data } = await supabase
     .from("apps")
@@ -43,19 +40,19 @@ async function loadApps() {
 
   APPS = data || [];
   updateDashboard();
-  populateKeyApps();
 }
 
-/* ================= DASHBOARD ================= */
+/* ---------------- DASHBOARD ---------------- */
 function updateDashboard() {
   statApps.textContent = APPS.length;
   statPlans.textContent = APPS.reduce((s, a) => s + a.plans.length, 0);
 }
 
-/* ================= KEYS ================= */
+/* ---------------- KEY MANAGEMENT ---------------- */
 async function initKeys() {
   await loadApps();
-  await loadKeys();
+  populateKeyFilter();
+  loadKeys();
 
   stopKeyLive();
   KEY_INTERVAL = setInterval(loadKeys, 5000);
@@ -65,18 +62,16 @@ function stopKeyLive() {
   if (KEY_INTERVAL) clearInterval(KEY_INTERVAL);
 }
 
-/* ================= POPULATE APP FILTER ================= */
-function populateKeyApps() {
+function populateKeyFilter() {
   filterApp.innerHTML = `<option value="">All Apps</option>`;
   APPS.forEach(a => {
-    const opt = document.createElement("option");
-    opt.value = a.id;
-    opt.textContent = a.name;
-    filterApp.appendChild(opt);
+    const o = document.createElement("option");
+    o.value = a.id;
+    o.textContent = a.name;
+    filterApp.appendChild(o);
   });
 }
 
-/* ================= LOAD KEYS ================= */
 async function loadKeys() {
   const { data } = await supabase
     .from("keys")
@@ -86,24 +81,17 @@ async function loadKeys() {
   renderKeys(data || []);
 }
 
-/* ================= RENDER KEYS ================= */
 function renderKeys(keys) {
-  const appFilter = filterApp.value;
-  const statusFilter = filterStatus.value;
-
   let list = [...keys];
 
-  if (appFilter) {
-    list = list.filter(k => k.apps?.id === appFilter);
-  }
+  if (filterApp.value)
+    list = list.filter(k => k.apps?.name && k.apps?.id === filterApp.value);
 
-  if (statusFilter === "available") {
+  if (filterStatus.value === "available")
     list = list.filter(k => !k.is_used);
-  }
 
-  if (statusFilter === "used") {
+  if (filterStatus.value === "used")
     list = list.filter(k => k.is_used);
-  }
 
   totalKeys.textContent = list.length;
   availableKeys.textContent = list.filter(k => !k.is_used).length;
@@ -119,25 +107,67 @@ function renderKeys(keys) {
       <td>${k.key_value}</td>
       <td>${k.is_used ? "Used" : "Available"}</td>
       <td>
-        <button class="delete-btn" onclick="deleteKey('${k.id}')">
-          Delete
-        </button>
+        <button class="delete-btn" onclick="deleteKey('${k.id}')">Delete</button>
       </td>
     `;
     keysTableBody.appendChild(tr);
   });
 }
 
-/* ================= DELETE KEY ================= */
-window.deleteKey = async (id) => {
-  if (!confirm("Delete this key permanently?")) return;
+window.deleteKey = async id => {
+  if (!confirm("Delete this key?")) return;
   await supabase.from("keys").delete().eq("id", id);
   loadKeys();
 };
 
-/* ================= FILTER EVENTS ================= */
 filterApp.onchange = loadKeys;
 filterStatus.onchange = loadKeys;
 
-/* ================= INIT ================= */
+/* ---------------- ADD KEYS PAGE ---------------- */
+async function initAddKeys() {
+  await loadApps();
+  keyAppSelect.innerHTML = "";
+  APPS.forEach(a => {
+    const o = document.createElement("option");
+    o.value = a.id;
+    o.textContent = a.name;
+    keyAppSelect.appendChild(o);
+  });
+  loadKeyPlans();
+}
+
+function loadKeyPlans() {
+  keyPlanSelect.innerHTML = "";
+  const app = APPS.find(a => a.id === keyAppSelect.value);
+  if (!app) return;
+
+  app.plans.forEach(p => {
+    const o = document.createElement("option");
+    o.value = p.id;
+    o.textContent = `${p.label} – ₹${p.price}`;
+    keyPlanSelect.appendChild(o);
+  });
+}
+
+keyAppSelect.onchange = loadKeyPlans;
+
+saveKeysBtn.onclick = async () => {
+  const keys = keyBulk.value
+    .split("\n")
+    .map(k => k.trim())
+    .filter(Boolean);
+
+  for (const k of keys) {
+    await supabase.from("keys").insert({
+      app_id: keyAppSelect.value,
+      plan_id: keyPlanSelect.value,
+      key_value: k
+    });
+  }
+
+  keyBulk.value = "";
+  alert("Keys added successfully");
+};
+
+/* ---------------- INIT ---------------- */
 loadApps();
