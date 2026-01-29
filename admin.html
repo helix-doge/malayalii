@@ -51,34 +51,50 @@
   </select>
 
   <textarea id="description" placeholder="Description"></textarea>
-
   <input type="file" id="iconFile" accept="image/*">
 
   <h3>Plans</h3>
   <div id="plans"></div>
 
   <button id="addPlanBtn" class="outline">+ Add Plan</button>
-
   <button id="saveAppBtn" class="primary">Save App</button>
   <button id="deleteAppBtn" class="danger hidden">Delete App</button>
 </section>
 
-<!-- KEYS -->
+<!-- KEYS (ONLY KEY MANAGEMENT) -->
 <section id="page-keys" class="page">
-  <h2>Keys</h2>
+  <h2>Key Management</h2>
 
-  <select id="keyApp"></select>
-  <select id="keyPlan"></select>
+  <div class="key-controls">
+    <select id="filterApp">
+      <option value="">All Apps</option>
+    </select>
 
-  <textarea id="keyBulk" placeholder="Paste keys (one per line)"></textarea>
-
-  <button id="saveKeysBtn" class="primary">Save Keys</button>
-
-  <div class="stats small">
-    <div class="stat"><b id="totalKeys">0</b><span>Total</span></div>
-    <div class="stat"><b id="usedKeys">0</b><span>Used</span></div>
-    <div class="stat"><b id="freeKeys">0</b><span>Free</span></div>
+    <select id="filterStatus">
+      <option value="">All Keys</option>
+      <option value="available">Available</option>
+      <option value="used">Used</option>
+    </select>
   </div>
+
+  <div class="key-stats">
+    <span>Total: <b id="totalKeys">0</b></span>
+    <span>Available: <b id="availableKeys">0</b></span>
+    <span>Used: <b id="usedKeys">0</b></span>
+  </div>
+
+  <table class="keys-table">
+    <thead>
+      <tr>
+        <th>App</th>
+        <th>Plan</th>
+        <th>Key</th>
+        <th>Status</th>
+        <th>Action</th>
+      </tr>
+    </thead>
+    <tbody id="keysTableBody"></tbody>
+  </table>
 </section>
 
 </main>
@@ -91,44 +107,6 @@
   <button data-page="keys">Keys</button>
 </nav>
 
-  <hr>
-
-<h2>Key Management</h2>
-
-<div class="key-controls">
-  <select id="filterApp">
-    <option value="">All Apps</option>
-  </select>
-
-  <select id="filterStatus">
-    <option value="">All Keys</option>
-    <option value="available">Available</option>
-    <option value="used">Used</option>
-  </select>
-
-  <button onclick="loadKeys()">View Keys</button>
-</div>
-
-<div class="key-stats">
-  <p>Total Keys: <span id="totalKeys">0</span></p>
-  <p>Available: <span id="availableKeys">0</span></p>
-  <p>Used: <span id="usedKeys">0</span></p>
-</div>
-
-<table class="keys-table">
-  <thead>
-    <tr>
-      <th>App</th>
-      <th>Plan</th>
-      <th>Key</th>
-      <th>Status</th>
-      <th>Action</th>
-    </tr>
-  </thead>
-  <tbody id="keysTableBody"></tbody>
-</table>
-
-  
 <script type="module" src="admin.js"></script>
 </body>
 </html>
