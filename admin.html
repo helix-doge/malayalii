@@ -30,13 +30,11 @@
 <!-- APPS -->
 <section id="page-apps" class="page">
   <h2>Apps</h2>
-
   <select id="appFilter">
     <option value="all">All</option>
     <option value="android">Android</option>
     <option value="ios">iOS</option>
   </select>
-
   <div id="appsList" class="list"></div>
 </section>
 
@@ -61,7 +59,7 @@
   <button id="deleteAppBtn" class="danger hidden">Delete App</button>
 </section>
 
-<!-- KEYS (ONLY KEY MANAGEMENT) -->
+<!-- KEY MANAGEMENT -->
 <section id="page-keys" class="page">
   <h2>Key Management</h2>
 
@@ -97,6 +95,18 @@
   </table>
 </section>
 
+<!-- ADD KEYS (NEW PAGE) -->
+<section id="page-add-keys" class="page">
+  <h2>Add Keys</h2>
+
+  <select id="keyAppSelect"></select>
+  <select id="keyPlanSelect"></select>
+
+  <textarea id="keyBulk" placeholder="Paste keys (one per line)"></textarea>
+
+  <button id="saveKeysBtn" class="primary">Save Keys</button>
+</section>
+
 </main>
 
 <!-- BOTTOM NAV -->
@@ -105,6 +115,7 @@
   <button data-page="apps">Apps</button>
   <button data-page="add">Add App</button>
   <button data-page="keys">Keys</button>
+  <button data-page="add-keys">Add Keys</button>
 </nav>
 
 <script type="module" src="admin.js"></script>
