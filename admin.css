@@ -154,3 +154,48 @@ button {
   background: #d4af37;
   color: #000;
 }
+
+.keys-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 15px;
+}
+
+.keys-table th, .keys-table td {
+  border-bottom: 1px solid #333;
+  padding: 10px;
+  text-align: left;
+}
+
+.keys-table th {
+  color: #facc15;
+}
+
+.key-controls {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin-bottom: 10px;
+}
+
+.key-controls select,
+.key-controls button {
+  padding: 8px;
+  border-radius: 6px;
+}
+
+.key-stats {
+  display: flex;
+  gap: 20px;
+  margin: 10px 0;
+}
+
+.delete-btn {
+  background: #ff4d4d;
+  color: white;
+  border: none;
+  padding: 6px 10px;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
