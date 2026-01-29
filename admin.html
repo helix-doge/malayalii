@@ -91,6 +91,44 @@
   <button data-page="keys">Keys</button>
 </nav>
 
+  <hr>
+
+<h2>Key Management</h2>
+
+<div class="key-controls">
+  <select id="filterApp">
+    <option value="">All Apps</option>
+  </select>
+
+  <select id="filterStatus">
+    <option value="">All Keys</option>
+    <option value="available">Available</option>
+    <option value="used">Used</option>
+  </select>
+
+  <button onclick="loadKeys()">View Keys</button>
+</div>
+
+<div class="key-stats">
+  <p>Total Keys: <span id="totalKeys">0</span></p>
+  <p>Available: <span id="availableKeys">0</span></p>
+  <p>Used: <span id="usedKeys">0</span></p>
+</div>
+
+<table class="keys-table">
+  <thead>
+    <tr>
+      <th>App</th>
+      <th>Plan</th>
+      <th>Key</th>
+      <th>Status</th>
+      <th>Action</th>
+    </tr>
+  </thead>
+  <tbody id="keysTableBody"></tbody>
+</table>
+
+  
 <script type="module" src="admin.js"></script>
 </body>
 </html>
