@@ -1,85 +1,53 @@
 document.addEventListener("DOMContentLoaded", () => {
 
-  /* ================= SUPABASE ================= */
   const supabaseClient = supabase.createClient(
     "https://dytrdmvicireccasxxvj.supabase.co",
     "sb_publishable_Rr3_s1fI61dQp14A-Hk92A_j_ZCAnuW"
   );
 
-  /* ================= STATE ================= */
   let CURRENT_APP = null;
   let CURRENT_PLAN = null;
   let KEY_COUNT = {};
 
-  /* ================= ELEMENTS ================= */
   const pages = {
-    home: document.getElementById("home"),
-    apps: document.getElementById("apps"),
-    details: document.getElementById("appDetails")
+    home: home,
+    apps: apps,
+    details: appDetails
   };
 
-  const androidBtn = document.getElementById("androidBtn");
-  const iosBtn = document.getElementById("iosBtn");
-  const backBtn = document.getElementById("backBtn");
-  const detailsBackBtn = document.getElementById("detailsBackBtn");
-  const buyBtn = document.getElementById("buyBtn");
-
-  const appGrid = document.getElementById("appGrid");
-  const appsTitle = document.getElementById("appsTitle");
-  const detailsIcon = document.getElementById("detailsIcon");
-  const detailsName = document.getElementById("detailsName");
-  const planSelect = document.getElementById("planSelect");
-
-  /* ================= PAGE SWITCH ================= */
-  function showPage(name) {
-    Object.values(pages).forEach(p => p.classList.remove("show"));
-    pages[name].classList.add("show");
+  function showPage(p) {
+    Object.values(pages).forEach(x => x.classList.remove("show"));
+    pages[p].classList.add("show");
   }
 
-  /* ================= BUTTONS ================= */
   androidBtn.onclick = () => loadApps("android");
   iosBtn.onclick = () => loadApps("ios");
   backBtn.onclick = () => showPage("home");
   detailsBackBtn.onclick = () => showPage("apps");
   buyBtn.onclick = buyKey;
 
-  /* ================= LOAD APPS ================= */
   async function loadApps(platform) {
-    const { data, error } = await supabaseClient
+    const { data } = await supabaseClient
       .from("apps")
       .select("*")
       .eq("platform", platform);
 
-    if (error) {
-      alert("Failed to load apps");
-      return;
-    }
-
-    appsTitle.textContent = platform.toUpperCase() + " APPS";
     appGrid.innerHTML = "";
-
-    if (data.length === 0) {
-      appGrid.innerHTML = "<p>No apps available</p>";
-    }
+    appsTitle.textContent = platform.toUpperCase() + " APPS";
 
     data.forEach(app => {
-      const card = document.createElement("div");
-      card.className = "app-card";
-      card.innerHTML = `
-        <img src="${app.icon_url || ""}">
-        <h4>${app.name}</h4>
-      `;
-      card.onclick = () => openApp(app);
-      appGrid.appendChild(card);
+      const d = document.createElement("div");
+      d.className = "app-card";
+      d.innerHTML = `<img src="${app.icon_url}"><h4>${app.name}</h4>`;
+      d.onclick = () => openApp(app);
+      appGrid.appendChild(d);
     });
 
     showPage("apps");
   }
 
-  /* ================= LOAD KEY COUNTS ================= */
   async function loadKeyCounts() {
     KEY_COUNT = {};
-
     const { data } = await supabaseClient
       .from("keys")
       .select("plan_id")
@@ -90,12 +58,12 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
-  /* ================= OPEN APP ================= */
   async function openApp(app) {
     CURRENT_APP = app;
     CURRENT_PLAN = null;
+    buyBtn.disabled = true;
 
-    detailsIcon.src = app.icon_url || "";
+    detailsIcon.src = app.icon_url;
     detailsName.textContent = app.name;
 
     await loadKeyCounts();
@@ -105,11 +73,10 @@ document.addEventListener("DOMContentLoaded", () => {
       .select("*")
       .eq("app_id", app.id);
 
-    renderPlans(plans || []);
+    renderPlans(plans);
     showPage("details");
   }
 
-  /* ================= RENDER PLANS ================= */
   function renderPlans(plans) {
     planSelect.innerHTML = "<h3>Select Plan</h3>";
 
@@ -121,9 +88,11 @@ document.addEventListener("DOMContentLoaded", () => {
       div.className = "plan-card" + (soldOut ? " sold-out" : "");
 
       div.innerHTML = `
-        <span>${plan.label}</span>
-        <b>₹ ${plan.price}</b>
-        ${soldOut ? "<em>SOLD OUT</em>" : `<small>${available} keys</small>`}
+        <div>
+          ${plan.label}
+          ${soldOut ? "<small>SOLD OUT</small>" : `<small>${available} keys</small>`}
+        </div>
+        <div class="plan-price">₹ ${plan.price}</div>
       `;
 
       if (!soldOut) {
@@ -131,6 +100,7 @@ document.addEventListener("DOMContentLoaded", () => {
           document.querySelectorAll(".plan-card").forEach(p => p.classList.remove("active"));
           div.classList.add("active");
           CURRENT_PLAN = plan;
+          buyBtn.disabled = false;
         };
       }
 
@@ -138,14 +108,10 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
-  /* ================= BUY KEY ================= */
   async function buyKey() {
-    if (!CURRENT_PLAN) {
-      alert("Select a plan");
-      return;
-    }
+    if (!CURRENT_PLAN) return;
 
-    const { data, error } = await supabaseClient
+    const { data } = await supabaseClient
       .from("keys")
       .select("*")
       .eq("plan_id", CURRENT_PLAN.id)
@@ -153,7 +119,7 @@ document.addEventListener("DOMContentLoaded", () => {
       .limit(1)
       .single();
 
-    if (error || !data) {
+    if (!data) {
       alert("No keys available");
       return;
     }
@@ -164,16 +130,7 @@ document.addEventListener("DOMContentLoaded", () => {
       .eq("id", data.id);
 
     alert("Your Key:\n\n" + data.key_value);
-
     openApp(CURRENT_APP);
   }
-
-  /* ================= REALTIME ================= */
-  supabaseClient
-    .channel("live-keys")
-    .on("postgres_changes", { event: "*", schema: "public", table: "keys" }, () => {
-      if (CURRENT_APP) openApp(CURRENT_APP);
-    })
-    .subscribe();
 
 });
