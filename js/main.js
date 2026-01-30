@@ -1,3 +1,9 @@
+const keyPage = document.getElementById("keyPage");
+const purchasedKeyEl = document.getElementById("purchasedKey");
+const copyKeyBtn = document.getElementById("copyKeyBtn");
+const keyDoneBtn = document.getElementById("keyDoneBtn");
+
+
 document.addEventListener("DOMContentLoaded", () => {
 
   const supabaseClient = supabase.createClient(
@@ -9,11 +15,13 @@ document.addEventListener("DOMContentLoaded", () => {
   let CURRENT_PLAN = null;
   let KEY_COUNT = {};
 
-  const pages = {
-    home: home,
-    apps: apps,
-    details: appDetails
-  };
+ const pages = {
+  home,
+  apps,
+  details: appDetails,
+  key: keyPage
+};
+
 
   function showPage(p) {
     Object.values(pages).forEach(x => x.classList.remove("show"));
@@ -27,6 +35,7 @@ document.addEventListener("DOMContentLoaded", () => {
   buyBtn.onclick = buyKey;
 
   async function loadApps(platform) {
+    appGrid.innerHTML = "<p>Loading apps...</p>";
     const { data } = await supabaseClient
       .from("apps")
       .select("*")
@@ -74,6 +83,9 @@ appGrid.appendChild(d);
     detailsIcon.src = app.icon_url;
     detailsName.textContent = app.name;
 
+    planSelect.innerHTML = "<p>Loading plans...</p>";
+    buyBtn.disabled = true;
+
     await loadKeyCounts();
 
     const { data: plans } = await supabaseClient
@@ -116,29 +128,56 @@ appGrid.appendChild(d);
     });
   }
 
-  async function buyKey() {
-    if (!CURRENT_PLAN) return;
+ async function buyKey() {
+  if (!CURRENT_PLAN) return;
 
-    const { data } = await supabaseClient
-      .from("keys")
-      .select("*")
-      .eq("plan_id", CURRENT_PLAN.id)
-      .eq("is_used", false)
-      .limit(1)
-      .single();
+   buyBtn.disabled = true;
+  buyBtn.textContent = "Processing...";
 
-    if (!data) {
-      alert("No keys available");
-      return;
-    }
+   
+  buyBtn.disabled = true;
+  buyBtn.textContent = "Processing...";
 
-    await supabaseClient
-      .from("keys")
-      .update({ is_used: true })
-      .eq("id", data.id);
+  const { data, error } = await supabaseClient
+    .from("keys")
+    .select("*")
+    .eq("plan_id", CURRENT_PLAN.id)
+    .eq("is_used", false)
+    .limit(1)
+    .single();
 
-    alert("Your Key:\n\n" + data.key_value);
-    openApp(CURRENT_APP);
+  if (error || !data) {
+    alert("No keys available");
+    buyBtn.disabled = false;
+    buyBtn.textContent = "Buy Key";
+    return;
   }
+
+  await supabaseClient
+    .from("keys")
+    .update({ is_used: true })
+    .eq("id", data.id);
+
+  // Show key interface
+  purchasedKeyEl.textContent = data.key_value;
+
+  // Auto copy
+  navigator.clipboard.writeText(data.key_value);
+
+  showPage("key");
+}
+
+  copyKeyBtn.onclick = () => {
+  navigator.clipboard.writeText(purchasedKeyEl.textContent);
+  copyKeyBtn.textContent = "Copied ✔";
+};
+
+keyDoneBtn.onclick = () => {
+  copyKeyBtn.textContent = "Copy Key";
+  buyBtn.textContent = "Buy Key";
+  buyBtn.disabled = true;
+  openApp(CURRENT_APP);
+};
+
 
 });
