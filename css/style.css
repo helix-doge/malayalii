@@ -309,3 +309,9 @@ html, body {
   color: #facc15;
 }
 
+.app-desc {
+  font-size: 12px;
+  opacity: 0.8;
+  margin-top: 6px;
+  line-height: 1.4;
+}
