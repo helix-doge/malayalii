@@ -1,144 +1,148 @@
-document.addEventListener("DOMContentLoaded", () => {
+import { createClient } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm";
 
-  const API = "https://malayali-store-backend.onrender.com/api/apps";
+/* ================= SUPABASE ================= */
+const supabase = createClient(
+  "https://dytrdmvicireccasxxvj.supabase.co",
+  "sb_publishable_Rr3_s1fI61dQp14A-Hk92A_j_ZCAnuW"
+);
 
-  // Pages
-  const home = document.getElementById("home");
-  const apps = document.getElementById("apps");
-  const details = document.getElementById("appDetails");
+/* ================= STATE ================= */
+let CURRENT_APP = null;
+let CURRENT_PLAN = null;
+let KEY_COUNT_BY_PLAN = {};
 
-  // Buttons
-  const androidBtn = document.getElementById("androidBtn");
-  const iosBtn = document.getElementById("iosBtn");
-  const backBtn = document.getElementById("backBtn");
-  const detailsBackBtn = document.getElementById("detailsBackBtn");
-  const buyBtn = document.getElementById("buyBtn");
+/* ================= LOAD APPS ================= */
+async function loadApps(platform) {
+  const { data } = await supabase
+    .from("apps")
+    .select("*")
+    .eq("platform", platform);
 
-  // Containers
-  const appGrid = document.getElementById("appGrid");
-  const appsTitle = document.getElementById("appsTitle");
+  showApps(data || []);
+}
 
-  // Details elements
-  const detailsIcon = document.getElementById("detailsIcon");
-  const detailsName = document.getElementById("detailsName");
-  const planSelect = document.querySelector(".plan-select");
+/* ================= SHOW APPS ================= */
+function showApps(apps) {
+  const grid = document.getElementById("appGrid");
+  grid.innerHTML = "";
 
-  let ALL_APPS = [];
-  let CURRENT_PLATFORM = "";
-  let CURRENT_APP = null;
+  apps.forEach(app => {
+    const div = document.createElement("div");
+    div.className = "app-card";
+    div.innerHTML = `
+      <img src="${app.icon_url}">
+      <h4>${app.name}</h4>
+    `;
+    div.onclick = () => openPlans(app);
+    grid.appendChild(div);
+  });
 
-  /* ================= FETCH ================= */
+  switchPage("appsPage");
+}
 
-  async function loadApps() {
-    const res = await fetch(API);
-    ALL_APPS = await res.json();
-  }
+/* ================= OPEN PLANS ================= */
+async function openPlans(app) {
+  CURRENT_APP = app;
+  document.getElementById("plansTitle").innerText = app.name;
 
-  /* ================= NAVIGATION ================= */
+  await loadKeyAvailability();
+  const { data: plans } = await supabase
+    .from("plans")
+    .select("*")
+    .eq("app_id", app.id);
 
-  function showPage(page) {
-    [home, apps, details].forEach(p => p.classList.remove("show"));
-    page.classList.add("show");
-  }
+  renderPlans(plans || []);
+  switchPage("plansPage");
+}
 
-  function openApps(platform) {
-    CURRENT_PLATFORM = platform;
-    showPage(apps);
+/* ================= LOAD KEY AVAILABILITY ================= */
+async function loadKeyAvailability() {
+  KEY_COUNT_BY_PLAN = {};
 
-    appsTitle.textContent =
-      platform === "android" ? "ANDROID APPS" : "iOS / iPAD APPS";
+  const { data } = await supabase
+    .from("keys")
+    .select("plan_id")
+    .eq("is_used", false);
 
-    appGrid.innerHTML = "Loading...";
-    loadApps().then(renderApps);
-  }
+  data.forEach(k => {
+    KEY_COUNT_BY_PLAN[k.plan_id] =
+      (KEY_COUNT_BY_PLAN[k.plan_id] || 0) + 1;
+  });
+}
 
-  function openDetails(app) {
-    CURRENT_APP = app;
-    showPage(details);
+/* ================= RENDER PLANS ================= */
+function renderPlans(plans) {
+  const grid = document.getElementById("plansGrid");
+  grid.innerHTML = "";
 
-    detailsName.textContent = app.name;
-    detailsIcon.src = app.icon_url || "";
+  plans.forEach(plan => {
+    const available = KEY_COUNT_BY_PLAN[plan.id] || 0;
+    const soldOut = available === 0;
 
-    renderPlans(app.plans);
-  }
+    const div = document.createElement("div");
+    div.className = "plan-card" + (soldOut ? " sold-out" : "");
+    div.innerHTML = `
+      <label>
+        <input type="radio" name="plan" ${soldOut ? "disabled" : ""}>
+        <span>${plan.label}</span>
+        <b>₹ ${plan.price}</b>
+        ${soldOut ? "<em>SOLD OUT</em>" : ""}
+      </label>
+    `;
 
-  /* ================= RENDER ================= */
-
-  function renderApps() {
-    appGrid.innerHTML = "";
-
-    const list = ALL_APPS.filter(a => a.platform === CURRENT_PLATFORM);
-
-    if (!list.length) {
-      appGrid.innerHTML = "<p style='text-align:center'>No apps available</p>";
-      return;
+    if (!soldOut) {
+      div.onclick = () => selectPlan(plan);
     }
 
-    list.forEach(app => {
-      const div = document.createElement("div");
-      div.className = "app-card";
-      div.innerHTML = `
-        <img src="${app.icon_url || ""}">
-        <h4>${app.name}</h4>
-        <p>${app.description || ""}</p>
-      `;
-      div.onclick = () => openDetails(app);
-      appGrid.appendChild(div);
-    });
+    grid.appendChild(div);
+  });
+}
+
+/* ================= SELECT PLAN ================= */
+function selectPlan(plan) {
+  CURRENT_PLAN = plan;
+  document.querySelectorAll(".plan-card")
+    .forEach(p => p.classList.remove("active"));
+  event.currentTarget.classList.add("active");
+}
+
+/* ================= BUY KEY ================= */
+async function buyKey() {
+  if (!CURRENT_PLAN) {
+    alert("Select a plan first");
+    return;
   }
 
-  function renderPlans(plans) {
-    planSelect.innerHTML = "<h3>Select Plan</h3>";
+  const { data } = await supabase
+    .from("keys")
+    .select("*")
+    .eq("plan_id", CURRENT_PLAN.id)
+    .eq("is_used", false)
+    .limit(1)
+    .single();
 
-    if (!plans || plans.length === 0) {
-      planSelect.innerHTML +=
-        "<p style='text-align:center;color:#aaa'>No plans available</p>";
-      return;
-    }
-
-    plans.forEach(plan => {
-      const isSoldOut = !plan.available_keys || plan.available_keys <= 0;
-
-      const label = document.createElement("label");
-      label.className = isSoldOut ? "plan-disabled" : "";
-
-      label.innerHTML = `
-        <span>
-          <input 
-            type="radio" 
-            name="plan" 
-            value="${plan.id}"
-            ${isSoldOut ? "disabled" : ""}
-          >
-          ${plan.label}
-          ${isSoldOut ? '<span class="sold-out-badge">SOLD OUT</span>' : ''}
-        </span>
-        <span class="plan-price">₹ ${plan.price}</span>
-      `;
-
-      planSelect.appendChild(label);
-    });
+  if (!data) {
+    alert("No keys available");
+    return;
   }
 
-  /* ================= EVENTS ================= */
+  await supabase
+    .from("keys")
+    .update({ is_used: true })
+    .eq("id", data.id);
 
-  androidBtn.onclick = () => openApps("android");
-  iosBtn.onclick = () => openApps("ios");
+  alert("Key Purchased:\n" + data.key_value);
+  openPlans(CURRENT_APP); // refresh UI
+}
 
-  backBtn.onclick = () => showPage(home);
-  detailsBackBtn.onclick = () => showPage(apps);
+/* ================= PAGE SWITCH ================= */
+function switchPage(id) {
+  document.querySelectorAll(".page").forEach(p => p.classList.remove("active"));
+  document.getElementById(id).classList.add("active");
+}
 
-  buyBtn.onclick = () => {
-    const selected = document.querySelector("input[name='plan']:checked");
-
-    if (!selected) {
-      alert("Please select an available plan");
-      return;
-    }
-
-    alert(
-      `Proceeding to buy plan for ${CURRENT_APP.name}`
-    );
-  };
-
-});
+/* ================= BUTTON HOOKS ================= */
+window.openApps = loadApps;
+window.backToHero = () => switchPage("heroPage");
+window.backToApps = () => switchPage("appsPage");
+window.buyKey = buyKey;
