@@ -37,10 +37,18 @@ document.addEventListener("DOMContentLoaded", () => {
 
     data.forEach(app => {
       const d = document.createElement("div");
-      d.className = "app-card";
-      d.innerHTML = `<img src="${app.icon_url}"><h4>${app.name}</h4>`;
-      d.onclick = () => openApp(app);
-      appGrid.appendChild(d);
+d.className = "app-card";
+
+d.innerHTML = `
+  <img src="${app.icon_url || ""}" alt="${app.name}">
+  <h4>${app.name}</h4>
+  <p class="app-desc">
+    ${app.description ? app.description : ""}
+  </p>
+`;
+
+d.onclick = () => openApp(app);
+appGrid.appendChild(d);
     });
 
     showPage("apps");
