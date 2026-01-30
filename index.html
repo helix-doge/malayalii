@@ -48,9 +48,7 @@
     <!-- ================= APPS PAGE ================= -->
     <section id="apps" class="page">
       <h2 id="appsTitle"></h2>
-
       <div id="appGrid" class="app-grid"></div>
-
       <button id="backBtn" class="back" type="button">← Back</button>
     </section>
 
@@ -58,27 +56,15 @@
     <section id="appDetails" class="page">
       <div class="app-details">
 
-        <!-- APP ICON -->
         <img id="detailsIcon" class="details-icon" src="" alt="App Icon">
-
-        <!-- APP NAME -->
         <h2 id="detailsName"></h2>
 
-        <!-- PLAN SELECTION -->
-        <div class="plan-select">
+        <div class="plan-select" id="planSelect">
           <h3>Select Plan</h3>
-          <!-- Plans injected by JS -->
         </div>
 
-        <!-- BUY BUTTON -->
-        <button id="buyBtn" class="buy-btn" type="button">
-          Buy Key
-        </button>
-
-        <!-- BACK -->
-        <button id="detailsBackBtn" class="back" type="button">
-          ← Back
-        </button>
+        <button id="buyBtn" class="buy-btn" type="button">Buy Key</button>
+        <button id="detailsBackBtn" class="back" type="button">← Back</button>
 
       </div>
     </section>
@@ -86,6 +72,6 @@
   </div>
 
   <!-- JS -->
-  <script src="js/main.js"></script>
+  <script type="module" src="js/main.js"></script>
 </body>
 </html>
