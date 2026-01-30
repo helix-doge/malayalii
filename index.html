@@ -19,7 +19,7 @@
   <!-- APP ROOT -->
   <div class="app-root">
 
-    <!-- ================= HOME PAGE ================= -->
+    <!-- HOME -->
     <section id="home" class="page show">
       <div class="hero">
 
@@ -29,51 +29,49 @@
         </div>
 
         <div class="buttons">
-          <button id="androidBtn" type="button">ANDROID</button>
-          <button id="iosBtn" type="button">iOS / iPAD</button>
+          <button id="androidBtn">ANDROID</button>
+          <button id="iosBtn">iOS / iPAD</button>
         </div>
 
         <div class="vision">
           <h3>VISION</h3>
           <p>
-            We provide trusted, secure, and high-performance BGMI / PUBG
-            Android & iOS tools for Malayali gamers, ensuring smooth gameplay,
-            fast support, and a premium user experience.
+            Trusted, secure, and high-performance Android & iOS tools
+            with fast support and premium experience.
           </p>
         </div>
 
       </div>
     </section>
 
-    <!-- ================= APPS PAGE ================= -->
+    <!-- APPS -->
     <section id="apps" class="page">
       <h2 id="appsTitle"></h2>
       <div id="appGrid" class="app-grid"></div>
-      <button id="backBtn" class="back" type="button">← Back</button>
+      <button id="backBtn" class="back">← Back</button>
     </section>
 
-    <!-- ================= APP DETAILS / BUY PAGE ================= -->
+    <!-- DETAILS -->
     <section id="appDetails" class="page">
       <div class="app-details">
-
-        <img id="detailsIcon" class="details-icon" src="" alt="App Icon">
+        <img id="detailsIcon" class="details-icon">
         <h2 id="detailsName"></h2>
 
-        <div class="plan-select" id="planSelect">
+        <div id="planSelect" class="plan-select">
           <h3>Select Plan</h3>
         </div>
 
-        <button id="buyBtn" class="buy-btn" type="button">Buy Key</button>
-        <button id="detailsBackBtn" class="back" type="button">← Back</button>
-
+        <button id="buyBtn" class="buy-btn">Buy Key</button>
+        <button id="detailsBackBtn" class="back">← Back</button>
       </div>
     </section>
 
   </div>
 
-  <!-- JS -->
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script src="js/main.js"></script>
+  <!-- SUPABASE CDN (REQUIRED) -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
+  <!-- MAIN JS -->
+  <script src="js/main.js"></script>
 </body>
 </html>
