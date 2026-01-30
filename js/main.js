@@ -9,24 +9,19 @@ const supabase = createClient(
 /* ================= STATE ================= */
 let CURRENT_APP = null;
 let CURRENT_PLAN = null;
-let KEY_COUNT_BY_PLAN = {};
+let KEY_COUNT = {};
 
-/* ================= LOAD APPS ================= */
-async function loadApps(platform) {
+/* ================= OPEN APPS ================= */
+window.openApps = async function (platform) {
   const { data } = await supabase
     .from("apps")
     .select("*")
     .eq("platform", platform);
 
-  showApps(data || []);
-}
-
-/* ================= SHOW APPS ================= */
-function showApps(apps) {
   const grid = document.getElementById("appGrid");
   grid.innerHTML = "";
 
-  apps.forEach(app => {
+  data.forEach(app => {
     const div = document.createElement("div");
     div.className = "app-card";
     div.innerHTML = `
@@ -38,6 +33,20 @@ function showApps(apps) {
   });
 
   switchPage("appsPage");
+};
+
+/* ================= LOAD KEYS COUNT ================= */
+async function loadKeyCounts() {
+  KEY_COUNT = {};
+
+  const { data } = await supabase
+    .from("keys")
+    .select("plan_id");
+
+  data.forEach(k => {
+    if (!k.plan_id) return;
+    KEY_COUNT[k.plan_id] = (KEY_COUNT[k.plan_id] || 0) + 1;
+  });
 }
 
 /* ================= OPEN PLANS ================= */
@@ -45,7 +54,8 @@ async function openPlans(app) {
   CURRENT_APP = app;
   document.getElementById("plansTitle").innerText = app.name;
 
-  await loadKeyAvailability();
+  await loadKeyCounts();
+
   const { data: plans } = await supabase
     .from("plans")
     .select("*")
@@ -55,61 +65,48 @@ async function openPlans(app) {
   switchPage("plansPage");
 }
 
-/* ================= LOAD KEY AVAILABILITY ================= */
-async function loadKeyAvailability() {
-  KEY_COUNT_BY_PLAN = {};
-
-  const { data } = await supabase
-    .from("keys")
-    .select("plan_id")
-    .eq("is_used", false);
-
-  data.forEach(k => {
-    KEY_COUNT_BY_PLAN[k.plan_id] =
-      (KEY_COUNT_BY_PLAN[k.plan_id] || 0) + 1;
-  });
-}
-
 /* ================= RENDER PLANS ================= */
 function renderPlans(plans) {
   const grid = document.getElementById("plansGrid");
   grid.innerHTML = "";
+  CURRENT_PLAN = null;
 
   plans.forEach(plan => {
-    const available = KEY_COUNT_BY_PLAN[plan.id] || 0;
+    const available = KEY_COUNT[plan.id] || 0;
     const soldOut = available === 0;
 
-    const div = document.createElement("div");
-    div.className = "plan-card" + (soldOut ? " sold-out" : "");
-    div.innerHTML = `
+    const card = document.createElement("div");
+    card.className = "plan-card" + (soldOut ? " sold-out" : "");
+
+    card.innerHTML = `
       <label>
         <input type="radio" name="plan" ${soldOut ? "disabled" : ""}>
         <span>${plan.label}</span>
         <b>₹ ${plan.price}</b>
-        ${soldOut ? "<em>SOLD OUT</em>" : ""}
+        ${soldOut ? "<em>SOLD OUT</em>" : `<small>${available} keys</small>`}
       </label>
     `;
 
     if (!soldOut) {
-      div.onclick = () => selectPlan(plan);
+      card.onclick = () => selectPlan(plan, card);
     }
 
-    grid.appendChild(div);
+    grid.appendChild(card);
   });
 }
 
 /* ================= SELECT PLAN ================= */
-function selectPlan(plan) {
+function selectPlan(plan, el) {
   CURRENT_PLAN = plan;
   document.querySelectorAll(".plan-card")
     .forEach(p => p.classList.remove("active"));
-  event.currentTarget.classList.add("active");
+  el.classList.add("active");
 }
 
 /* ================= BUY KEY ================= */
-async function buyKey() {
+window.buyKey = async function () {
   if (!CURRENT_PLAN) {
-    alert("Select a plan first");
+    alert("Please select a plan");
     return;
   }
 
@@ -117,7 +114,6 @@ async function buyKey() {
     .from("keys")
     .select("*")
     .eq("plan_id", CURRENT_PLAN.id)
-    .eq("is_used", false)
     .limit(1)
     .single();
 
@@ -128,21 +124,20 @@ async function buyKey() {
 
   await supabase
     .from("keys")
-    .update({ is_used: true })
+    .delete()
     .eq("id", data.id);
 
-  alert("Key Purchased:\n" + data.key_value);
-  openPlans(CURRENT_APP); // refresh UI
-}
+  alert("Your Key:\n\n" + data.key_value);
 
-/* ================= PAGE SWITCH ================= */
+  openPlans(CURRENT_APP);
+};
+
+/* ================= PAGE NAV ================= */
 function switchPage(id) {
-  document.querySelectorAll(".page").forEach(p => p.classList.remove("active"));
+  document.querySelectorAll(".page")
+    .forEach(p => p.classList.remove("active"));
   document.getElementById(id).classList.add("active");
 }
 
-/* ================= BUTTON HOOKS ================= */
-window.openApps = loadApps;
 window.backToHero = () => switchPage("heroPage");
 window.backToApps = () => switchPage("appsPage");
-window.buyKey = buyKey;
