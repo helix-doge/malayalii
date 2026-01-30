@@ -26,7 +26,6 @@ document.addEventListener("DOMContentLoaded", () => {
 
   const appGrid = document.getElementById("appGrid");
   const appsTitle = document.getElementById("appsTitle");
-
   const detailsIcon = document.getElementById("detailsIcon");
   const detailsName = document.getElementById("detailsName");
   const planSelect = document.getElementById("planSelect");
@@ -59,8 +58,8 @@ document.addEventListener("DOMContentLoaded", () => {
     appsTitle.textContent = platform.toUpperCase() + " APPS";
     appGrid.innerHTML = "";
 
-    if (!data.length) {
-      appGrid.innerHTML = "<p style='opacity:.6'>No apps available</p>";
+    if (data.length === 0) {
+      appGrid.innerHTML = "<p>No apps available</p>";
     }
 
     data.forEach(app => {
@@ -80,9 +79,13 @@ document.addEventListener("DOMContentLoaded", () => {
   /* ================= LOAD KEY COUNTS ================= */
   async function loadKeyCounts() {
     KEY_COUNT = {};
-    const { data } = await supabaseClient.from("keys").select("plan_id");
+
+    const { data } = await supabaseClient
+      .from("keys")
+      .select("plan_id")
+      .eq("is_used", false);
+
     data.forEach(k => {
-      if (!k.plan_id) return;
       KEY_COUNT[k.plan_id] = (KEY_COUNT[k.plan_id] || 0) + 1;
     });
   }
@@ -125,8 +128,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
       if (!soldOut) {
         div.onclick = () => {
-          document.querySelectorAll(".plan-card")
-            .forEach(p => p.classList.remove("active"));
+          document.querySelectorAll(".plan-card").forEach(p => p.classList.remove("active"));
           div.classList.add("active");
           CURRENT_PLAN = plan;
         };
@@ -139,26 +141,39 @@ document.addEventListener("DOMContentLoaded", () => {
   /* ================= BUY KEY ================= */
   async function buyKey() {
     if (!CURRENT_PLAN) {
-      alert("Please select a plan");
+      alert("Select a plan");
       return;
     }
 
-    const { data } = await supabaseClient
+    const { data, error } = await supabaseClient
       .from("keys")
       .select("*")
       .eq("plan_id", CURRENT_PLAN.id)
+      .eq("is_used", false)
       .limit(1)
       .single();
 
-    if (!data) {
+    if (error || !data) {
       alert("No keys available");
       return;
     }
 
-    await supabaseClient.from("keys").delete().eq("id", data.id);
+    await supabaseClient
+      .from("keys")
+      .update({ is_used: true })
+      .eq("id", data.id);
 
     alert("Your Key:\n\n" + data.key_value);
+
     openApp(CURRENT_APP);
   }
+
+  /* ================= REALTIME ================= */
+  supabaseClient
+    .channel("live-keys")
+    .on("postgres_changes", { event: "*", schema: "public", table: "keys" }, () => {
+      if (CURRENT_APP) openApp(CURRENT_APP);
+    })
+    .subscribe();
 
 });
