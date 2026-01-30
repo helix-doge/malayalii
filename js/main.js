@@ -110,7 +110,7 @@ appGrid.appendChild(d);
       div.innerHTML = `
         <div>
           ${plan.label}
-          ${soldOut ? "<small>SOLD OUT</small>" : `<small>${available} keys</small>`}
+          ${soldOut ? "<small>SOLD OUT</small>" : `<small>${available} keys available</small>`}
         </div>
         <div class="plan-price">₹ ${plan.price}</div>
       `;
