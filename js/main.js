@@ -7,9 +7,20 @@ const supabase = createClient(
 );
 
 /* ================= STATE ================= */
+let CURRENT_PLATFORM = null;
 let CURRENT_APP = null;
 let CURRENT_PLAN = null;
 let KEY_COUNT = {};
+
+/* ================= DOM READY ================= */
+document.addEventListener("DOMContentLoaded", () => {
+  document.getElementById("btnAndroid").addEventListener("click", () => openApps("android"));
+  document.getElementById("btnIOS").addEventListener("click", () => openApps("ios"));
+
+  document.getElementById("backFromApps").addEventListener("click", () => switchPage("heroPage"));
+  document.getElementById("backFromPlans").addEventListener("click", () => switchPage("appsPage"));
+  document.getElementById("buyKeyBtn").addEventListener("click", buyKey);
+});
 
 /* ================= PAGE SWITCH ================= */
 function switchPage(id) {
@@ -17,15 +28,16 @@ function switchPage(id) {
   document.getElementById(id).classList.add("active");
 }
 
-/* ================= LOAD APPS ================= */
+/* ================= OPEN APPS ================= */
 async function openApps(platform) {
+  CURRENT_PLATFORM = platform;
+
   const { data, error } = await supabase
     .from("apps")
     .select("*")
     .eq("platform", platform);
 
   if (error) {
-    console.error(error);
     alert("Failed to load apps");
     return;
   }
@@ -33,19 +45,19 @@ async function openApps(platform) {
   const grid = document.getElementById("appGrid");
   grid.innerHTML = "";
 
-  if (!data || data.length === 0) {
-    grid.innerHTML = `<p style="opacity:.6">No apps available</p>`;
+  if (!data.length) {
+    grid.innerHTML = `<p class="empty">No apps available</p>`;
   }
 
   data.forEach(app => {
-    const div = document.createElement("div");
-    div.className = "app-card";
-    div.innerHTML = `
+    const card = document.createElement("div");
+    card.className = "app-card";
+    card.innerHTML = `
       <img src="${app.icon_url || ""}">
       <h4>${app.name}</h4>
     `;
-    div.onclick = () => openPlans(app);
-    grid.appendChild(div);
+    card.addEventListener("click", () => openPlans(app));
+    grid.appendChild(card);
   });
 
   switchPage("appsPage");
@@ -58,8 +70,6 @@ async function loadKeyCounts() {
   const { data } = await supabase
     .from("keys")
     .select("plan_id");
-
-  if (!data) return;
 
   data.forEach(k => {
     if (!k.plan_id) return;
@@ -76,18 +86,12 @@ async function openPlans(app) {
 
   await loadKeyCounts();
 
-  const { data: plans, error } = await supabase
+  const { data } = await supabase
     .from("plans")
     .select("*")
     .eq("app_id", app.id);
 
-  if (error) {
-    console.error(error);
-    alert("Failed to load plans");
-    return;
-  }
-
-  renderPlans(plans || []);
+  renderPlans(data || []);
   switchPage("plansPage");
 }
 
@@ -96,89 +100,51 @@ function renderPlans(plans) {
   const grid = document.getElementById("plansGrid");
   grid.innerHTML = "";
 
-  if (plans.length === 0) {
-    grid.innerHTML = `<p style="opacity:.6">No plans available</p>`;
-    return;
-  }
-
   plans.forEach(plan => {
     const available = KEY_COUNT[plan.id] || 0;
     const soldOut = available === 0;
 
     const card = document.createElement("div");
     card.className = "plan-card" + (soldOut ? " sold-out" : "");
-
     card.innerHTML = `
-      <label>
-        <input type="radio" name="plan" ${soldOut ? "disabled" : ""}>
-        <span>${plan.label}</span>
-        <b>₹ ${plan.price}</b>
-        ${
-          soldOut
-            ? "<em>SOLD OUT</em>"
-            : `<small>${available} keys available</small>`
-        }
-      </label>
+      <span>${plan.label}</span>
+      <b>₹ ${plan.price}</b>
+      ${soldOut ? "<em>SOLD OUT</em>" : `<small>${available} keys</small>`}
     `;
 
     if (!soldOut) {
-      card.onclick = () => selectPlan(plan, card);
+      card.addEventListener("click", () => {
+        document.querySelectorAll(".plan-card").forEach(p => p.classList.remove("active"));
+        card.classList.add("active");
+        CURRENT_PLAN = plan;
+      });
     }
 
     grid.appendChild(card);
   });
 }
 
-/* ================= SELECT PLAN ================= */
-function selectPlan(plan, el) {
-  CURRENT_PLAN = plan;
-  document
-    .querySelectorAll(".plan-card")
-    .forEach(p => p.classList.remove("active"));
-  el.classList.add("active");
-}
-
 /* ================= BUY KEY ================= */
 async function buyKey() {
   if (!CURRENT_PLAN) {
-    alert("Please select a plan");
+    alert("Select a plan first");
     return;
   }
 
-  const { data, error } = await supabase
+  const { data } = await supabase
     .from("keys")
     .select("*")
     .eq("plan_id", CURRENT_PLAN.id)
     .limit(1)
     .single();
 
-  if (error || !data) {
+  if (!data) {
     alert("No keys available");
     return;
   }
 
-  await supabase
-    .from("keys")
-    .delete()
-    .eq("id", data.id);
+  await supabase.from("keys").delete().eq("id", data.id);
 
   alert("Your Key:\n\n" + data.key_value);
-
-  // Refresh UI instantly
   openPlans(CURRENT_APP);
 }
-
-/* ================= BACK NAV ================= */
-function backToHero() {
-  switchPage("heroPage");
-}
-
-function backToApps() {
-  switchPage("appsPage");
-}
-
-/* ================= EXPOSE TO HTML ================= */
-window.openApps = openApps;
-window.buyKey = buyKey;
-window.backToHero = backToHero;
-window.backToApps = backToApps;
