@@ -360,3 +360,8 @@ html, body {
   margin-bottom: 10px;
 }
 
+.buy-btn.loading {
+  background: #444;
+  cursor: wait;
+}
+
