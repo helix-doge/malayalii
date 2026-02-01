@@ -3,7 +3,6 @@ const purchasedKeyEl = document.getElementById("purchasedKey");
 const copyKeyBtn = document.getElementById("copyKeyBtn");
 const keyDoneBtn = document.getElementById("keyDoneBtn");
 
-
 document.addEventListener("DOMContentLoaded", () => {
 
   const supabaseClient = supabase.createClient(
@@ -15,54 +14,58 @@ document.addEventListener("DOMContentLoaded", () => {
   let CURRENT_PLAN = null;
   let KEY_COUNT = {};
 
- const pages = {
-  home,
-  apps,
-  details: appDetails,
-  key: keyPage
-};
-
+  const pages = {
+    home,
+    apps,
+    details: appDetails,
+    key: keyPage
+  };
 
   function showPage(p) {
     Object.values(pages).forEach(x => x.classList.remove("show"));
     pages[p].classList.add("show");
   }
 
+  /* ================= NAV ================= */
   androidBtn.onclick = () => loadApps("android");
   iosBtn.onclick = () => loadApps("ios");
   backBtn.onclick = () => showPage("home");
   detailsBackBtn.onclick = () => showPage("apps");
   buyBtn.onclick = buyKey;
 
+  /* ================= LOAD APPS ================= */
   async function loadApps(platform) {
     appGrid.innerHTML = "<p>Loading apps...</p>";
-    const { data } = await supabaseClient
+
+    const { data, error } = await supabaseClient
       .from("apps")
       .select("*")
       .eq("platform", platform);
+
+    if (error) {
+      appGrid.innerHTML = "<p>Failed to load apps</p>";
+      return;
+    }
 
     appGrid.innerHTML = "";
     appsTitle.textContent = platform.toUpperCase() + " APPS";
 
     data.forEach(app => {
       const d = document.createElement("div");
-d.className = "app-card";
-
-d.innerHTML = `
-  <img src="${app.icon_url || ""}" alt="${app.name}">
-  <h4>${app.name}</h4>
-  <p class="app-desc">
-    ${app.description ? app.description : ""}
-  </p>
-`;
-
-d.onclick = () => openApp(app);
-appGrid.appendChild(d);
+      d.className = "app-card";
+      d.innerHTML = `
+        <img src="${app.icon_url || ""}" alt="${app.name}">
+        <h4>${app.name}</h4>
+        <p class="app-desc">${app.description || ""}</p>
+      `;
+      d.onclick = () => openApp(app);
+      appGrid.appendChild(d);
     });
 
     showPage("apps");
   }
 
+  /* ================= LOAD KEY COUNTS ================= */
   async function loadKeyCounts() {
     KEY_COUNT = {};
     const { data } = await supabaseClient
@@ -75,16 +78,19 @@ appGrid.appendChild(d);
     });
   }
 
+  /* ================= OPEN APP ================= */
   async function openApp(app) {
     CURRENT_APP = app;
     CURRENT_PLAN = null;
-    buyBtn.disabled = true;
 
     detailsIcon.src = app.icon_url;
     detailsName.textContent = app.name;
 
     planSelect.innerHTML = "<p>Loading plans...</p>";
     buyBtn.disabled = true;
+    buyBtn.textContent = "Buy Key";
+
+    showPage("details");
 
     await loadKeyCounts();
 
@@ -93,10 +99,10 @@ appGrid.appendChild(d);
       .select("*")
       .eq("app_id", app.id);
 
-    renderPlans(plans);
-    showPage("details");
+    renderPlans(plans || []);
   }
 
+  /* ================= RENDER PLANS ================= */
   function renderPlans(plans) {
     planSelect.innerHTML = "<h3>Select Plan</h3>";
 
@@ -110,14 +116,19 @@ appGrid.appendChild(d);
       div.innerHTML = `
         <div>
           ${plan.label}
-          ${soldOut ? "<small>SOLD OUT</small>" : `<small>${available} keys</small>`}
+          ${soldOut
+            ? "<small>SOLD OUT</small>"
+            : `<small>${available} keys</small>`}
         </div>
         <div class="plan-price">₹ ${plan.price}</div>
       `;
 
       if (!soldOut) {
         div.onclick = () => {
-          document.querySelectorAll(".plan-card").forEach(p => p.classList.remove("active"));
+          document
+            .querySelectorAll(".plan-card")
+            .forEach(p => p.classList.remove("active"));
+
           div.classList.add("active");
           CURRENT_PLAN = plan;
           buyBtn.disabled = false;
@@ -128,59 +139,53 @@ appGrid.appendChild(d);
     });
   }
 
- async function buyKey() {
-  if (!CURRENT_PLAN) return;
+  /* ================= BUY KEY ================= */
+  async function buyKey() {
+    if (!CURRENT_PLAN) return;
 
-   buyBtn.disabled = true;
-  buyBtn.textContent = "Processing...";
-  buyBtn.classList.add("loading");
+    buyBtn.disabled = true;
+    buyBtn.textContent = "Processing...";
+    buyBtn.classList.add("loading");
 
-   
-  buyBtn.disabled = true;
-  buyBtn.textContent = "Processing...";
-  buyBtn.classList.remove("loading");
+    const { data, error } = await supabaseClient
+      .from("keys")
+      .select("*")
+      .eq("plan_id", CURRENT_PLAN.id)
+      .eq("is_used", false)
+      .limit(1)
+      .single();
 
-   
-  const { data, error } = await supabaseClient
-    .from("keys")
-    .select("*")
-    .eq("plan_id", CURRENT_PLAN.id)
-    .eq("is_used", false)
-    .limit(1)
-    .single();
+    if (error || !data) {
+      alert("No keys available");
+      buyBtn.disabled = false;
+      buyBtn.textContent = "Buy Key";
+      buyBtn.classList.remove("loading");
+      return;
+    }
 
-  if (error || !data) {
-    alert("No keys available");
-    buyBtn.disabled = false;
-    buyBtn.textContent = "Buy Key";
-    return;
+    await supabaseClient
+      .from("keys")
+      .update({ is_used: true })
+      .eq("id", data.id);
+
+    purchasedKeyEl.textContent = data.key_value;
+    navigator.clipboard.writeText(data.key_value);
+
+    buyBtn.classList.remove("loading");
+    showPage("key");
   }
 
-  await supabaseClient
-    .from("keys")
-    .update({ is_used: true })
-    .eq("id", data.id);
-
-  // Show key interface
-  purchasedKeyEl.textContent = data.key_value;
-
-  // Auto copy
-  navigator.clipboard.writeText(data.key_value);
-
-  showPage("key");
-}
-
+  /* ================= KEY PAGE ================= */
   copyKeyBtn.onclick = () => {
-  navigator.clipboard.writeText(purchasedKeyEl.textContent);
-  copyKeyBtn.textContent = "Copied ✔";
-};
+    navigator.clipboard.writeText(purchasedKeyEl.textContent);
+    copyKeyBtn.textContent = "Copied ✔";
+  };
 
-keyDoneBtn.onclick = () => {
-  copyKeyBtn.textContent = "Copy Key";
-  buyBtn.textContent = "Buy Key";
-  buyBtn.disabled = true;
-  openApp(CURRENT_APP);
-};
-
+  keyDoneBtn.onclick = () => {
+    copyKeyBtn.textContent = "Copy Key";
+    buyBtn.textContent = "Buy Key";
+    buyBtn.disabled = true;
+    openApp(CURRENT_APP);
+  };
 
 });
