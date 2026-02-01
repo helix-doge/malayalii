@@ -168,7 +168,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     /* 2️⃣ RAZORPAY CHECKOUT */
     const options = {
-      key: "RAZORPAY_KEY_ID_HERE", // 🔴 PUT YOUR PUBLIC KEY HERE
+      key: "rzp_live_Rk2oKtZtYbEN4A", // 🔴 PUT YOUR PUBLIC KEY HERE
       amount: order.amount,
       currency: "INR",
       name: "Malayali Here Store",
