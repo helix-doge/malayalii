@@ -27,7 +27,7 @@ const appsTitle = document.getElementById("appsTitle");
 
 const detailsIcon = document.getElementById("detailsIcon");
 const detailsName = document.getElementById("detailsName");
-const planSelect = document.querySelector(".plan-select");
+const planSelect = document.getElementById("planSelect");
 const buyBtn = document.getElementById("buyBtn");
 
 const purchasedKeyEl = document.getElementById("purchasedKey");
@@ -35,11 +35,16 @@ const copyKeyBtn = document.getElementById("copyKeyBtn");
 const keyDoneBtn = document.getElementById("keyDoneBtn");
 
 /* ================== PAGE CONTROL ================== */
-const pages = { home, apps, appDetails, keyPage };
+const pages = {
+  home,
+  apps,
+  appDetails,
+  keyPage
+};
 
-function showPage(page) {
+function showPage(pageName) {
   Object.values(pages).forEach(p => p.classList.remove("show"));
-  pages[page].classList.add("show");
+  pages[pageName].classList.add("show");
 }
 
 /* ================== NAVIGATION ================== */
@@ -69,13 +74,11 @@ async function loadApps(platform) {
   data.forEach(app => {
     const card = document.createElement("div");
     card.className = "app-card";
-
     card.innerHTML = `
       <img src="${app.icon_url || ""}">
       <h4>${app.name}</h4>
       <p class="app-desc">${app.description || ""}</p>
     `;
-
     card.onclick = () => openApp(app);
     appGrid.appendChild(card);
   });
@@ -113,7 +116,7 @@ async function openApp(app) {
     .select("*")
     .eq("app_id", app.id);
 
-  renderPlans(plans);
+  renderPlans(plans || []);
 }
 
 /* ================== RENDER PLANS ================== */
@@ -167,12 +170,13 @@ buyBtn.onclick = async () => {
   const order = await res.json();
 
   const rzp = new Razorpay({
-    key: "rzp_live_Rk2oKtZtYbEN4A", // PUBLIC KEY
+    key: "rzp_live_Rk2oKtZtYbEN4A",
     amount: order.amount,
     currency: "INR",
     order_id: order.id,
     name: CURRENT_APP.name,
     description: CURRENT_PLAN.label,
+
     handler: async function (response) {
       try {
         const verify = await fetch(
@@ -185,11 +189,10 @@ buyBtn.onclick = async () => {
         );
 
         const result = await verify.json();
-        if (!result.success) throw "verify-failed";
+        if (!result.success) throw new Error("verify-failed");
 
         await deliverKey();
-
-      } catch {
+      } catch (err) {
         alert("Payment verified but key delivery failed");
         resetBuyBtn();
       }
