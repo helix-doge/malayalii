@@ -5,15 +5,18 @@ const keyDoneBtn = document.getElementById("keyDoneBtn");
 
 document.addEventListener("DOMContentLoaded", () => {
 
+  /* ================= SUPABASE ================= */
   const supabaseClient = supabase.createClient(
     "https://dytrdmvicireccasxxvj.supabase.co",
     "sb_publishable_Rr3_s1fI61dQp14A-Hk92A_j_ZCAnuW"
   );
 
+  /* ================= STATE ================= */
   let CURRENT_APP = null;
   let CURRENT_PLAN = null;
   let KEY_COUNT = {};
 
+  /* ================= PAGES ================= */
   const pages = {
     home,
     apps,
@@ -54,7 +57,7 @@ document.addEventListener("DOMContentLoaded", () => {
       const d = document.createElement("div");
       d.className = "app-card";
       d.innerHTML = `
-        <img src="${app.icon_url || ""}" alt="${app.name}">
+        <img src="${app.icon_url || ""}">
         <h4>${app.name}</h4>
         <p class="app-desc">${app.description || ""}</p>
       `;
@@ -139,14 +142,74 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
-  /* ================= BUY KEY ================= */
+  /* ================= BUY KEY (PAYMENT FLOW) ================= */
   async function buyKey() {
     if (!CURRENT_PLAN) return;
 
     buyBtn.disabled = true;
-    buyBtn.textContent = "Processing...";
+    buyBtn.textContent = "Redirecting to payment...";
     buyBtn.classList.add("loading");
 
+    /* 1️⃣ CREATE ORDER (BACKEND) */
+    const orderRes = await fetch(
+      "https://malayali-store-backend.onrender.com/api/create-order",
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          amount: CURRENT_PLAN.price,
+          appName: CURRENT_APP.name,
+          planLabel: CURRENT_PLAN.label
+        })
+      }
+    );
+
+    const order = await orderRes.json();
+
+    /* 2️⃣ RAZORPAY CHECKOUT */
+    const options = {
+      key: "RAZORPAY_KEY_ID_HERE", // 🔴 PUT YOUR PUBLIC KEY HERE
+      amount: order.amount,
+      currency: "INR",
+      name: "Malayali Here Store",
+      description: `${CURRENT_APP.name} - ${CURRENT_PLAN.label}`,
+      order_id: order.id,
+
+      handler: async function (response) {
+        /* 3️⃣ VERIFY PAYMENT */
+        const verifyRes = await fetch(
+          "https://malayali-store-backend.onrender.com/api/verify-payment",
+          {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(response)
+          }
+        );
+
+        const result = await verifyRes.json();
+
+        if (!result.success) {
+          alert("Payment verification failed");
+          resetBuyBtn();
+          return;
+        }
+
+        /* 4️⃣ PAYMENT OK → DELIVER KEY */
+        deliverKey();
+      },
+
+      modal: {
+        ondismiss: resetBuyBtn
+      },
+
+      theme: { color: "#facc15" }
+    };
+
+    new Razorpay(options).open();
+  }
+
+  /* ================= DELIVER KEY ================= */
+  async function deliverKey() {
     const { data, error } = await supabaseClient
       .from("keys")
       .select("*")
@@ -157,9 +220,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     if (error || !data) {
       alert("No keys available");
-      buyBtn.disabled = false;
-      buyBtn.textContent = "Buy Key";
-      buyBtn.classList.remove("loading");
+      resetBuyBtn();
       return;
     }
 
@@ -173,6 +234,13 @@ document.addEventListener("DOMContentLoaded", () => {
 
     buyBtn.classList.remove("loading");
     showPage("key");
+  }
+
+  /* ================= RESET BUY BUTTON ================= */
+  function resetBuyBtn() {
+    buyBtn.disabled = false;
+    buyBtn.textContent = "Buy Key";
+    buyBtn.classList.remove("loading");
   }
 
   /* ================= KEY PAGE ================= */
