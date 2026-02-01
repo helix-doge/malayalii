@@ -10,6 +10,9 @@
 
   <!-- CSS -->
   <link rel="stylesheet" href="css/style.css">
+
+  <!-- Razorpay (must be BEFORE main.js) -->
+  <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
 </head>
 <body>
 
@@ -19,7 +22,7 @@
   <!-- APP ROOT -->
   <div class="app-root">
 
-    <!-- HOME -->
+    <!-- ================= HOME ================= -->
     <section id="home" class="page show">
       <div class="hero">
 
@@ -29,8 +32,8 @@
         </div>
 
         <div class="buttons">
-          <button id="androidBtn">ANDROID</button>
-          <button id="iosBtn">iOS / iPAD</button>
+          <button id="androidBtn" type="button">ANDROID</button>
+          <button id="iosBtn" type="button">iOS / iPAD</button>
         </div>
 
         <div class="vision">
@@ -44,65 +47,64 @@
       </div>
     </section>
 
-    <!-- APPS -->
+    <!-- ================= APPS ================= -->
     <section id="apps" class="page">
       <h2 id="appsTitle"></h2>
       <div id="appGrid" class="app-grid"></div>
-      <button id="backBtn" class="back">← Back</button>
+      <button id="backBtn" class="back" type="button">← Back</button>
     </section>
 
-    <!-- APP DETAILS -->
+    <!-- ================= APP DETAILS ================= -->
     <section id="appDetails" class="page">
       <div class="app-details">
 
-        <img id="detailsIcon" class="details-icon">
+        <img id="detailsIcon" class="details-icon" alt="App Icon">
         <h2 id="detailsName"></h2>
 
         <div id="planSelect" class="plan-select">
           <h3>Select Plan</h3>
         </div>
 
-        <button id="buyBtn" class="buy-btn" disabled>Buy Key</button>
-        <button id="detailsBackBtn" class="back">← Back</button>
+        <button id="buyBtn" class="buy-btn" type="button" disabled>
+          Buy Key
+        </button>
+
+        <button id="detailsBackBtn" class="back" type="button">
+          ← Back
+        </button>
 
       </div>
     </section>
 
-    <!-- ================= KEY PURCHASED PAGE ================= -->
-<section id="keyPage" class="page">
-  <div class="key-box">
+    <!-- ================= KEY PURCHASED ================= -->
+    <section id="keyPage" class="page">
+      <div class="key-box">
 
-    <h2>Key Purchased ✅</h2>
+        <h2>Key Purchased ✅</h2>
 
-    <p class="key-warning">
-      This key will be shown <b>only once</b>.<br>
-      If you refresh or go back, you will lose this key.<br>
-      Please copy and save it now.
-    </p>
+        <p class="key-warning">
+          This key will be shown <b>only once</b>.<br>
+          If you refresh or go back, you will lose this key.<br>
+          Please copy and save it now.
+        </p>
 
-    <div class="key-value" id="purchasedKey">XXXX-XXXX-XXXX</div>
+        <div class="key-value" id="purchasedKey">----</div>
 
-    <button id="copyKeyBtn" class="copy-btn">
-      Copy Key
-    </button>
+        <button id="copyKeyBtn" class="copy-btn" type="button">
+          Copy Key
+        </button>
 
-    <button id="keyDoneBtn" class="back">
-      Done
-    </button>
+        <button id="keyDoneBtn" class="back" type="button">
+          Done
+        </button>
+
+      </div>
+    </section>
 
   </div>
-</section>
 
-    
-  </div>
+  <!-- MAIN JS (ES MODULE – IMPORTANT) -->
+  <script type="module" src="js/main.js"></script>
 
-  <!-- SUPABASE -->
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-
-  <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
-
-  
-  <!-- MAIN JS -->
-  <script src="js/main.js"></script>
 </body>
 </html>
