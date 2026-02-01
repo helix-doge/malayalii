@@ -133,11 +133,14 @@ appGrid.appendChild(d);
 
    buyBtn.disabled = true;
   buyBtn.textContent = "Processing...";
+  buyBtn.classList.add("loading");
 
    
   buyBtn.disabled = true;
   buyBtn.textContent = "Processing...";
+  buyBtn.classList.remove("loading");
 
+   
   const { data, error } = await supabaseClient
     .from("keys")
     .select("*")
