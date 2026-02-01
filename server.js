@@ -1,8 +1,10 @@
-require("dotenv").config();
-const express = require("express");
-const Razorpay = require("razorpay");
-const crypto = require("crypto");
-const cors = require("cors");
+import express from "express";
+import cors from "cors";
+import crypto from "crypto";
+import Razorpay from "razorpay";
+import dotenv from "dotenv";
+
+dotenv.config();
 
 const app = express();
 app.use(cors());
@@ -14,13 +16,18 @@ const razorpay = new Razorpay({
   key_secret: process.env.RAZORPAY_KEY_SECRET
 });
 
+/* ================= HEALTH CHECK ================= */
+app.get("/", (req, res) => {
+  res.send("Malayali Here Backend Running");
+});
+
 /* ================= CREATE ORDER ================= */
 app.post("/api/create-order", async (req, res) => {
   try {
     const { amount, appName, planLabel } = req.body;
 
     const order = await razorpay.orders.create({
-      amount: amount * 100, // rupees → paise
+      amount: amount * 100, // ₹ → paise
       currency: "INR",
       receipt: `${appName}-${planLabel}-${Date.now()}`
     });
@@ -34,27 +41,32 @@ app.post("/api/create-order", async (req, res) => {
 
 /* ================= VERIFY PAYMENT ================= */
 app.post("/api/verify-payment", (req, res) => {
-  const {
-    razorpay_order_id,
-    razorpay_payment_id,
-    razorpay_signature
-  } = req.body;
+  try {
+    const {
+      razorpay_order_id,
+      razorpay_payment_id,
+      razorpay_signature
+    } = req.body;
 
-  const body = razorpay_order_id + "|" + razorpay_payment_id;
+    const sign = razorpay_order_id + "|" + razorpay_payment_id;
 
-  const expectedSignature = crypto
-    .createHmac("sha256", process.env.RAZORPAY_KEY_SECRET)
-    .update(body)
-    .digest("hex");
+    const expectedSignature = crypto
+      .createHmac("sha256", process.env.RAZORPAY_KEY_SECRET)
+      .update(sign)
+      .digest("hex");
 
-  if (expectedSignature === razorpay_signature) {
-    res.json({ success: true });
-  } else {
-    res.status(400).json({ success: false });
+    if (expectedSignature === razorpay_signature) {
+      res.json({ success: true });
+    } else {
+      res.json({ success: false });
+    }
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ success: false });
   }
 });
 
-/* ================= SERVER ================= */
+/* ================= START SERVER ================= */
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
   console.log("Server running on port", PORT);
