@@ -1,21 +1,23 @@
-/* ================== SUPABASE ================== */
 import { createClient } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm";
 
+/* ================= SUPABASE ================= */
 const supabase = createClient(
   "https://dytrdmvicireccasxxvj.supabase.co",
   "sb_publishable_Rr3_s1fI61dQp14A-Hk92A_j_ZCAnuW"
 );
 
-/* ================== STATE ================== */
+/* ================= STATE ================= */
 let CURRENT_APP = null;
 let CURRENT_PLAN = null;
 let KEY_COUNT = {};
 
-/* ================== ELEMENTS ================== */
-const home = document.getElementById("home");
-const apps = document.getElementById("apps");
-const appDetails = document.getElementById("appDetails");
-const keyPage = document.getElementById("keyPage");
+/* ================= ELEMENTS ================= */
+const pages = {
+  home: document.getElementById("home"),
+  apps: document.getElementById("apps"),
+  details: document.getElementById("appDetails"),
+  key: document.getElementById("keyPage")
+};
 
 const androidBtn = document.getElementById("androidBtn");
 const iosBtn = document.getElementById("iosBtn");
@@ -34,40 +36,28 @@ const purchasedKeyEl = document.getElementById("purchasedKey");
 const copyKeyBtn = document.getElementById("copyKeyBtn");
 const keyDoneBtn = document.getElementById("keyDoneBtn");
 
-/* ================== PAGE CONTROL ================== */
-const pages = {
-  home,
-  apps,
-  appDetails,
-  keyPage
-};
-
-function showPage(pageName) {
+/* ================= PAGE CONTROL ================= */
+function showPage(name) {
   Object.values(pages).forEach(p => p.classList.remove("show"));
-  pages[pageName].classList.add("show");
+  pages[name].classList.add("show");
 }
 
-/* ================== NAVIGATION ================== */
+/* ================= NAV ================= */
 androidBtn.onclick = () => loadApps("android");
 iosBtn.onclick = () => loadApps("ios");
 backBtn.onclick = () => showPage("home");
 detailsBackBtn.onclick = () => showPage("apps");
 
-/* ================== LOAD APPS ================== */
+/* ================= LOAD APPS ================= */
 async function loadApps(platform) {
   showPage("apps");
   appsTitle.textContent = platform.toUpperCase() + " APPS";
-  appGrid.innerHTML = "<p class='loading'>Loading apps...</p>";
+  appGrid.innerHTML = "Loading...";
 
-  const { data, error } = await supabase
+  const { data } = await supabase
     .from("apps")
     .select("*")
     .eq("platform", platform);
-
-  if (error) {
-    appGrid.innerHTML = "<p>Error loading apps</p>";
-    return;
-  }
 
   appGrid.innerHTML = "";
 
@@ -77,14 +67,14 @@ async function loadApps(platform) {
     card.innerHTML = `
       <img src="${app.icon_url || ""}">
       <h4>${app.name}</h4>
-      <p class="app-desc">${app.description || ""}</p>
+      <p>${app.description || ""}</p>
     `;
     card.onclick = () => openApp(app);
     appGrid.appendChild(card);
   });
 }
 
-/* ================== LOAD KEY COUNTS ================== */
+/* ================= KEY COUNT ================= */
 async function loadKeyCounts() {
   KEY_COUNT = {};
   const { data } = await supabase
@@ -97,7 +87,7 @@ async function loadKeyCounts() {
   });
 }
 
-/* ================== OPEN APP ================== */
+/* ================= OPEN APP ================= */
 async function openApp(app) {
   CURRENT_APP = app;
   CURRENT_PLAN = null;
@@ -105,10 +95,9 @@ async function openApp(app) {
 
   detailsIcon.src = app.icon_url || "";
   detailsName.textContent = app.name;
+  planSelect.innerHTML = "Loading plans...";
 
-  planSelect.innerHTML = "<p class='loading'>Loading plans...</p>";
-  showPage("appDetails");
-
+  showPage("details");
   await loadKeyCounts();
 
   const { data: plans } = await supabase
@@ -116,12 +105,7 @@ async function openApp(app) {
     .select("*")
     .eq("app_id", app.id);
 
-  renderPlans(plans || []);
-}
-
-/* ================== RENDER PLANS ================== */
-function renderPlans(plans) {
-  planSelect.innerHTML = "<h3>Select Plan</h3>";
+  planSelect.innerHTML = "";
 
   plans.forEach(plan => {
     const available = KEY_COUNT[plan.id] || 0;
@@ -129,13 +113,9 @@ function renderPlans(plans) {
 
     const div = document.createElement("div");
     div.className = "plan-card" + (soldOut ? " sold-out" : "");
-
     div.innerHTML = `
-      <div>
-        ${plan.label}
-        ${soldOut ? "<small>SOLD OUT</small>" : `<small>${available} keys</small>`}
-      </div>
-      <div class="plan-price">₹ ${plan.price}</div>
+      <span>${plan.label}</span>
+      <span>₹ ${plan.price}</span>
     `;
 
     if (!soldOut) {
@@ -151,14 +131,14 @@ function renderPlans(plans) {
   });
 }
 
-/* ================== BUY KEY (RAZORPAY) ================== */
+/* ================= BUY KEY (NO REDIRECT) ================= */
 buyBtn.onclick = async () => {
   if (!CURRENT_PLAN) return;
 
   buyBtn.disabled = true;
   buyBtn.textContent = "Processing...";
 
-  const res = await fetch(
+  const orderRes = await fetch(
     "https://malayali-store-backend.onrender.com/api/create-order",
     {
       method: "POST",
@@ -167,7 +147,7 @@ buyBtn.onclick = async () => {
     }
   );
 
-  const order = await res.json();
+  const order = await orderRes.json();
 
   const rzp = new Razorpay({
     key: "rzp_live_Rk2oKtZtYbEN4A",
@@ -177,7 +157,9 @@ buyBtn.onclick = async () => {
     name: CURRENT_APP.name,
     description: CURRENT_PLAN.label,
 
-    handler: async function (response) {
+    redirect: false, // 🔴 THIS IS THE CRITICAL FIX
+
+    handler: async (response) => {
       try {
         const verify = await fetch(
           "https://malayali-store-backend.onrender.com/api/verify-payment",
@@ -189,11 +171,12 @@ buyBtn.onclick = async () => {
         );
 
         const result = await verify.json();
-        if (!result.success) throw new Error("verify-failed");
+        if (!result.success) throw new Error();
 
         await deliverKey();
-      } catch (err) {
-        alert("Payment verified but key delivery failed");
+
+      } catch {
+        alert("Payment done, but key delivery failed");
         resetBuyBtn();
       }
     }
@@ -202,9 +185,9 @@ buyBtn.onclick = async () => {
   rzp.open();
 };
 
-/* ================== DELIVER KEY ================== */
+/* ================= DELIVER KEY ================= */
 async function deliverKey() {
-  const { data, error } = await supabase
+  const { data } = await supabase
     .from("keys")
     .select("*")
     .eq("plan_id", CURRENT_PLAN.id)
@@ -212,40 +195,29 @@ async function deliverKey() {
     .limit(1)
     .single();
 
-  if (error || !data) {
-    alert("No keys available");
-    resetBuyBtn();
-    return;
-  }
-
-  await supabase
-    .from("keys")
-    .update({ is_used: true })
-    .eq("id", data.id);
+  await supabase.from("keys").update({ is_used: true }).eq("id", data.id);
 
   purchasedKeyEl.textContent = data.key_value;
   navigator.clipboard.writeText(data.key_value);
 
-  showPage("keyPage");
+  showPage("key"); // 🔥 ALWAYS GO TO KEY PAGE
 }
 
-/* ================== KEY PAGE ================== */
+/* ================= KEY PAGE ================= */
 copyKeyBtn.onclick = () => {
   navigator.clipboard.writeText(purchasedKeyEl.textContent);
-  copyKeyBtn.textContent = "Copied ✔";
 };
 
 keyDoneBtn.onclick = () => {
-  copyKeyBtn.textContent = "Copy Key";
   resetBuyBtn();
-  openApp(CURRENT_APP);
+  showPage("home");
 };
 
-/* ================== HELPERS ================== */
+/* ================= RESET ================= */
 function resetBuyBtn() {
   buyBtn.textContent = "Buy Key";
   buyBtn.disabled = true;
 }
 
-/* ================== INIT ================== */
+/* ================= INIT ================= */
 showPage("home");
