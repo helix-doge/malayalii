@@ -231,7 +231,7 @@ function fallbackCopy(text) {
 
   try {
     document.execCommand("copy");
-    copyKeyBtn.textContent = "Copied Automatically ✓";
+    copyKeyBtn.textContent = "Copy ✓";
   } catch {
     copyKeyBtn.textContent = "Tap Copy Button";
   }
@@ -242,8 +242,10 @@ function fallbackCopy(text) {
 
 /* ================= KEY PAGE ================= */
 copyKeyBtn.onclick = () => {
-  autoCopyKey(purchasedKeyEl.textContent);
+  navigator.clipboard.writeText(purchasedKeyEl.textContent);
+  copyKeyBtn.textContent = "Copied ✓";
 };
+
 
 
 keyDoneBtn.onclick = () => {
