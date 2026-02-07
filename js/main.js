@@ -173,13 +173,13 @@ buyBtn.onclick = async () => {
           const result = await verify.json();
           if (!result.success) throw new Error();
 
-          // Save plan temporarily (important if page reloads)
-          sessionStorage.setItem("last_plan_id", CURRENT_PLAN.id);
+          // Save plan for recovery if page reloads
+          sessionStorage.setItem("paid_plan_id", CURRENT_PLAN.id);
 
           await deliverKey();
 
         } catch (err) {
-          alert("Payment successful but key delivery failed");
+          alert("Payment done but key delivery failed");
           resetBuyBtn();
         }
       }
@@ -194,10 +194,8 @@ buyBtn.onclick = async () => {
 };
 
 /* ================= DELIVER KEY ================= */
-async function deliverKey() {
-  const planId =
-    CURRENT_PLAN?.id || sessionStorage.getItem("last_plan_id");
-
+async function deliverKey(planIdOverride = null) {
+  const planId = planIdOverride || CURRENT_PLAN?.id;
   if (!planId) return;
 
   const { data, error } = await supabase
@@ -214,7 +212,8 @@ async function deliverKey() {
     return;
   }
 
-  await supabase.from("keys")
+  await supabase
+    .from("keys")
     .update({ is_used: true })
     .eq("id", data.id);
 
@@ -223,11 +222,18 @@ async function deliverKey() {
   // Auto copy
   navigator.clipboard.writeText(data.key_value);
 
-  // Clear temp storage
-  sessionStorage.removeItem("last_plan_id");
+  sessionStorage.removeItem("paid_plan_id");
 
   showPage("key");
 }
+
+/* ================= PAYMENT RECOVERY ================= */
+window.addEventListener("load", async () => {
+  const savedPlan = sessionStorage.getItem("paid_plan_id");
+  if (savedPlan) {
+    await deliverKey(savedPlan);
+  }
+});
 
 /* ================= KEY PAGE ================= */
 copyKeyBtn.onclick = () => {
@@ -247,36 +253,3 @@ function resetBuyBtn() {
 
 /* ================= INIT ================= */
 showPage("home");
-
-/* ================= PAYMENT RETURN FIX ================= */
-window.addEventListener("load", async () => {
-  const planId = sessionStorage.getItem("last_plan_id");
-  if (!planId) return;
-
-  try {
-    const { data } = await supabase
-      .from("keys")
-      .select("*")
-      .eq("plan_id", planId)
-      .eq("is_used", false)
-      .limit(1)
-      .single();
-
-    if (!data) return;
-
-    await supabase
-      .from("keys")
-      .update({ is_used: true })
-      .eq("id", data.id);
-
-    purchasedKeyEl.textContent = data.key_value;
-    navigator.clipboard.writeText(data.key_value);
-
-    sessionStorage.removeItem("last_plan_id");
-
-    showPage("key");
-  } catch (e) {
-    console.log("Return delivery failed", e);
-  }
-});
-
