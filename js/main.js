@@ -131,76 +131,102 @@ async function openApp(app) {
   });
 }
 
-/* ================= BUY KEY (NO REDIRECT) ================= */
+/* ================= BUY KEY ================= */
 buyBtn.onclick = async () => {
   if (!CURRENT_PLAN) return;
 
   buyBtn.disabled = true;
   buyBtn.textContent = "Processing...";
 
-  const orderRes = await fetch(
-    "https://malayali-store-backend.onrender.com/api/create-order",
-    {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ amount: CURRENT_PLAN.price })
-    }
-  );
-
-  const order = await orderRes.json();
-
-  const rzp = new Razorpay({
-    key: "rzp_live_Rk2oKtZtYbEN4A",
-    amount: order.amount,
-    currency: "INR",
-    order_id: order.id,
-    name: CURRENT_APP.name,
-    description: CURRENT_PLAN.label,
-
-    redirect: false, // 🔴 THIS IS THE CRITICAL FIX
-
-    handler: async (response) => {
-      try {
-        const verify = await fetch(
-          "https://malayali-store-backend.onrender.com/api/verify-payment",
-          {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify(response)
-          }
-        );
-
-        const result = await verify.json();
-        if (!result.success) throw new Error();
-
-        await deliverKey();
-
-      } catch {
-        alert("Payment done, but key delivery failed");
-        resetBuyBtn();
+  try {
+    const orderRes = await fetch(
+      "https://malayali-store-backend.onrender.com/api/create-order",
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ amount: CURRENT_PLAN.price })
       }
-    }
-  });
+    );
 
-  rzp.open();
+    const order = await orderRes.json();
+
+    const rzp = new Razorpay({
+      key: "rzp_live_Rk2oKtZtYbEN4A",
+      amount: order.amount,
+      currency: "INR",
+      order_id: order.id,
+      name: CURRENT_APP.name,
+      description: CURRENT_PLAN.label,
+      redirect: false,
+
+      handler: async function (response) {
+        try {
+          const verify = await fetch(
+            "https://malayali-store-backend.onrender.com/api/verify-payment",
+            {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify(response)
+            }
+          );
+
+          const result = await verify.json();
+          if (!result.success) throw new Error();
+
+          // Save plan temporarily (important if page reloads)
+          sessionStorage.setItem("last_plan_id", CURRENT_PLAN.id);
+
+          await deliverKey();
+
+        } catch (err) {
+          alert("Payment successful but key delivery failed");
+          resetBuyBtn();
+        }
+      }
+    });
+
+    rzp.open();
+
+  } catch (err) {
+    alert("Payment failed");
+    resetBuyBtn();
+  }
 };
 
 /* ================= DELIVER KEY ================= */
 async function deliverKey() {
-  const { data } = await supabase
+  const planId =
+    CURRENT_PLAN?.id || sessionStorage.getItem("last_plan_id");
+
+  if (!planId) return;
+
+  const { data, error } = await supabase
     .from("keys")
     .select("*")
-    .eq("plan_id", CURRENT_PLAN.id)
+    .eq("plan_id", planId)
     .eq("is_used", false)
     .limit(1)
     .single();
 
-  await supabase.from("keys").update({ is_used: true }).eq("id", data.id);
+  if (error || !data) {
+    alert("No keys available");
+    resetBuyBtn();
+    return;
+  }
+
+  await supabase.from("keys")
+    .update({ is_used: true })
+    .eq("id", data.id);
 
   purchasedKeyEl.textContent = data.key_value;
+
+  // Auto copy
   navigator.clipboard.writeText(data.key_value);
 
-  showPage("key"); // 🔥 ALWAYS GO TO KEY PAGE
+  // Clear temp storage
+  sessionStorage.removeItem("last_plan_id");
+
+  showPage("key");
 }
 
 /* ================= KEY PAGE ================= */
