@@ -11,7 +11,7 @@
   <!-- CSS -->
   <link rel="stylesheet" href="css/style.css">
 
-  <!-- Razorpay (must be BEFORE main.js) -->
+  <!-- Razorpay -->
   <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
 </head>
 <body>
@@ -19,10 +19,9 @@
   <!-- FIXED BACKGROUND -->
   <div class="bg-layer"></div>
 
-  <!-- APP ROOT -->
   <div class="app-root">
 
-    <!-- ================= HOME ================= -->
+    <!-- HOME -->
     <section id="home" class="page show">
       <div class="hero">
 
@@ -32,8 +31,8 @@
         </div>
 
         <div class="buttons">
-          <button id="androidBtn" type="button">ANDROID</button>
-          <button id="iosBtn" type="button">iOS / iPAD</button>
+          <button id="androidBtn">ANDROID</button>
+          <button id="iosBtn">iOS / iPAD</button>
         </div>
 
         <div class="vision">
@@ -47,54 +46,51 @@
       </div>
     </section>
 
-    <!-- ================= APPS ================= -->
+    <!-- APPS -->
     <section id="apps" class="page">
       <h2 id="appsTitle"></h2>
       <div id="appGrid" class="app-grid"></div>
-      <button id="backBtn" class="back" type="button">← Back</button>
+      <button id="backBtn" class="back">← Back</button>
     </section>
 
-    <!-- ================= APP DETAILS ================= -->
+    <!-- APP DETAILS -->
     <section id="appDetails" class="page">
       <div class="app-details">
 
-        <img id="detailsIcon" class="details-icon" alt="App Icon">
+        <img id="detailsIcon" class="details-icon" alt="">
         <h2 id="detailsName"></h2>
 
         <div id="planSelect" class="plan-select">
           <h3>Select Plan</h3>
         </div>
 
-        <button id="buyBtn" class="buy-btn" type="button" disabled>
+        <button id="buyBtn" class="buy-btn" disabled>
           Buy Key
         </button>
 
-        <button id="detailsBackBtn" class="back" type="button">
-          ← Back
-        </button>
+        <button id="detailsBackBtn" class="back">← Back</button>
 
       </div>
     </section>
 
-    <!-- ================= KEY PURCHASED ================= -->
+    <!-- KEY PAGE -->
     <section id="keyPage" class="page">
       <div class="key-box">
 
-        <h2>Key Purchased ✅</h2>
+        <h2 class="success-title">Key Purchased ✅</h2>
 
         <p class="key-warning">
-          This key will be shown <b>only once</b>.<br>
-          If you refresh or go back, you will lose this key.<br>
-          Please copy and save it now.
+          This key will be shown only once.<br>
+          Please copy and save it safely.
         </p>
 
         <div class="key-value" id="purchasedKey">----</div>
 
-        <button id="copyKeyBtn" class="copy-btn" type="button">
+        <button id="copyKeyBtn" class="copy-btn">
           Copy Key
         </button>
 
-        <button id="keyDoneBtn" class="back" type="button">
+        <button id="keyDoneBtn" class="done-btn">
           Done
         </button>
 
@@ -103,7 +99,6 @@
 
   </div>
 
-  <!-- MAIN JS (ES MODULE – IMPORTANT) -->
   <script type="module" src="js/main.js"></script>
 
 </body>
