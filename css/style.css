@@ -17,7 +17,7 @@ html, body {
 .bg-layer {
   position: fixed;
   inset: 0;
-  background: url("/assets/bg.jpeg") center / cover no-repeat;
+  background: url("/assets/bg.jpg") center / cover no-repeat;
   filter: brightness(0.45);
   z-index: 0;
 }
