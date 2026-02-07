@@ -247,3 +247,36 @@ function resetBuyBtn() {
 
 /* ================= INIT ================= */
 showPage("home");
+
+/* ================= PAYMENT RETURN FIX ================= */
+window.addEventListener("load", async () => {
+  const planId = sessionStorage.getItem("last_plan_id");
+  if (!planId) return;
+
+  try {
+    const { data } = await supabase
+      .from("keys")
+      .select("*")
+      .eq("plan_id", planId)
+      .eq("is_used", false)
+      .limit(1)
+      .single();
+
+    if (!data) return;
+
+    await supabase
+      .from("keys")
+      .update({ is_used: true })
+      .eq("id", data.id);
+
+    purchasedKeyEl.textContent = data.key_value;
+    navigator.clipboard.writeText(data.key_value);
+
+    sessionStorage.removeItem("last_plan_id");
+
+    showPage("key");
+  } catch (e) {
+    console.log("Return delivery failed", e);
+  }
+});
+
