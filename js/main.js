@@ -185,28 +185,66 @@ async function deliverKey() {
     return;
   }
 
+  // Mark key used
   await supabase
     .from("keys")
     .update({ is_used: true })
     .eq("id", data.id);
 
-  purchasedKeyEl.textContent = data.key_value;
+  const keyValue = data.key_value;
+  purchasedKeyEl.textContent = keyValue;
 
+  // Show key page first
   showPage("key");
 
-  // Reliable auto-copy
+  // ===== RELIABLE AUTO COPY (Mobile + Desktop) =====
   setTimeout(() => {
-    navigator.clipboard.writeText(data.key_value)
-      .then(() => copyKeyBtn.textContent = "Copied ✓")
-      .catch(() => copyKeyBtn.textContent = "Click to Copy");
-  }, 400);
+    autoCopyKey(keyValue);
+  }, 300);
 }
+
+function autoCopyKey(text) {
+  // Try modern clipboard API first
+  if (navigator.clipboard && window.isSecureContext) {
+    navigator.clipboard.writeText(text)
+      .then(() => {
+        copyKeyBtn.textContent = "Copied Automatically ✓";
+      })
+      .catch(() => {
+        fallbackCopy(text);
+      });
+  } else {
+    fallbackCopy(text);
+  }
+}
+
+function fallbackCopy(text) {
+  // Hidden textarea method (works on most mobiles)
+  const textarea = document.createElement("textarea");
+  textarea.value = text;
+  textarea.style.position = "fixed";
+  textarea.style.opacity = "0";
+  document.body.appendChild(textarea);
+
+  textarea.focus();
+  textarea.select();
+
+  try {
+    document.execCommand("copy");
+    copyKeyBtn.textContent = "Copied Automatically ✓";
+  } catch {
+    copyKeyBtn.textContent = "Tap Copy Button";
+  }
+
+  document.body.removeChild(textarea);
+}
+
 
 /* ================= KEY PAGE ================= */
 copyKeyBtn.onclick = () => {
-  navigator.clipboard.writeText(purchasedKeyEl.textContent);
-  copyKeyBtn.textContent = "Copied ✓";
+  autoCopyKey(purchasedKeyEl.textContent);
 };
+
 
 keyDoneBtn.onclick = () => {
   const ok = confirm("Make sure you saved the key. Continue?");
