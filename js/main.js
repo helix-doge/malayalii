@@ -64,11 +64,13 @@ async function loadApps(platform) {
   data.forEach(app => {
     const card = document.createElement("div");
     card.className = "app-card";
+
     card.innerHTML = `
       <img src="${app.icon_url || ""}">
       <h4>${app.name}</h4>
       <p>${app.description || ""}</p>
     `;
+
     card.onclick = () => openApp(app);
     appGrid.appendChild(card);
   });
@@ -113,6 +115,7 @@ async function openApp(app) {
 
     const div = document.createElement("div");
     div.className = "plan-card" + (soldOut ? " sold-out" : "");
+
     div.innerHTML = `
       <span>${plan.label}</span>
       <span>₹ ${plan.price}</span>
@@ -138,70 +141,40 @@ buyBtn.onclick = async () => {
   buyBtn.disabled = true;
   buyBtn.textContent = "Processing...";
 
-  try {
-    const orderRes = await fetch(
-      "https://malayali-store-backend.onrender.com/api/create-order",
-      {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ amount: CURRENT_PLAN.price })
-      }
-    );
+  const orderRes = await fetch(
+    "https://malayali-store-backend.onrender.com/api/create-order",
+    {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ amount: CURRENT_PLAN.price })
+    }
+  );
 
-    const order = await orderRes.json();
+  const order = await orderRes.json();
 
-    const rzp = new Razorpay({
-      key: "rzp_live_Rk2oKtZtYbEN4A",
-      amount: order.amount,
-      currency: "INR",
-      order_id: order.id,
-      name: CURRENT_APP.name,
-      description: CURRENT_PLAN.label,
-      redirect: false,
+  const rzp = new Razorpay({
+    key: "rzp_live_Rk2oKtZtYbEN4A",
+    amount: order.amount,
+    currency: "INR",
+    order_id: order.id,
+    name: CURRENT_APP.name,
+    description: CURRENT_PLAN.label,
+    redirect: false,
 
-      handler: async function (response) {
-        try {
-          const verify = await fetch(
-            "https://malayali-store-backend.onrender.com/api/verify-payment",
-            {
-              method: "POST",
-              headers: { "Content-Type": "application/json" },
-              body: JSON.stringify(response)
-            }
-          );
+    handler: async function (response) {
+      await deliverKey();
+    }
+  });
 
-          const result = await verify.json();
-          if (!result.success) throw new Error();
-
-          // Save plan for recovery if page reloads
-          sessionStorage.setItem("paid_plan_id", CURRENT_PLAN.id);
-
-          await deliverKey();
-
-        } catch (err) {
-          alert("Payment done but key delivery failed");
-          resetBuyBtn();
-        }
-      }
-    });
-
-    rzp.open();
-
-  } catch (err) {
-    alert("Payment failed");
-    resetBuyBtn();
-  }
+  rzp.open();
 };
 
 /* ================= DELIVER KEY ================= */
-async function deliverKey(planIdOverride = null) {
-  const planId = planIdOverride || CURRENT_PLAN?.id;
-  if (!planId) return;
-
+async function deliverKey() {
   const { data, error } = await supabase
     .from("keys")
     .select("*")
-    .eq("plan_id", planId)
+    .eq("plan_id", CURRENT_PLAN.id)
     .eq("is_used", false)
     .limit(1)
     .single();
@@ -219,30 +192,28 @@ async function deliverKey(planIdOverride = null) {
 
   purchasedKeyEl.textContent = data.key_value;
 
-  // Auto copy
-  navigator.clipboard.writeText(data.key_value);
-
-  sessionStorage.removeItem("paid_plan_id");
-
   showPage("key");
-}
 
-/* ================= PAYMENT RECOVERY ================= */
-window.addEventListener("load", async () => {
-  const savedPlan = sessionStorage.getItem("paid_plan_id");
-  if (savedPlan) {
-    await deliverKey(savedPlan);
-  }
-});
+  // Reliable auto-copy
+  setTimeout(() => {
+    navigator.clipboard.writeText(data.key_value)
+      .then(() => copyKeyBtn.textContent = "Copied ✓")
+      .catch(() => copyKeyBtn.textContent = "Click to Copy");
+  }, 400);
+}
 
 /* ================= KEY PAGE ================= */
 copyKeyBtn.onclick = () => {
   navigator.clipboard.writeText(purchasedKeyEl.textContent);
+  copyKeyBtn.textContent = "Copied ✓";
 };
 
 keyDoneBtn.onclick = () => {
-  resetBuyBtn();
+  const ok = confirm("Make sure you saved the key. Continue?");
+  if (!ok) return;
+
   showPage("home");
+  resetBuyBtn();
 };
 
 /* ================= RESET ================= */
