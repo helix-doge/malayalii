@@ -1,5 +1,22 @@
 import { createClient } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm";
 
+/* ================= SUPABASE ================= */
+const supabase = createClient(
+  "https://dytrdmvicireccasxxvj.supabase.co",
+  "sb_publishable_Rr3_s1fI61dQp14A-Hk92A_j_ZCAnuW"
+);
+
+/* ================= ADMIN PROTECTION ================= */
+const { data } = await supabase.auth.getUser();
+
+if (!data.user) {
+  window.location.href = "admin-login.html";
+}
+
+
+
+import { createClient } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm";
+
 document.addEventListener("DOMContentLoaded", () => {
 
   /* ================= SUPABASE ================= */
