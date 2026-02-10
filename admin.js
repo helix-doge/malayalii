@@ -342,3 +342,12 @@ document.addEventListener("DOMContentLoaded", () => {
   loadApps();
 
 });
+
+const logoutBtn = document.getElementById("logoutBtn");
+
+if (logoutBtn) {
+  logoutBtn.onclick = async () => {
+    await supabase.auth.signOut();
+    window.location.href = "admin-login.html";
+  };
+}
