@@ -13,7 +13,7 @@
 <header class="top">
   <h1>Malayali Here</h1>
   <p>Admin Panel</p>
-  <button id="logoutBtn" style="margin-top:10px;">Logout</button>
+  <button id="logoutBtn" class="danger logout-btn">Logout</button>
 </header>
 
 <main>
@@ -31,17 +31,19 @@
 <!-- APPS -->
 <section id="page-apps" class="page">
   <h2>Apps</h2>
+
   <select id="appFilter">
     <option value="all">All</option>
     <option value="android">Android</option>
     <option value="ios">iOS</option>
   </select>
+
   <div id="appsList" class="list"></div>
 </section>
 
 <!-- ADD / EDIT APP -->
 <section id="page-add" class="page">
-  <h2 id="formTitle">Add App</h2>
+  <h2>Add App</h2>
 
   <input id="appName" placeholder="App name">
   <select id="platform">
@@ -57,10 +59,9 @@
 
   <button id="addPlanBtn" class="outline">+ Add Plan</button>
   <button id="saveAppBtn" class="primary">Save App</button>
-  <button id="deleteAppBtn" class="danger hidden">Delete App</button>
 </section>
 
-<!-- KEY MANAGEMENT -->
+<!-- KEYS -->
 <section id="page-keys" class="page">
   <h2>Key Management</h2>
 
@@ -74,6 +75,8 @@
       <option value="available">Available</option>
       <option value="used">Used</option>
     </select>
+
+    <button id="loadKeysBtn" class="primary">View Keys</button>
   </div>
 
   <div class="key-stats">
@@ -89,14 +92,13 @@
         <th>Plan</th>
         <th>Key</th>
         <th>Status</th>
-        <th>Action</th>
       </tr>
     </thead>
     <tbody id="keysTableBody"></tbody>
   </table>
 </section>
 
-<!-- ADD KEYS (NEW PAGE) -->
+<!-- ADD KEYS -->
 <section id="page-add-keys" class="page">
   <h2>Add Keys</h2>
 
