@@ -9,14 +9,15 @@ const supabase = createClient(
 /* ================= AUTH CHECK ================= */
 async function checkAuth() {
   const { data: { user } } = await supabase.auth.getUser();
-
   if (!user) {
     window.location.replace("admin-login.html");
     return false;
   }
-
   return true;
 }
+
+/* ================= STATE ================= */
+let EDIT_APP_ID = null;
 
 /* ================= INIT ================= */
 checkAuth().then(ok => {
@@ -26,16 +27,13 @@ checkAuth().then(ok => {
 
 /* ================= LOGOUT ================= */
 function setupLogout() {
-  const logoutBtn = document.getElementById("logoutBtn");
-  if (!logoutBtn) return;
-
-  logoutBtn.onclick = async () => {
+  document.getElementById("logoutBtn").onclick = async () => {
     await supabase.auth.signOut();
     window.location.replace("admin-login.html");
   };
 }
 
-/* ================= PAGE NAV ================= */
+/* ================= NAVIGATION ================= */
 function setupNavigation() {
   const pages = document.querySelectorAll(".page");
   const buttons = document.querySelectorAll(".bottom-nav button");
@@ -67,130 +65,141 @@ async function loadApps() {
   const list = document.getElementById("appsList");
   const filter = document.getElementById("appFilter").value;
 
-  const { data } = await supabase
-    .from("apps")
-    .select("*")
-    .order("created_at", { ascending: false });
+  const { data } = await supabase.from("apps").select("*");
 
   list.innerHTML = "";
 
   data
     .filter(app => filter === "all" || app.platform === filter)
     .forEach(app => {
-      const div = document.createElement("div");
-      div.className = "card";
-      div.innerHTML = `
+      const card = document.createElement("div");
+      card.className = "card";
+
+      card.innerHTML = `
         <b>${app.name}</b><br>
-        <small>${app.platform}</small>
+        <small>${app.platform}</small><br>
+        <button class="primary editBtn">Edit</button>
       `;
-      list.appendChild(div);
+
+      card.querySelector(".editBtn").onclick = () => openEdit(app);
+
+      list.appendChild(card);
     });
 }
 
-/* ================= LOAD KEYS ================= */
-async function loadKeys() {
-  const appId = document.getElementById("filterApp").value;
-  const status = document.getElementById("filterStatus").value;
+document.getElementById("appFilter").onchange = loadApps;
 
-  let query = supabase
-    .from("keys")
-    .select("*, apps(name), plans(label)");
+/* ================= EDIT APP ================= */
+async function openEdit(app) {
+  EDIT_APP_ID = app.id;
 
-  if (appId) query = query.eq("app_id", appId);
-  if (status === "available") query = query.eq("is_used", false);
-  if (status === "used") query = query.eq("is_used", true);
+  document.querySelector('[data-page="add"]').click();
+  document.getElementById("formTitle").textContent = "Edit App";
+  document.getElementById("cancelEditBtn").classList.remove("hidden");
 
-  const { data } = await query;
+  document.getElementById("appName").value = app.name;
+  document.getElementById("platform").value = app.platform;
+  document.getElementById("description").value = app.description || "";
 
-  const tbody = document.getElementById("keysTableBody");
-  tbody.innerHTML = "";
-
-  let available = 0;
-  let used = 0;
-
-  data.forEach(k => {
-    if (k.is_used) used++;
-    else available++;
-
-    const tr = document.createElement("tr");
-    tr.innerHTML = `
-      <td>${k.apps?.name || ""}</td>
-      <td>${k.plans?.label || ""}</td>
-      <td>${k.key_value}</td>
-      <td>${k.is_used ? "Used" : "Available"}</td>
-    `;
-    tbody.appendChild(tr);
-  });
-
-  document.getElementById("totalKeys").textContent = data.length;
-  document.getElementById("availableKeys").textContent = available;
-  document.getElementById("usedKeys").textContent = used;
-}
-
-/* ================= ADD KEYS ================= */
-async function loadAppDropdowns() {
-  const { data: apps } = await supabase.from("apps").select("*");
-
-  const appSelect = document.getElementById("keyAppSelect");
-  appSelect.innerHTML = "";
-
-  apps.forEach(app => {
-    const opt = document.createElement("option");
-    opt.value = app.id;
-    opt.textContent = app.name;
-    appSelect.appendChild(opt);
-  });
-
-  appSelect.onchange = loadPlanDropdowns;
-  loadPlanDropdowns();
-}
-
-async function loadPlanDropdowns() {
-  const appId = document.getElementById("keyAppSelect").value;
-  const { data } = await supabase
+  const { data: plans } = await supabase
     .from("plans")
     .select("*")
-    .eq("app_id", appId);
+    .eq("app_id", app.id);
 
-  const planSelect = document.getElementById("keyPlanSelect");
-  planSelect.innerHTML = "";
+  const plansDiv = document.getElementById("plans");
+  plansDiv.innerHTML = "";
 
-  data.forEach(plan => {
-    const opt = document.createElement("option");
-    opt.value = plan.id;
-    opt.textContent = `${plan.label} - ₹${plan.price}`;
-    planSelect.appendChild(opt);
-  });
+  plans.forEach(p => addPlanRow(p.label, p.price));
 }
 
-async function saveKeys() {
-  const appId = document.getElementById("keyAppSelect").value;
-  const planId = document.getElementById("keyPlanSelect").value;
-  const bulk = document.getElementById("keyBulk").value.trim();
+/* ================= PLAN ROW ================= */
+function addPlanRow(label = "", price = "") {
+  const row = document.createElement("div");
+  row.className = "plan-row";
 
-  if (!bulk) return alert("No keys entered");
+  row.innerHTML = `
+    <input placeholder="Plan name" value="${label}">
+    <input type="number" placeholder="Price" value="${price}">
+    <button type="button">X</button>
+  `;
 
-  const keys = bulk.split("\n").map(k => ({
-    app_id: appId,
-    plan_id: planId,
-    key_value: k.trim(),
-    is_used: false
-  }));
+  row.querySelector("button").onclick = () => row.remove();
 
-  await supabase.from("keys").insert(keys);
-  document.getElementById("keyBulk").value = "";
-  alert("Keys saved");
+  document.getElementById("plans").appendChild(row);
 }
 
-/* ================= INIT ADMIN ================= */
+document.getElementById("addPlanBtn").onclick = () => addPlanRow();
+
+/* ================= SAVE APP ================= */
+document.getElementById("saveAppBtn").onclick = async () => {
+  const name = document.getElementById("appName").value;
+  const platform = document.getElementById("platform").value;
+  const description = document.getElementById("description").value;
+
+  if (!name) return alert("Enter app name");
+
+  let appData;
+
+  if (EDIT_APP_ID) {
+    const { data } = await supabase
+      .from("apps")
+      .update({ name, platform, description })
+      .eq("id", EDIT_APP_ID)
+      .select()
+      .single();
+
+    appData = data;
+
+    await supabase.from("plans").delete().eq("app_id", EDIT_APP_ID);
+
+  } else {
+    const { data } = await supabase
+      .from("apps")
+      .insert({ name, platform, description })
+      .select()
+      .single();
+
+    appData = data;
+  }
+
+  const rows = document.querySelectorAll(".plan-row");
+
+  for (const row of rows) {
+    const label = row.children[0].value;
+    const price = row.children[1].value;
+
+    if (label && price) {
+      await supabase.from("plans").insert({
+        app_id: appData.id,
+        label,
+        price
+      });
+    }
+  }
+
+  resetForm();
+  loadApps();
+  loadStats();
+};
+
+/* ================= RESET FORM ================= */
+document.getElementById("cancelEditBtn").onclick = resetForm;
+
+function resetForm() {
+  EDIT_APP_ID = null;
+
+  document.getElementById("formTitle").textContent = "Add App";
+  document.getElementById("cancelEditBtn").classList.add("hidden");
+
+  document.getElementById("appName").value = "";
+  document.getElementById("description").value = "";
+  document.getElementById("plans").innerHTML = "";
+}
+
+/* ================= INIT ================= */
 function initAdmin() {
   setupLogout();
   setupNavigation();
   loadStats();
   loadApps();
-  loadAppDropdowns();
-
-  document.getElementById("appFilter").onchange = loadApps;
-  document.getElementById("loadKeysBtn").onclick = loadKeys;
-  document.getElementById("saveKeysBtn").onclick = saveKeys;
 }
