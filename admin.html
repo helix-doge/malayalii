@@ -13,7 +13,7 @@
 <header class="top">
   <h1>Malayali Here</h1>
   <p>Admin Panel</p>
-  <button id="logoutBtn" class="danger logout-btn">Logout</button>
+  <button id="logoutBtn" class="danger">Logout</button>
 </header>
 
 <main>
@@ -31,13 +31,11 @@
 <!-- APPS -->
 <section id="page-apps" class="page">
   <h2>Apps</h2>
-
   <select id="appFilter">
     <option value="all">All</option>
     <option value="android">Android</option>
     <option value="ios">iOS</option>
   </select>
-
   <div id="appsList" class="list"></div>
 </section>
 
@@ -46,12 +44,10 @@
   <h2 id="formTitle">Add App</h2>
 
   <input id="appName" placeholder="App name">
-
   <select id="platform">
     <option value="android">Android</option>
     <option value="ios">iOS</option>
   </select>
-
   <textarea id="description" placeholder="Description"></textarea>
 
   <h3>Plans</h3>
@@ -62,7 +58,7 @@
   <button id="cancelEditBtn" class="outline hidden">Cancel Edit</button>
 </section>
 
-<!-- KEYS -->
+<!-- KEY MANAGEMENT -->
 <section id="page-keys" class="page">
   <h2>Key Management</h2>
 
@@ -99,14 +95,26 @@
   </table>
 </section>
 
+<!-- ADD KEYS -->
+<section id="page-add-keys" class="page">
+  <h2>Add Keys</h2>
+
+  <select id="keyAppSelect"></select>
+  <select id="keyPlanSelect"></select>
+
+  <textarea id="keyBulk" placeholder="Paste keys (one per line)"></textarea>
+
+  <button id="saveKeysBtn" class="primary">Save Keys</button>
+</section>
+
 </main>
 
-<!-- BOTTOM NAV -->
 <nav class="bottom-nav">
   <button data-page="dashboard" class="active">Dashboard</button>
   <button data-page="apps">Apps</button>
   <button data-page="add">Add App</button>
   <button data-page="keys">Keys</button>
+  <button data-page="add-keys">Add Keys</button>
 </nav>
 
 <script type="module" src="admin.js"></script>
