@@ -28,5 +28,5 @@ loginBtn.onclick = async () => {
   }
 
   // Success → go to admin panel
-  window.location.href = "admin.html";
+  window.location.replace("admin.html");
 };
