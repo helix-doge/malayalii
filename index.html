@@ -3,6 +3,50 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Malayali Here | Official Store</title>
+    <link rel="stylesheet" href="css/style.css"> <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700&family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+</head>
+<body>
+
+<nav class="glass-nav">
+    <div class="logo" onclick="navigateTo('/')">MALAYALI HERE</div>
+    <div class="nav-links">
+        <button onclick="navigateTo('/rc-cars')">RC CARS</button>
+        <button onclick="navigateTo('/hot-wheels')">HOT WHEELS</button>
+        <button class="admin-link" onclick="window.location.href='admin.html'">ADMIN</button>
+    </div>
+</nav>
+
+<div id="view-home" class="view active">
+    <section class="hero">
+        <div class="hero-text">
+            <h1>FAST CARS. <br><span class="gold-text">BIG SMILES.</span></h1>
+            <button class="shop-now" onclick="navigateTo('/rc-cars')">EXPLORE GARAGE</button>
+        </div>
+    </section>
+    
+    <section class="categories">
+        <div class="cat-card" onclick="navigateTo('/rc-cars')">🏎️ RC DRIFT</div>
+        <div class="cat-card" onclick="navigateTo('/hot-wheels')">🔥 HOT WHEELS</div>
+        <div class="cat-card" onclick="navigateTo('/gadgets')">🔌 GADGETS</div>
+    </section>
+</div>
+
+<div id="view-shop" class="view" style="display:none;">
+    <h2 id="page-title" class="section-header">COLLECTION</h2>
+    <div class="product-grid" id="product-list">
+        </div>
+</div>
+
+<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
+<script src="js/app.js"></script>
+</body>
+</html><!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Malayali Here | Official Premium Store</title>
     <link rel="stylesheet" href="style.css">
     <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
