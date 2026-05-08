@@ -2,6 +2,64 @@
 <html>
 <head>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Inventory | Malayali Here</title>
+    <style>
+        body { font-family: sans-serif; background: #f0f2f5; padding: 20px; }
+        .box { max-width: 600px; margin: auto; background: white; padding: 25px; border-radius: 15px; box-shadow: 0 5px 20px rgba(0,0,0,0.1); }
+        h2 { margin-top: 0; color: #333; }
+        input, select, textarea { width: 100%; padding: 12px; margin: 8px 0; border: 1px solid #ddd; border-radius: 8px; box-sizing: border-box; }
+        .btn { width: 100%; padding: 15px; background: #000; color: #FFD700; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; font-size: 16px; }
+    </style>
+</head>
+<body>
+
+<div class="box">
+    <h2>ADD NEW GEAR 🏎️</h2>
+    <input type="text" id="name" placeholder="Product Name">
+    <textarea id="desc" placeholder="Product Description (e.g. 1:16 Scale, 4WD)"></textarea>
+    <div style="display: flex; gap: 10px;">
+        <input type="number" id="price" placeholder="Sale Price (₹)">
+        <input type="number" id="oldPrice" placeholder="Original Price (₹)">
+    </div>
+    <div style="display: flex; gap: 10px;">
+        <input type="number" id="stock" placeholder="Stock Quantity">
+        <select id="cat">
+            <option value="RC CARS">RC CARS</option>
+            <option value="HOT WHEELS">HOT WHEELS</option>
+            <option value="GADGETS">GADGETS</option>
+        </select>
+    </div>
+    <input type="text" id="image" placeholder="Image Link (URL)">
+    <button class="btn" onclick="upload()">SYNC TO STORE</button>
+</div>
+
+<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
+<script>
+    firebase.initializeApp(firebaseConfig); // Copy config from app.js
+    const database = firebase.database();
+
+    function upload() {
+        const item = {
+            name: document.getElementById('name').value,
+            desc: document.getElementById('desc').value,
+            price: document.getElementById('price').value,
+            oldPrice: document.getElementById('oldPrice').value,
+            stock: document.getElementById('stock').value,
+            category: document.getElementById('cat').value,
+            image: document.getElementById('image').value
+        };
+        database.ref('products').push(item).then(() => {
+            alert("Added!");
+            location.reload();
+        });
+    }
+</script>
+</body>
+</html><!DOCTYPE html>
+<html>
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Master Admin | Malayali Here</title>
     <style>
         body { font-family: 'Poppins', sans-serif; background: #f4f7f6; padding: 20px; }
