@@ -3,6 +3,158 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Malayali Here | Official Store</title>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+    <style>
+        :root { --gold: #FFD700; --dark-bg: #0a0a0a; --card-bg: #1a1a1a; --text: #ffffff; }
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Poppins', sans-serif; }
+        body { background-color: var(--dark-bg); color: var(--text); overflow-x: hidden; }
+
+        /* Navigation */
+        nav { background: rgba(0, 0, 0, 0.8); backdrop-filter: blur(10px); padding: 15px 5%; position: fixed; width: 100%; top: 0; z-index: 1000; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid rgba(255, 215, 0, 0.2); }
+        .logo { font-family: 'Orbitron', sans-serif; color: var(--gold); font-size: 20px; font-weight: bold; cursor: pointer; }
+        .nav-links button { background: none; border: none; color: white; margin-left: 20px; cursor: pointer; font-size: 13px; font-weight: 600; text-transform: uppercase; letter-spacing: 1px; transition: 0.3s; }
+        .nav-links button:hover { color: var(--gold); }
+
+        /* Hero Section */
+        .hero { height: 80vh; background: linear-gradient(to bottom, rgba(0,0,0,0.3), var(--dark-bg)), url('https://images.unsplash.com/photo-1594787318286-3d835c1d207f?q=80&w=2070'); background-size: cover; background-position: center; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; }
+        .hero h1 { font-family: 'Orbitron', sans-serif; font-size: 3.5rem; letter-spacing: 8px; margin-bottom: 10px; color: #fff; text-shadow: 0 0 20px rgba(255, 215, 0, 0.5); }
+        .hero p { color: var(--gold); font-weight: 300; letter-spacing: 3px; font-size: 14px; margin-bottom: 30px; }
+        .shop-now-btn { padding: 12px 40px; background: var(--gold); color: black; border: none; border-radius: 50px; font-weight: 700; cursor: pointer; transition: 0.4s; }
+        .shop-now-btn:hover { background: white; transform: scale(1.05); }
+
+        /* Categories Section */
+        .section-padding { padding: 80px 5%; max-width: 1200px; margin: auto; }
+        .cat-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; }
+        .cat-card { background: var(--card-bg); height: 250px; border-radius: 15px; display: flex; align-items: center; justify-content: center; font-family: 'Orbitron', sans-serif; font-size: 18px; cursor: pointer; transition: 0.5s; border: 1px solid #333; position: relative; overflow: hidden; }
+        .cat-card:hover { border-color: var(--gold); transform: translateY(-10px); background: #222; }
+        .cat-card::after { content: 'VIEW COLLECTION'; position: absolute; bottom: 20px; font-size: 10px; color: var(--gold); opacity: 0; transition: 0.3s; }
+        .cat-card:hover::after { opacity: 1; }
+
+        /* Product Display */
+        .product-section { display: none; padding: 60px 5%; background: #0f0f0f; }
+        .product-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 25px; }
+        .product-card { background: var(--card-bg); border-radius: 20px; padding: 20px; border: 1px solid #222; transition: 0.3s; text-align: center; }
+        .product-card:hover { box-shadow: 0 10px 30px rgba(0,0,0,0.5); border-color: var(--gold); }
+        .product-card img { width: 100%; height: 180px; object-fit: contain; background: #fff; border-radius: 12px; margin-bottom: 15px; }
+        .product-card h3 { font-size: 16px; margin-bottom: 10px; color: #eee; }
+        .price-tag { font-size: 20px; font-weight: bold; color: var(--gold); }
+        .old-price { font-size: 14px; text-decoration: line-through; color: #666; margin-left: 10px; }
+        .buy-btn { width: 100%; background: var(--gold); border: none; padding: 12px; border-radius: 10px; font-weight: bold; margin-top: 15px; cursor: pointer; }
+
+        /* Professional Footer */
+        footer { padding: 60px 5%; background: #050505; border-top: 1px solid #222; text-align: center; }
+        .footer-info { display: grid; grid-template-columns: repeat(3, 1fr); gap: 40px; text-align: left; margin-bottom: 40px; }
+        .footer-col h4 { color: var(--gold); margin-bottom: 15px; }
+        .footer-col p { color: #888; font-size: 13px; line-height: 1.6; }
+
+        @media (max-width: 768px) {
+            .hero h1 { font-size: 2rem; }
+            .cat-grid { grid-template-columns: 1fr; }
+            .product-grid { grid-template-columns: repeat(2, 1fr); gap: 10px; }
+            .footer-info { grid-template-columns: 1fr; text-align: center; }
+        }
+    </style>
+</head>
+<body>
+
+<nav>
+    <div class="logo" onclick="location.reload()">MALAYALI HERE</div>
+    <div class="nav-links">
+        <button onclick="openCategory('RC CARS')">RC CARS</button>
+        <button onclick="openCategory('HOT WHEELS')">HOT WHEELS</button>
+        <button onclick="window.location.href='admin.html'">ADMIN</button>
+    </div>
+</nav>
+
+<section class="hero">
+    <h1>MALAYALI HERE</h1>
+    <p>FAST CARS • BIG SMILES</p>
+    <button class="shop-now-btn" onclick="document.getElementById('cats').scrollIntoView({behavior:'smooth'})">START BROWSING</button>
+</section>
+
+<section class="section-padding" id="cats">
+    <h2 style="text-align: center; margin-bottom: 40px; font-family: 'Orbitron'; letter-spacing: 3px;">COLLECTIONS</h2>
+    <div class="cat-grid">
+        <div class="cat-card" onclick="openCategory('RC CARS')">🏎️ RC DRIFT</div>
+        <div class="cat-card" onclick="openCategory('HOT WHEELS')">🔥 HOT WHEELS</div>
+        <div class="cat-card" onclick="openCategory('ELECTRONICS')">🔌 GADGETS</div>
+    </div>
+</section>
+
+<section class="product-section" id="product-view">
+    <h2 id="cat-display-name" style="color: var(--gold); margin-bottom: 30px; font-family: 'Orbitron';"></h2>
+    <div class="product-grid" id="product-list"></div>
+</section>
+
+<footer>
+    <div class="footer-info">
+        <div class="footer-col">
+            <h4>ABOUT US</h4>
+            <p>We provide premium RC Cars and accessories for hobbyists in India. Quality and speed are our priorities.</p>
+        </div>
+        <div class="footer-col">
+            <h4>SUPPORT</h4>
+            <p>Shipping Policy<br>Returns<br>Terms & Conditions</p>
+        </div>
+        <div class="footer-col">
+            <h4>CONTACT</h4>
+            <p>Email: admin@malluhere.com<br>Location: Kochi, Kerala</p>
+        </div>
+    </div>
+    <p style="color: #444; font-size: 12px;">© 2026 MALAYALI HERE OFFICIAL STORE</p>
+</footer>
+
+<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
+<script>
+    const firebaseConfig = {
+        apiKey: "AIzaSyAJi_p1Uuaa66zXEmlFrST_Rx8zMB3LPmM",
+        authDomain: "malluhere.firebaseapp.com",
+        projectId: "malluhere",
+        databaseURL: "https://malluhere-default-rtdb.firebaseio.com", 
+        appId: "1:682697051518:web:f9069b7cefdf87dfaeb72f"
+    };
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.database();
+
+    function openCategory(cat) {
+        document.getElementById('product-view').style.display = 'block';
+        document.getElementById('cat-display-name').innerText = cat;
+        
+        db.ref('products').on('value', (snap) => {
+            const data = snap.val();
+            const list = document.getElementById('product-list');
+            list.innerHTML = '';
+            for (let id in data) {
+                if (data[id].category === cat) {
+                    list.innerHTML += `
+                        <div class="product-card">
+                            <img src="${data[id].image}">
+                            <h3>${data[id].name}</h3>
+                            <div class="price-tag">₹${data[id].price} <span class="old-price">₹${data[id].oldPrice}</span></div>
+                            <p style="font-size: 11px; color: ${data[id].stock > 0 ? '#4caf50' : '#ff5252'}; margin-top: 5px;">
+                                ${data[id].stock > 0 ? 'AVAILABLE STOCK: ' + data[id].stock : 'OUT OF STOCK'}
+                            </p>
+                            <button class="buy-btn" onclick="initiatePayment('${id}', '${data[id].price}')">BUY NOW</button>
+                        </div>`;
+                }
+            }
+            document.getElementById('product-view').scrollIntoView({behavior: 'smooth'});
+        });
+    }
+
+    function initiatePayment(id, amount) {
+        alert("Redirecting to Razorpay Gateway for ₹" + amount);
+        // Add Razorpay integration code here
+    }
+</script>
+</body>
+</html><!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Malayali Here | Official</title>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
     <style>
