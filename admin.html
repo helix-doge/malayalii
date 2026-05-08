@@ -1,4 +1,34 @@
-<!DOCTYPE html>
+<div class="admin-box">
+    <h2>Add New Stock 📦</h2>
+    <input type="text" id="pName" placeholder="Car Name">
+    <input type="number" id="pPrice" placeholder="Price (Rs.)">
+    <input type="text" id="pImage" placeholder="Image URL">
+    
+    <select id="pCat" style="width: 100%; padding: 10px; margin-bottom: 15px;">
+        <option value="RC CARS">RC CARS</option>
+        <option value="CONSTRUCTION">CONSTRUCTION</option>
+        <option value="TRANSPORT">TRANSPORT</option>
+    </select>
+    
+    <button onclick="saveProduct()">Push to Website</button>
+</div>
+
+<script>
+    function saveProduct() {
+        const name = document.getElementById('pName').value;
+        const price = document.getElementById('pPrice').value;
+        const image = document.getElementById('pImage').value;
+        const category = document.getElementById('pCat').value;
+
+        firebase.database().ref('products').push({
+            name: name,
+            price: price,
+            image: image,
+            category: category
+        });
+        alert("Done! It is now live under " + category);
+    }
+</script><!DOCTYPE html>
 <html>
 <head>
     <title>Mallu Here | Admin Dashboard</title>
