@@ -3,6 +3,140 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Malayali Here | Official</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root { --yellow: #FFD700; --black: #121212; --dark-gray: #1e1e1e; --white: #FFFFFF; }
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Poppins', sans-serif; }
+        
+        body { background-color: var(--black); color: var(--white); overflow-x: hidden; }
+
+        /* Navigation */
+        header { background: var(--black); padding: 15px; position: sticky; top: 0; z-index: 1000; border-bottom: 2px solid var(--yellow); }
+        .nav-container { max-width: 1200px; margin: auto; display: flex; justify-content: space-between; align-items: center; }
+        .logo { height: 40px; }
+        .nav-links button { background: none; border: none; color: white; margin-left: 15px; cursor: pointer; font-weight: 600; font-size: 12px; }
+
+        /* Hero */
+        .hero { height: 40vh; display: flex; align-items: center; justify-content: center; text-align: center; background: linear-gradient(rgba(0,0,0,0.8), rgba(0,0,0,0.8)), url('https://images.unsplash.com/photo-1594787318286-3d835c1d207f?q=80&w=2070'); background-size: cover; }
+        .hero h1 { font-size: 2.5rem; color: var(--yellow); }
+
+        /* Categories */
+        .cats { padding: 30px 15px; display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; max-width: 1200px; margin: auto; }
+        .cat-card { background: var(--dark-gray); padding: 20px 10px; border-radius: 10px; text-align: center; cursor: pointer; border: 1px solid #333; transition: 0.3s; }
+        .cat-card:hover { border-color: var(--yellow); }
+
+        /* Product Section - MOBILE OPTIMIZED */
+        .products { padding: 20px; max-width: 1200px; margin: auto; min-height: 500px; }
+        .product-grid { 
+            display: grid; 
+            grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); /* Smaller min-width for mobile */
+            gap: 15px; 
+        }
+        
+        .product-item { background: var(--dark-gray); border-radius: 12px; padding: 15px; text-align: center; border: 1px solid #333; display: flex; flex-direction: column; justify-content: space-between; }
+        .product-item img { width: 100%; height: 140px; object-fit: contain; margin-bottom: 10px; border-radius: 8px; background: #fff; }
+        .product-item h3 { font-size: 14px; margin: 5px 0; color: var(--white); }
+        .price { font-size: 16px; font-weight: bold; color: var(--yellow); }
+        .old-price { text-decoration: line-through; color: #777; font-size: 12px; margin-left: 5px; }
+
+        /* Footer */
+        footer { background: #000; color: #888; padding: 40px 20px; margin-top: 50px; border-top: 1px solid #222; }
+        .footer-content { max-width: 1200px; margin: auto; display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; }
+        .footer-content h4 { color: var(--yellow); margin-bottom: 10px; }
+
+        @media (max-width: 600px) {
+            .hero h1 { font-size: 1.8rem; }
+            .product-grid { grid-template-columns: repeat(2, 1fr); gap: 10px; } /* 2 items per row on mobile */
+            .cat-card { font-size: 11px; padding: 15px 5px; }
+        }
+    </style>
+</head>
+<body>
+
+<header>
+    <div class="nav-container">
+        <img src="images/logo/logo.png" class="logo">
+        <nav class="nav-links">
+            <button onclick="showCat('RC CARS')">RC CARS</button>
+            <button onclick="showCat('HOT WHEELS')">HOT WHEELS</button>
+            <button onclick="window.location.href='admin.html'">ADMIN</button>
+        </nav>
+    </div>
+</header>
+
+<section class="hero">
+    <div>
+        <h1>MALAYALI HERE</h1>
+        <p>Premium Hobby Shop</p>
+    </div>
+</section>
+
+<section class="cats">
+    <div class="cat-card" onclick="showCat('RC CARS')">🏎️ RC CARS</div>
+    <div class="cat-card" onclick="showCat('HOT WHEELS')">🔥 HOT WHEELS</div>
+    <div class="cat-card" onclick="showCat('ELECTRONICS')">🔌 ELECTRONICS</div>
+</section>
+
+<section class="products" id="shop">
+    <h2 id="cat-title" style="margin-bottom: 20px; color: var(--yellow);">All Collections</h2>
+    <div id="product-list" class="product-grid"></div>
+</section>
+
+<footer>
+    <div class="footer-content">
+        <div>
+            <h4>MALAYALI HERE</h4>
+            <p>Premium RC Drift Cars & Electronics.</p>
+        </div>
+        <div>
+            <h4>CONTACT</h4>
+            <p>Email: support@malluhere.com</p>
+            <p>WhatsApp: +91 0000000000</p>
+        </div>
+    </div>
+</footer>
+
+<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
+<script>
+    const firebaseConfig = {
+        apiKey: "AIzaSyAJi_p1Uuaa66zXEmlFrST_Rx8zMB3LPmM",
+        authDomain: "malluhere.firebaseapp.com",
+        projectId: "malluhere",
+        databaseURL: "https://malluhere-default-rtdb.firebaseio.com", 
+        appId: "1:682697051518:web:f9069b7cefdf87dfaeb72f"
+    };
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.database();
+
+    function showCat(filter) {
+        document.getElementById('cat-title').innerText = filter;
+        db.ref('products').on('value', (snap) => {
+            const data = snap.val();
+            const list = document.getElementById('product-list');
+            list.innerHTML = '';
+            for (let id in data) {
+                if (filter === 'ALL' || data[id].category === filter) {
+                    list.innerHTML += `
+                        <div class="product-item">
+                            <img src="${data[id].image}">
+                            <h3>${data[id].name}</h3>
+                            <p class="price">₹${data[id].price} <span class="old-price">₹${data[id].oldPrice}</span></p>
+                            <button style="background:var(--yellow); border:none; padding:8px; margin-top:10px; border-radius:4px; font-weight:bold; width:100%;">BUY</button>
+                        </div>`;
+                }
+            }
+        });
+    }
+    showCat('RC CARS'); // Default view
+</script>
+</body>
+</html><!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Malayali Here | Premium Hobby Store</title>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://unpkg.com/aos@next/dist/aos.css" />
