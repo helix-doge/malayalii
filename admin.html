@@ -2,119 +2,61 @@
 <html>
 <head>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Inventory | Malayali Here</title>
+    <title>Master Admin | Malayali Here</title>
     <style>
-        body { font-family: sans-serif; background: #f0f2f5; padding: 20px; }
-        .box { max-width: 600px; margin: auto; background: white; padding: 25px; border-radius: 15px; box-shadow: 0 5px 20px rgba(0,0,0,0.1); }
-        h2 { margin-top: 0; color: #333; }
-        input, select, textarea { width: 100%; padding: 12px; margin: 8px 0; border: 1px solid #ddd; border-radius: 8px; box-sizing: border-box; }
-        .btn { width: 100%; padding: 15px; background: #000; color: #FFD700; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; font-size: 16px; }
+        body { font-family: sans-serif; background: #0a0a0a; color: white; padding: 20px; }
+        .admin-card { max-width: 600px; margin: auto; background: #151515; padding: 30px; border-radius: 15px; border: 1px solid #333; }
+        input, select, textarea { width: 100%; padding: 12px; margin: 10px 0; background: #222; border: 1px solid #444; color: white; border-radius: 8px; }
+        .add-btn { width: 100%; padding: 15px; background: #FFD700; color: black; border: none; font-weight: bold; cursor: pointer; border-radius: 8px; font-size: 16px; }
+        table { width: 100%; margin-top: 30px; border-collapse: collapse; font-size: 13px; }
+        th, td { padding: 12px; text-align: left; border-bottom: 1px solid #333; }
+        .del { color: #ff3b30; cursor: pointer; border: none; background: none; font-weight: bold; }
     </style>
 </head>
 <body>
 
-<div class="box">
-    <h2>ADD NEW GEAR 🏎️</h2>
-    <input type="text" id="name" placeholder="Product Name">
-    <textarea id="desc" placeholder="Product Description (e.g. 1:16 Scale, 4WD)"></textarea>
+<div class="admin-card">
+    <h2 style="color: #FFD700; margin-bottom: 20px;">ADD PRODUCT 📦</h2>
+    <input type="text" id="pName" placeholder="Product Name">
+    <textarea id="pDesc" placeholder="Description (e.g. 1:10 Scale Drift Car)"></textarea>
     <div style="display: flex; gap: 10px;">
-        <input type="number" id="price" placeholder="Sale Price (₹)">
-        <input type="number" id="oldPrice" placeholder="Original Price (₹)">
+        <input type="number" id="pPrice" placeholder="Sale Price (₹)">
+        <input type="number" id="pOld" placeholder="Original Price (₹)">
     </div>
     <div style="display: flex; gap: 10px;">
-        <input type="number" id="stock" placeholder="Stock Quantity">
-        <select id="cat">
+        <input type="number" id="pStock" placeholder="Stock Count">
+        <select id="pCat">
             <option value="RC CARS">RC CARS</option>
             <option value="HOT WHEELS">HOT WHEELS</option>
             <option value="GADGETS">GADGETS</option>
         </select>
     </div>
-    <input type="text" id="image" placeholder="Image Link (URL)">
-    <button class="btn" onclick="upload()">SYNC TO STORE</button>
+    <input type="text" id="pImage" placeholder="Direct Image URL">
+    <button class="add-btn" onclick="saveItem()">PUBLISH TO STORE</button>
+
+    <table>
+        <thead><tr><th>Name</th><th>Price</th><th>Action</th></tr></thead>
+        <tbody id="inventory"></tbody>
+    </table>
 </div>
 
 <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
 <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
 <script>
-    firebase.initializeApp(firebaseConfig); // Copy config from app.js
+    firebase.initializeApp(firebaseConfig); // Use same config as app.js
     const database = firebase.database();
 
-    function upload() {
+    function saveItem() {
         const item = {
-            name: document.getElementById('name').value,
-            desc: document.getElementById('desc').value,
-            price: document.getElementById('price').value,
-            oldPrice: document.getElementById('oldPrice').value,
-            stock: document.getElementById('stock').value,
-            category: document.getElementById('cat').value,
-            image: document.getElementById('image').value
-        };
-        database.ref('products').push(item).then(() => {
-            alert("Added!");
-            location.reload();
-        });
-    }
-</script>
-</body>
-</html><!DOCTYPE html>
-<html>
-<head>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Master Admin | Malayali Here</title>
-    <style>
-        body { font-family: 'Poppins', sans-serif; background: #f4f7f6; padding: 20px; }
-        .dashboard { max-width: 1000px; margin: auto; }
-        .card { background: white; padding: 30px; border-radius: 15px; box-shadow: 0 10px 30px rgba(0,0,0,0.05); margin-bottom: 25px; }
-        input, select { width: 100%; padding: 12px; margin: 10px 0; border: 1px solid #ddd; border-radius: 8px; }
-        .btn-add { width: 100%; padding: 15px; background: #000; color: #FFD700; border: none; font-weight: bold; cursor: pointer; border-radius: 8px; }
-        
-        table { width: 100%; border-collapse: collapse; background: white; }
-        th, td { padding: 15px; text-align: left; border-bottom: 1px solid #eee; }
-        .del-btn { color: #ff3b30; border: none; background: none; cursor: pointer; font-weight: bold; }
-    </style>
-</head>
-<body>
-
-<div class="dashboard">
-    <div class="card">
-        <h2>PUBLISH NEW PRODUCT 🚀</h2>
-        <input type="text" id="pName" placeholder="Product Name">
-        <input type="number" id="pPrice" placeholder="Selling Price (₹)">
-        <input type="text" id="pImage" placeholder="Direct Image URL">
-        <select id="pCat">
-            <option value="RC CARS">RC CARS</option>
-            <option value="HOT WHEELS">HOT WHEELS</option>
-            <option value="ELECTRONICS">ELECTRONICS</option>
-        </select>
-        <button class="btn-add" onclick="pushToStore()">ADD TO LIVE STORE</button>
-    </div>
-
-    <div class="card">
-        <h2>LIVE INVENTORY MANAGER</h2>
-        <div style="overflow-x: auto;">
-            <table>
-                <thead><tr><th>Name</th><th>Category</th><th>Price</th><th>Action</th></tr></thead>
-                <tbody id="inventory"></tbody>
-            </table>
-        </div>
-    </div>
-</div>
-
-<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
-<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
-<script>
-    // USE SAME FIREBASE CONFIG AS ABOVE
-    firebase.initializeApp(firebaseConfig);
-    const database = firebase.database();
-
-    function pushToStore() {
-        const product = {
             name: document.getElementById('pName').value,
+            desc: document.getElementById('pDesc').value,
             price: document.getElementById('pPrice').value,
-            image: document.getElementById('pImage').value,
-            category: document.getElementById('pCat').value
+            oldPrice: document.getElementById('pOld').value,
+            stock: document.getElementById('pStock').value,
+            category: document.getElementById('pCat').value,
+            image: document.getElementById('pImage').value
         };
-        database.ref('products').push(product).then(() => location.reload());
+        database.ref('products').push(item).then(() => location.reload());
     }
 
     database.ref('products').on('value', snap => {
@@ -122,16 +64,11 @@
         const data = snap.val();
         list.innerHTML = '';
         for (let id in data) {
-            list.innerHTML += `<tr>
-                <td>${data[id].name}</td>
-                <td>${data[id].category}</td>
-                <td>₹${data[id].price}</td>
-                <td><button class="del-btn" onclick="removeItem('${id}')">DELETE</button></td>
-            </tr>`;
+            list.innerHTML += `<tr><td>${data[id].name}</td><td>₹${data[id].price}</td><td><button class="del" onclick="remove('${id}')">DELETE</button></td></tr>`;
         }
     });
 
-    function removeItem(id) { if(confirm("Remove this item?")) database.ref('products/'+id).remove(); }
+    function remove(id) { if(confirm("Delete item?")) database.ref('products/' + id).remove(); }
 </script>
 </body>
 </html>
