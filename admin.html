@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Mallu Here | Admin</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body class="admin-page">
+    <div class="admin-box">
+        <h2>Add a New Car 🏎️</h2>
+        <input type="text" id="pName" placeholder="Car Name (e.g. Monster Truck)">
+        <input type="number" id="pPrice" placeholder="Price ($)">
+        <input type="text" id="pImage" placeholder="Image URL (Link to a photo)">
+        <button onclick="saveToFirebase()">Upload to Shop</button>
+    </div>
+
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
+
+    <script>
+        const firebaseConfig = {
+            apiKey: "AIzaSyAJi_p1Uuaa66zXEmlFrST_Rx8zMB3LPmM",
+            authDomain: "malluhere.firebaseapp.com",
+            projectId: "malluhere",
+            databaseURL: "https://malluhere-default-rtdb.firebaseio.com", 
+            appId: "1:682697051518:web:f9069b7cefdf87dfaeb72f"
+        };
+        firebase.initializeApp(firebaseConfig);
+
+        function saveToFirebase() {
+            const name = document.getElementById('pName').value;
+            const price = document.getElementById('pPrice').value;
+            const image = document.getElementById('pImage').value;
+
+            firebase.database().ref('products').push({
+                name: name,
+                price: price,
+                image: image
+            }).then(() => {
+                alert("Success! Go check your website.");
+                document.getElementById('pName').value = '';
+                document.getElementById('pPrice').value = '';
+                document.getElementById('pImage').value = '';
+            });
+        }
+    </script>
+</body>
+</html>
