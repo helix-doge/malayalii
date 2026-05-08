@@ -4,6 +4,67 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Malayali Here | Official Store</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700&family=Poppins:wght@300;600&display=swap" rel="stylesheet">
+</head>
+<body>
+
+<nav class="glass-nav">
+    <div class="logo" onclick="showView('home')">MALAYALI HERE</div>
+    <div class="nav-links">
+        <button onclick="showView('categories')">BROWSE</button>
+        <button onclick="window.location.href='admin.html'" class="admin-btn">ADMIN</button>
+    </div>
+</nav>
+
+<section id="view-home" class="page-view active">
+    <div class="hero">
+        <div class="hero-content">
+            <h1>PREMIUM RC <br><span>COLLECTIONS</span></h1>
+            <p>The #1 Hobby Shop in Kerala</p>
+            <button class="cta-btn" onclick="showView('categories')">EXPLORE NOW</button>
+        </div>
+    </div>
+</section>
+
+<section id="view-categories" class="page-view">
+    <div class="container">
+        <h2 class="section-title">CHOOSE CATEGORY</h2>
+        <div class="category-grid">
+            <div class="cat-card rc" onclick="openShop('RC CARS')">
+                <div class="cat-info"><h3>RC CARS</h3><p>High Speed Drifters</p></div>
+            </div>
+            <div class="cat-card hw" onclick="openShop('HOT WHEELS')">
+                <div class="cat-info"><h3>HOT WHEELS</h3><p>Collectors Edition</p></div>
+            </div>
+            <div class="cat-card el" onclick="openShop('GADGETS')">
+                <div class="cat-info"><h3>GADGETS</h3><p>Tech & Electronics</p></div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section id="view-shop" class="page-view">
+    <div class="container">
+        <div class="shop-header">
+            <button class="back-btn" onclick="showView('categories')">← BACK</button>
+            <h2 id="current-cat-name">RC CARS</h2>
+        </div>
+        <div class="product-grid" id="product-list">
+            </div>
+    </div>
+</section>
+
+<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
+<script src="js/app.js"></script>
+</body>
+</html><!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Malayali Here | Official Store</title>
     <link rel="stylesheet" href="css/style.css"> <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700&family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
 </head>
 <body>
