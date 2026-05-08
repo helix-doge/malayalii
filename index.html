@@ -3,6 +3,158 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mallu Here | Premium Hobby Store</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://unpkg.com/aos@next/dist/aos.css" />
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
+</head>
+<body>
+
+<div id="loader">
+    <div class="spinner"></div>
+    <p>Preparing the Track... 🏎️</p>
+</div>
+
+<div class="top-bar">⚡ GET 10% OFF ON YOUR FIRST HOT WHEELS ORDER ⚡</div>
+
+<header class="main-header">
+    <div class="header-container">
+        <div class="menu-toggle" onclick="toggleMenu()">☰</div>
+        <img src="images/logo/logo.png" alt="Mallu Here" class="logo" onclick="location.reload()">
+        
+        <nav class="nav-menu" id="navMenu">
+            <button onclick="filterCat('ALL')">ALL</button>
+            <button onclick="filterCat('RC CARS')">RC CARS</button>
+            <button onclick="filterCat('ELECTRONICS')">ELECTRONICS</button>
+            <button onclick="filterCat('HOT WHEELS')">HOT WHEELS</button>
+        </nav>
+
+        <div class="header-icons">
+            <a href="login.html" class="icon-btn">👤</a>
+            <button class="icon-btn" onclick="openCart()">🛒 <span id="cart-count">0</span></button>
+        </div>
+    </div>
+</header>
+
+<main class="content-wrapper">
+    <div class="breadcrumb">Home / <span id="bread-cat">Collections</span></div>
+    <h2 id="cat-title" class="section-title" data-aos="fade-right">FEATURED PRODUCTS</h2>
+    <div id="product-list" class="product-grid"></div>
+</main>
+
+<div id="cart-sidebar" class="sidebar">
+    <div class="sidebar-header">
+        <h3>YOUR GARAGE</h3>
+        <button onclick="closeCart()" class="close-btn">×</button>
+    </div>
+    <div id="cart-items"></div>
+    <div class="cart-total" id="cart-total-price">Total: ₹0</div>
+    <div class="cart-footer">
+        <button class="checkout-btn" onclick="sendOrder()">PLACE ORDER NOW</button>
+    </div>
+</div>
+
+<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
+
+<script>
+    emailjs.init("PR0ZrXLYLpgD_34xc");
+
+    const firebaseConfig = {
+        apiKey: "AIzaSyAJi_p1Uuaa66zXEmlFrST_Rx8zMB3LPmM",
+        authDomain: "malluhere.firebaseapp.com",
+        projectId: "malluhere",
+        databaseURL: "https://malluhere-default-rtdb.firebaseio.com", 
+        appId: "1:682697051518:web:f9069b7cefdf87dfaeb72f"
+    };
+    firebase.initializeApp(firebaseConfig);
+    const database = firebase.database();
+
+    let allProducts = {};
+    let cart = [];
+
+    window.onload = () => { setTimeout(() => document.getElementById('loader').style.display='none', 1200); };
+
+    database.ref('products').on('value', (snapshot) => {
+        allProducts = snapshot.val();
+        renderProducts('ALL');
+    });
+
+    function renderProducts(category) {
+        const grid = document.getElementById('product-list');
+        document.getElementById('cat-title').innerText = category;
+        document.getElementById('bread-cat').innerText = category;
+        grid.innerHTML = '';
+
+        for (let id in allProducts) {
+            const p = allProducts[id];
+            if (category === 'ALL' || p.category === category) {
+                const disc = p.oldPrice ? Math.round(((p.oldPrice - p.price) / p.oldPrice) * 100) : 0;
+                grid.innerHTML += `
+                    <div class="product-item" data-aos="zoom-in">
+                        ${disc > 0 ? `<div class="badge">-${disc}% OFF</div>` : ''}
+                        <div class="img-box"><img src="${p.image}" alt="${p.name}"></div>
+                        <h3>${p.name}</h3>
+                        <div class="rating">⭐⭐⭐⭐⭐</div>
+                        <p class="price-tag">₹${p.price} ${p.oldPrice ? `<span class="old-price">₹${p.oldPrice}</span>` : ''}</p>
+                        <button class="add-to-cart" ${p.stock === 'out' ? 'disabled' : ''} onclick="addToCart('${id}', '${p.name}', ${p.price})">
+                            ${p.stock === 'out' ? 'OUT OF STOCK' : 'ADD TO GARAGE'}
+                        </button>
+                    </div>
+                `;
+            }
+        }
+    }
+
+    function addToCart(id, name, price) {
+        cart.push({name, price});
+        document.getElementById('cart-count').innerText = cart.length;
+        updateCartUI();
+        openCart();
+    }
+
+    function updateCartUI() {
+        const cartDiv = document.getElementById('cart-items');
+        let total = 0;
+        cartDiv.innerHTML = cart.map(item => {
+            total += item.price;
+            return `<div class="cart-item"><span>${item.name}</span><b>₹${item.price}</b></div>`;
+        }).join('');
+        document.getElementById('cart-total-price').innerText = "Total: ₹" + total;
+    }
+
+    function sendOrder() {
+        if(cart.length === 0) return alert("Your garage is empty!");
+        const orderList = cart.map(i => i.name).join(", ");
+        const totalPrice = cart.reduce((a, b) => a + b.price, 0);
+
+        emailjs.send("service_51w5832", "template_lkbspb8", {
+            customer_name: "New Web Customer",
+            items: orderList,
+            total_price: "₹" + totalPrice
+        }).then(() => {
+            alert("Order Placed Successfully! We will contact you soon.");
+            cart = [];
+            document.getElementById('cart-count').innerText = "0";
+            updateCartUI();
+            closeCart();
+        });
+    }
+
+    function toggleMenu() { document.getElementById('navMenu').classList.toggle('active'); }
+    function filterCat(c) { renderProducts(c); if(window.innerWidth < 768) toggleMenu(); }
+    function openCart() { document.getElementById('cart-sidebar').classList.add('open'); }
+    function closeCart() { document.getElementById('cart-sidebar').classList.remove('remove'); }
+</script>
+<script src="https://unpkg.com/aos@next/dist/aos.js"></script>
+<script>AOS.init({ duration: 600 });</script>
+</body>
+</html><!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Mallu Here | Official Store</title>
     <link rel="stylesheet" href="css/style.css">
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
