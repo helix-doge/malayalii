@@ -1,6 +1,123 @@
 <!DOCTYPE html>
 <html>
 <head>
+    <title>Store Manager | Admin</title>
+    <style>
+        body { font-family: 'Poppins', sans-serif; background: #f4f7f6; padding: 40px; }
+        .dashboard { max-width: 900px; margin: auto; display: grid; grid-template-columns: 1fr; gap: 30px; }
+        .card { background: white; padding: 30px; border-radius: 15px; box-shadow: 0 10px 25px rgba(0,0,0,0.05); }
+        h2 { margin-bottom: 20px; border-bottom: 2px solid #FFD700; display: inline-block; padding-bottom: 5px; }
+        input, select { width: 100%; padding: 12px; margin-bottom: 15px; border: 1px solid #ddd; border-radius: 8px; }
+        .main-btn { width: 100%; padding: 15px; background: #000; color: white; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; transition: 0.3s; }
+        .main-btn:hover { background: #333; }
+        
+        .inventory-table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+        .inventory-table th, .inventory-table td { text-align: left; padding: 12px; border-bottom: 1px solid #eee; }
+        .stock-high { color: green; font-weight: bold; }
+        .stock-low { color: red; font-weight: bold; }
+        .del-btn { background: #ff4757; color: white; border: none; padding: 5px 10px; border-radius: 4px; cursor: pointer; }
+    </style>
+</head>
+<body>
+
+<div class="dashboard">
+    <div class="card">
+        <h2>ADD NEW PRODUCT 📦</h2>
+        <input type="text" id="pName" placeholder="Product Name">
+        <div style="display: flex; gap: 10px;">
+            <input type="number" id="pPrice" placeholder="Selling Price">
+            <input type="number" id="pOldPrice" placeholder="Original Price">
+        </div>
+        <input type="number" id="pStock" placeholder="Available Stock (Quantity)">
+        <input type="text" id="pImage" placeholder="Image Link (Direct URL)">
+        <select id="pCat">
+            <option value="RC CARS">RC CARS</option>
+            <option value="HOT WHEELS">HOT WHEELS</option>
+            <option value="ELECTRONICS">ELECTRONICS</option>
+        </select>
+        <button class="main-btn" onclick="upload()">PUBLISH TO STORE</button>
+    </div>
+
+    <div class="card">
+        <h2>LIVE INVENTORY & ANALYTICS</h2>
+        <div style="display: flex; gap: 10px; margin-bottom: 15px;">
+            <input type="text" id="searchInv" placeholder="Search product..." onkeyup="filterInventory()">
+            <select id="sortInv" onchange="filterInventory()">
+                <option value="all">All Categories</option>
+                <option value="RC CARS">RC CARS</option>
+                <option value="HOT WHEELS">HOT WHEELS</option>
+                <option value="ELECTRONICS">ELECTRONICS</option>
+            </select>
+        </div>
+        <table class="inventory-table">
+            <thead>
+                <tr>
+                    <th>Product</th>
+                    <th>Category</th>
+                    <th>Price</th>
+                    <th>Stock</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody id="inventory-body"></tbody>
+        </table>
+    </div>
+</div>
+
+<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
+<script>
+    const firebaseConfig = { /* USE SAME CONFIG AS INDEX.HTML */ };
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.database();
+
+    function upload() {
+        const item = {
+            name: document.getElementById('pName').value,
+            price: document.getElementById('pPrice').value,
+            oldPrice: document.getElementById('pOldPrice').value,
+            stock: parseInt(document.getElementById('pStock').value),
+            image: document.getElementById('pImage').value,
+            category: document.getElementById('pCat').value
+        };
+        db.ref('products').push(item).then(() => {
+            alert("Product Added!");
+            location.reload();
+        });
+    }
+
+    db.ref('products').on('value', (snap) => {
+        window.inventoryData = snap.val();
+        filterInventory();
+    });
+
+    function filterInventory() {
+        const query = document.getElementById('searchInv').value.toLowerCase();
+        const catFilter = document.getElementById('sortInv').value;
+        const tbody = document.getElementById('inventory-body');
+        tbody.innerHTML = '';
+
+        for (let id in window.inventoryData) {
+            const p = window.inventoryData[id];
+            if ((catFilter === 'all' || p.category === catFilter) && p.name.toLowerCase().includes(query)) {
+                tbody.innerHTML += `
+                    <tr>
+                        <td>${p.name}</td>
+                        <td>${p.category}</td>
+                        <td>₹${p.price}</td>
+                        <td class="${p.stock < 5 ? 'stock-low' : 'stock-high'}">${p.stock}</td>
+                        <td><button class="del-btn" onclick="remove('${id}')">DEL</button></td>
+                    </tr>`;
+            }
+        }
+    }
+
+    function remove(id) { if(confirm("Delete item?")) db.ref('products/' + id).remove(); }
+</script>
+</body>
+</html><!DOCTYPE html>
+<html>
+<head>
     <title>Store Manager | Mallu Here</title>
     <style>
         body { font-family: sans-serif; background: #f0f2f5; padding: 40px; }
