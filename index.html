@@ -9,26 +9,27 @@
 </head>
 <body>
 
-<nav>
+<nav class="glass-nav">
     <div class="logo" onclick="navigateTo('/')">MALAYALI HERE</div>
     <div class="nav-links">
         <button onclick="navigateTo('/rc-cars')">RC CARS</button>
         <button onclick="navigateTo('/hot-wheels')">HOT WHEELS</button>
-        <button onclick="window.location.href='admin.html'">ADMIN</button>
+        <button onclick="navigateTo('/electronics')">GADGETS</button>
+        <button class="admin-btn" onclick="window.location.href='admin.html'">ADMIN</button>
     </div>
 </nav>
 
-<div id="view-home" class="view">
+<div id="view-home" class="view active">
     <section class="hero">
-        <div class="hero-content">
+        <div class="hero-overlay">
             <h1>MALAYALI HERE</h1>
-            <p>PREMIUM DRIFT CARS & COLLECTIBLES</p>
-            <button class="cta-btn" onclick="navigateTo('/rc-cars')">EXPLORE NOW</button>
+            <p>FAST CARS • BIG SMILES</p>
+            <button class="glow-btn" onclick="navigateTo('/rc-cars')">START BROWSING</button>
         </div>
     </section>
 
-    <section class="cat-section">
-        <h2>OUR COLLECTIONS</h2>
+    <section class="cat-grid-wrapper">
+        <h2 class="section-title">CHOOSE YOUR CATEGORY</h2>
         <div class="cat-grid">
             <div class="cat-card" onclick="navigateTo('/rc-cars')">🏎️ RC DRIFT</div>
             <div class="cat-card" onclick="navigateTo('/hot-wheels')">🔥 HOT WHEELS</div>
@@ -37,19 +38,30 @@
     </section>
 </div>
 
-<div id="view-shop" class="view" style="display:none;">
-    <section class="shop-header">
-        <h2 id="current-category">Collection</h2>
-    </section>
+<div id="view-shop" class="view">
+    <div class="shop-header">
+        <h2 id="cat-title">COLLECTION</h2>
+    </div>
     <div class="product-grid" id="product-list">
         </div>
 </div>
 
-<footer>
-    <div class="footer-grid">
-        <div><h4>MALAYALI HERE</h4><p>Premium RC Gear in Kerala.</p></div>
-        <div><h4>CONTACT</h4><p>admin@malluhere.shop</p></div>
+<footer class="premium-footer">
+    <div class="footer-content">
+        <div class="footer-col">
+            <h4>MALAYALI HERE</h4>
+            <p>Premium RC Hobby Shop based in Kerala.</p>
+        </div>
+        <div class="footer-col">
+            <h4>LEGAL</h4>
+            <p>Shipping Policy<br>Returns</p>
+        </div>
+        <div class="footer-col">
+            <h4>CONTACT</h4>
+            <p>admin@malluhere.shop</p>
+        </div>
     </div>
+    <div class="footer-bottom">© 2026 MALAYALI HERE OFFICIAL</div>
 </footer>
 
 <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
