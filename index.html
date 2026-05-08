@@ -1,105 +1,66 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Malayali Here Store</title>
-
-  <!-- Fonts -->
-  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@600;700&family=Poppins:wght@400;500&display=swap" rel="stylesheet">
-
-  <!-- CSS -->
-  <link rel="stylesheet" href="css/style.css">
-
-  <!-- Razorpay -->
-  <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mallu Here | RC Car World</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="https://unpkg.com/aos@next/dist/aos.css" />
 </head>
 <body>
 
-  <!-- FIXED BACKGROUND -->
-  <div class="bg-layer"></div>
+<nav class="navbar">
+    <img src="images/logo/logo.png" alt="Mallu Here Logo" class="logo">
+    <h1>Mallu Here</h1>
+</nav>
 
-  <div class="app-root">
+<div class="hero" data-aos="fade-down">
+    <h2>Fast Cars, Big Smiles! 🏎️💨</h2>
+    <p>Premium RC Cars for the Pros.</p>
+</div>
 
-    <!-- HOME -->
-    <section id="home" class="page show">
-      <div class="hero">
+<div id="product-list" class="container">
+    </div>
 
-        <div class="title">
-          <h1>MALAYALI<br>HERE STORE</h1>
-          <p>BGMI • PUBG • iOS/ANDROID TOOLS</p>
-        </div>
+<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
 
-        <div class="buttons">
-          <button id="androidBtn">ANDROID</button>
-          <button id="iosBtn">iOS / iPAD</button>
-        </div>
+<script>
+    // Your Keys go here
+    const firebaseConfig = {
+        apiKey: "AIzaSyAJi_p1Uuaa66zXEmlFrST_Rx8zMB3LPmM",
+        authDomain: "malluhere.firebaseapp.com",
+        projectId: "malluhere",
+        storageBucket: "malluhere.firebasestorage.app",
+        databaseURL: "https://malluhere-default-rtdb.firebaseio.com", // Check your Firebase console for this URL
+        messagingSenderId: "682697051518",
+        appId: "1:682697051518:web:f9069b7cefdf87dfaeb72f"
+    };
 
-        <div class="vision">
-          <h3>AIM</h3>
-          <p>
-            Trusted, secure, and high-performance BGMI / PUBG
-            Android & iOS tools for Malayali gamers.
-          </p>
-        </div>
+    firebase.initializeApp(firebaseConfig);
+    const database = firebase.database();
 
-      </div>
-    </section>
+    // Show the cars on the page
+    database.ref('products').on('value', (snapshot) => {
+        const productList = document.getElementById('product-list');
+        const products = snapshot.val();
+        productList.innerHTML = ''; 
 
-    <!-- APPS -->
-    <section id="apps" class="page">
-      <h2 id="appsTitle"></h2>
-      <div id="appGrid" class="app-grid"></div>
-      <button id="backBtn" class="back">← Back</button>
-    </section>
+        for (let id in products) {
+            const p = products[id];
+            productList.innerHTML += `
+                <div class="card" data-aos="zoom-in">
+                    <img src="${p.image}" alt="car">
+                    <h3>${p.name}</h3>
+                    <p class="price">$${p.price}</p>
+                    <button class="buy-btn">Add to Cart</button>
+                </div>
+            `;
+        }
+    });
+</script>
 
-    <!-- APP DETAILS -->
-    <section id="appDetails" class="page">
-      <div class="app-details">
-
-        <img id="detailsIcon" class="details-icon" alt="">
-        <h2 id="detailsName"></h2>
-
-        <div id="planSelect" class="plan-select">
-          <h3>Select Plan</h3>
-        </div>
-
-        <button id="buyBtn" class="buy-btn" disabled>
-          Buy Key
-        </button>
-
-        <button id="detailsBackBtn" class="back">← Back</button>
-
-      </div>
-    </section>
-
-    <!-- KEY PAGE -->
-    <section id="keyPage" class="page">
-      <div class="key-box">
-
-        <h2 class="success-title">Key Purchased ✅</h2>
-
-        <p class="key-warning">
-          This key will be shown only once.<br>
-          Please copy and save it safely.
-        </p>
-
-        <div class="key-value" id="purchasedKey">----</div>
-
-        <button id="copyKeyBtn" class="copy-btn">
-          Copy Key
-        </button>
-
-        <button id="keyDoneBtn" class="done-btn">
-          Done
-        </button>
-
-      </div>
-    </section>
-
-  </div>
-
-  <script type="module" src="js/main.js"></script>
-
+<script src="https://unpkg.com/aos@next/dist/aos.js"></script>
+<script>AOS.init();</script>
 </body>
 </html>
