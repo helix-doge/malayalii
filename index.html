@@ -3,6 +3,82 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mallu Here | Official RC Store</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+
+<div class="top-bar">GET EXTRA 5% OFF ON PREPAID ORDERS</div>
+
+<header class="main-header">
+    <div class="header-container">
+        <img src="images/logo/logo.png" alt="Mallu Here" class="logo">
+        <nav class="nav-menu">
+            <a href="#">ALL</a>
+            <a href="#">NEW ARRIVALS</a>
+            <a href="#">RC CARS</a>
+            <a href="#">CONSTRUCTION</a>
+            <a href="#">MORE</a>
+        </nav>
+        <div class="header-icons">
+            <span>🔍</span> <span>👤</span> <span>🛒 <small id="cart-count">0</small></span>
+        </div>
+    </div>
+</header>
+
+<section class="banner">
+    <div class="banner-text">
+        <h2>PREMIUM DRIFT SERIES</h2>
+        <button>SHOP NOW</button>
+    </div>
+</section>
+
+<main class="content-wrapper">
+    <div class="breadcrumb">Home / Collections / Best Sellers</div>
+    <div id="product-list" class="product-grid">
+        </div>
+</main>
+
+<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
+<script>
+    const firebaseConfig = {
+        apiKey: "AIzaSyAJi_p1Uuaa66zXEmlFrST_Rx8zMB3LPmM",
+        authDomain: "malluhere.firebaseapp.com",
+        projectId: "malluhere",
+        databaseURL: "https://malluhere-default-rtdb.firebaseio.com", 
+        appId: "1:682697051518:web:f9069b7cefdf87dfaeb72f"
+    };
+    firebase.initializeApp(firebaseConfig);
+    const database = firebase.database();
+
+    database.ref('products').on('value', (snapshot) => {
+        const grid = document.getElementById('product-list');
+        const data = snapshot.val();
+        grid.innerHTML = ''; 
+
+        for (let id in data) {
+            const p = data[id];
+            grid.innerHTML += `
+                <div class="product-item">
+                    <div class="badge">SALE</div>
+                    <img src="${p.image}" alt="RC Car">
+                    <h3>${p.name}</h3>
+                    <div class="rating">⭐⭐⭐⭐⭐ (216)</div>
+                    <p class="price-tag">Rs. ${p.price} <span class="old-price">Rs. ${parseInt(p.price)+500}</span></p>
+                    <button class="add-to-cart">ADD TO CART</button>
+                </div>
+            `;
+        }
+    });
+</script>
+</body>
+</html><!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>MALAYALI HERE | Premium RC Shop</title>
     <link rel="stylesheet" href="css/style.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700&family=Orbitron:wght@600&display=swap" rel="stylesheet">
