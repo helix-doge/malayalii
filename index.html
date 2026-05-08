@@ -3,6 +3,103 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mallu Here | Official Store</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+
+<div class="top-bar">FREE SHIPPING ON ALL RC DRIFT CARS! 🏎️</div>
+
+<header class="main-header">
+    <div class="header-container">
+        <div class="menu-toggle" onclick="toggleMenu()">☰</div>
+        <img src="images/logo/logo.png" alt="Mallu Here" class="logo">
+        
+        <nav class="nav-menu" id="navMenu">
+            <button onclick="filterCat('ALL')">ALL</button>
+            <button onclick="filterCat('RC CARS')">RC CARS</button>
+            <button onclick="filterCat('CONSTRUCTION')">CONSTRUCTION</button>
+            <button onclick="filterCat('TRANSPORT')">TRANSPORT</button>
+        </nav>
+
+        <div class="header-icons">
+            <span class="icon">👤</span>
+            <span class="icon">🛒 <b id="cart-count">0</b></span>
+        </div>
+    </div>
+</header>
+
+<main class="content-wrapper">
+    <h2 id="cat-title" class="section-title">ALL COLLECTIONS</h2>
+    <div id="product-list" class="product-grid">
+        </div>
+</main>
+
+<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
+
+<script>
+    const firebaseConfig = {
+        apiKey: "AIzaSyAJi_p1Uuaa66zXEmlFrST_Rx8zMB3LPmM",
+        authDomain: "malluhere.firebaseapp.com",
+        projectId: "malluhere",
+        databaseURL: "https://malluhere-default-rtdb.firebaseio.com", 
+        appId: "1:682697051518:web:f9069b7cefdf87dfaeb72f"
+    };
+    firebase.initializeApp(firebaseConfig);
+    const database = firebase.database();
+
+    let allProducts = {};
+
+    // Load Data
+    database.ref('products').on('value', (snapshot) => {
+        allProducts = snapshot.val();
+        renderProducts('ALL');
+    });
+
+    function renderProducts(category) {
+        const grid = document.getElementById('product-list');
+        document.getElementById('cat-title').innerText = category;
+        grid.innerHTML = '';
+
+        for (let id in allProducts) {
+            const p = allProducts[id];
+            // Filter Logic
+            if (category === 'ALL' || p.category === category) {
+                grid.innerHTML += `
+                    <div class="product-item">
+                        <img src="${p.image}" alt="${p.name}">
+                        <h3>${p.name}</h3>
+                        <p class="price-tag">Rs. ${p.price}</p>
+                        <button class="add-to-cart" onclick="addToCart()">ADD TO CART</button>
+                    </div>
+                `;
+            }
+        }
+    }
+
+    function filterCat(cat) {
+        renderProducts(cat);
+        if(window.innerWidth < 768) toggleMenu(); // Close mobile menu after click
+    }
+
+    function toggleMenu() {
+        document.getElementById('navMenu').classList.toggle('active');
+    }
+
+    function addToCart() {
+        let count = parseInt(document.getElementById('cart-count').innerText);
+        document.getElementById('cart-count').innerText = count + 1;
+        alert("Added to your garage! 🏎️");
+    }
+</script>
+</body>
+</html><!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Mallu Here | Official RC Store</title>
     <link rel="stylesheet" href="css/style.css">
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
