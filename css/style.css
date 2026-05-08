@@ -168,3 +168,4 @@ nav { display: flex; justify-content: space-between; padding: 20px 5%; backgroun
     .hero-content h1 { font-size: 2rem; }
     .product-grid { grid-template-columns: repeat(2, 1fr); gap: 10px; padding: 100px 10px; } /* 2 per row on mobile */
 }
+ 
