@@ -2,6 +2,78 @@
 <html>
 <head>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard | Malayali Here</title>
+    <style>
+        body { background: #f0f2f5; font-family: sans-serif; padding: 20px; }
+        .container { max-width: 900px; margin: auto; }
+        .card { background: white; padding: 30px; border-radius: 15px; box-shadow: 0 5px 20px rgba(0,0,0,0.05); margin-bottom: 20px; }
+        input, select { width: 100%; padding: 12px; margin-bottom: 10px; border: 1px solid #ddd; border-radius: 8px; font-size: 14px; }
+        .submit-btn { width: 100%; padding: 15px; background: #000; color: #FFD700; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; }
+        
+        /* Table Fix */
+        .table-wrap { overflow-x: auto; margin-top: 20px; }
+        table { width: 100%; border-collapse: collapse; min-width: 600px; }
+        th, td { padding: 15px; border-bottom: 1px solid #eee; text-align: left; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div class="card">
+        <h2>ADD PRODUCT 📦</h2>
+        <input type="text" id="pName" placeholder="Product Name">
+        <input type="number" id="pPrice" placeholder="Selling Price">
+        <input type="text" id="pImage" placeholder="Image Link (Direct URL)">
+        <select id="pCat">
+            <option value="RC CARS">RC CARS</option>
+            <option value="HOT WHEELS">HOT WHEELS</option>
+        </select>
+        <button class="submit-btn" onclick="save()">PUBLISH TO STORE</button>
+    </div>
+
+    <div class="card">
+        <h2>INVENTORY MANAGER</h2>
+        <div class="table-wrap">
+            <table id="inventory-table">
+                <thead><tr><th>Name</th><th>Category</th><th>Price</th><th>Action</th></tr></thead>
+                <tbody id="inventory-list"></tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
+<script>
+    // USE SAME FIREBASE CONFIG FROM SCRIPT.JS
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.database();
+
+    function save() {
+        const name = document.getElementById('pName').value;
+        const price = document.getElementById('pPrice').value;
+        const image = document.getElementById('pImage').value;
+        const category = document.getElementById('pCat').value;
+        
+        db.ref('products').push({ name, price, image, category }).then(() => location.reload());
+    }
+
+    db.ref('products').on('value', (snap) => {
+        const list = document.getElementById('inventory-list');
+        const data = snap.val();
+        list.innerHTML = '';
+        for (let id in data) {
+            list.innerHTML += `<tr><td>${data[id].name}</td><td>${data[id].category}</td><td>₹${data[id].price}</td><td><button onclick="del('${id}')" style="color:red; background:none; border:none; cursor:pointer;">DELETE</button></td></tr>`;
+        }
+    });
+
+    function del(id) { if(confirm("Remove?")) db.ref('products/' + id).remove(); }
+</script>
+</body>
+</html><!DOCTYPE html>
+<html>
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Master Admin | Mallu Here</title>
     <style>
         body { font-family: 'Poppins', sans-serif; background: #f4f6f9; color: #333; padding: 30px; }
