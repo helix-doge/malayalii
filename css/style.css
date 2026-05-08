@@ -1,4 +1,102 @@
-/* RESET */
+:root {
+    --primary: #ff4757;
+    --dark: #2f3542;
+}
+
+body { font-family: 'Poppins', sans-serif; margin: 0; background: #f1f2f6; color: var(--dark); }
+
+.navbar { 
+    background: white; 
+    padding: 10px 50px; 
+    display: flex; 
+    align-items: center; 
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    position: sticky; top: 0; z-index: 1000;
+}
+
+.logo { height: 45px; margin-right: 15px; border-radius: 50%; }
+
+.hero { 
+    background: linear-gradient(135deg, #2f3542 0%, #1e2229 100%);
+    color: white; padding: 100px 20px; text-align: center;
+}
+
+.container { 
+    display: grid; 
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); 
+    gap: 30px; padding: 50px; 
+}
+
+.card { 
+    background: white; border-radius: 20px; overflow: hidden;
+    box-shadow: 0 10px 20px rgba(0,0,0,0.05); transition: 0.4s;
+    border: 1px solid #eee;
+}
+
+.card:hover { transform: scale(1.05); box-shadow: 0 15px 30px rgba(0,0,0,0.1); }
+
+.card img { width: 100%; height: 200px; object-fit: cover; }
+
+.price { color: var(--primary); font-size: 1.5rem; font-weight: bold; margin: 10px 0; }
+
+.buy-btn { 
+    background: var(--primary); color: white; border: none; 
+    padding: 12px 25px; border-radius: 50px; cursor: pointer;
+    font-weight: bold; margin-bottom: 20px;
+}
+
+/* Admin Styles */
+.admin-box { max-width: 400px; margin: 100px auto; background: white; padding: 40px; border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); }
+input { width: 90%; padding: 10px; margin-bottom: 15px; border: 1px solid #ddd; border-radius: 8px; }:root {
+    --primary: #ff4757;
+    --dark: #2f3542;
+}
+
+body { font-family: 'Poppins', sans-serif; margin: 0; background: #f1f2f6; color: var(--dark); }
+
+.navbar { 
+    background: white; 
+    padding: 10px 50px; 
+    display: flex; 
+    align-items: center; 
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    position: sticky; top: 0; z-index: 1000;
+}
+
+.logo { height: 45px; margin-right: 15px; border-radius: 50%; }
+
+.hero { 
+    background: linear-gradient(135deg, #2f3542 0%, #1e2229 100%);
+    color: white; padding: 100px 20px; text-align: center;
+}
+
+.container { 
+    display: grid; 
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); 
+    gap: 30px; padding: 50px; 
+}
+
+.card { 
+    background: white; border-radius: 20px; overflow: hidden;
+    box-shadow: 0 10px 20px rgba(0,0,0,0.05); transition: 0.4s;
+    border: 1px solid #eee;
+}
+
+.card:hover { transform: scale(1.05); box-shadow: 0 15px 30px rgba(0,0,0,0.1); }
+
+.card img { width: 100%; height: 200px; object-fit: cover; }
+
+.price { color: var(--primary); font-size: 1.5rem; font-weight: bold; margin: 10px 0; }
+
+.buy-btn { 
+    background: var(--primary); color: white; border: none; 
+    padding: 12px 25px; border-radius: 50px; cursor: pointer;
+    font-weight: bold; margin-bottom: 20px;
+}
+
+/* Admin Styles */
+.admin-box { max-width: 400px; margin: 100px auto; background: white; padding: 40px; border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); }
+input { width: 90%; padding: 10px; margin-bottom: 15px; border: 1px solid #ddd; border-radius: 8px; }/* RESET */
 * {
   margin: 0;
   padding: 0;
