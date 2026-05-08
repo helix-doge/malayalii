@@ -3,57 +3,70 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Mallu Here | RC Car World</title>
+    <title>MALAYALI HERE | Premium RC Shop</title>
     <link rel="stylesheet" href="css/style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700&family=Orbitron:wght@600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://unpkg.com/aos@next/dist/aos.css" />
 </head>
 <body>
 
-<nav class="navbar">
-    <img src="images/logo/logo.png" alt="Mallu Here Logo" class="logo">
-    <h1>Mallu Here</h1>
-</nav>
-
-<div class="hero" data-aos="fade-down">
-    <h2>Fast Cars, Big Smiles! 🏎️💨</h2>
-    <p>Premium RC Cars for the Pros.</p>
-</div>
-
-<div id="product-list" class="container">
+<header class="navbar">
+    <div class="nav-container">
+        <img src="images/logo/logo.png" alt="Logo" class="logo">
+        <nav>
+            <a href="#">Home</a>
+            <a href="#">Shop</a>
+            <a href="admin.html">Admin</a>
+        </nav>
+        <div class="cart-icon">🛒 <span id="cart-count">0</span></div>
     </div>
+</header>
+
+<section class="hero">
+    <div class="hero-content" data-aos="fade-right">
+        <h1>MALAYALI <span class="highlight">HERE</span></h1>
+        <p>Engineered for Speed. Built for Thrills.</p>
+        <button class="cta-btn">Browse Collection</button>
+    </div>
+</section>
+
+<main class="container">
+    <h2 class="section-title" data-aos="fade-up">Featured RC Cars</h2>
+    <div id="product-list" class="grid-layout">
+        </div>
+</main>
 
 <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
 <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
 
 <script>
-    // Your Keys go here
     const firebaseConfig = {
         apiKey: "AIzaSyAJi_p1Uuaa66zXEmlFrST_Rx8zMB3LPmM",
         authDomain: "malluhere.firebaseapp.com",
         projectId: "malluhere",
-        storageBucket: "malluhere.firebasestorage.app",
-        databaseURL: "https://malluhere-default-rtdb.firebaseio.com", // Check your Firebase console for this URL
-        messagingSenderId: "682697051518",
+        databaseURL: "https://malluhere-default-rtdb.firebaseio.com", 
         appId: "1:682697051518:web:f9069b7cefdf87dfaeb72f"
     };
-
     firebase.initializeApp(firebaseConfig);
-    const database = firebase.database();
 
-    // Show the cars on the page
+    const database = firebase.database();
     database.ref('products').on('value', (snapshot) => {
         const productList = document.getElementById('product-list');
-        const products = snapshot.val();
+        const data = snapshot.val();
         productList.innerHTML = ''; 
 
-        for (let id in products) {
-            const p = products[id];
+        for (let id in data) {
+            const p = data[id];
             productList.innerHTML += `
-                <div class="card" data-aos="zoom-in">
-                    <img src="${p.image}" alt="car">
-                    <h3>${p.name}</h3>
-                    <p class="price">$${p.price}</p>
-                    <button class="buy-btn">Add to Cart</button>
+                <div class="product-card" data-aos="zoom-in-up">
+                    <div class="img-container">
+                        <img src="${p.image}" alt="RC Car">
+                    </div>
+                    <div class="card-info">
+                        <h3>${p.name}</h3>
+                        <p class="price">$${p.price}</p>
+                        <button class="buy-now">View Details</button>
+                    </div>
                 </div>
             `;
         }
@@ -61,6 +74,6 @@
 </script>
 
 <script src="https://unpkg.com/aos@next/dist/aos.js"></script>
-<script>AOS.init();</script>
+<script>AOS.init({ duration: 800 });</script>
 </body>
 </html>
