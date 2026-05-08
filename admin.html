@@ -1,6 +1,27 @@
 <!DOCTYPE html>
 <html>
 <head>
+    <title>Mallu Here | Admin Dashboard</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body style="background: #000; display: flex;">
+
+<div style="width: 250px; height: 100vh; background: #111; padding: 20px; border-right: 1px solid #333;">
+    <h2 style="color: var(--accent);">DASHBOARD</h2>
+    <p>Logged in as Admin</p>
+</div>
+
+<div style="flex: 1; padding: 50px;">
+    <h2>Inventory Management</h2>
+    <div class="admin-box" style="background: var(--card-bg); max-width: 600px; margin: 0;">
+        <input type="text" id="pName" placeholder="Product Name">
+        <input type="number" id="pPrice" placeholder="Price ($)">
+        <input type="text" id="pImage" placeholder="Image URL (Unsplash or direct link)">
+        <button onclick="saveToFirebase()" style="width: 100%; background: #27ae60;">🚀 Publish to Live Site</button>
+    </div>
+</div><!DOCTYPE html>
+<html>
+<head>
     <title>Mallu Here | Admin</title>
     <link rel="stylesheet" href="css/style.css">
 </head>
