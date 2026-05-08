@@ -3,6 +3,171 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Malayali Here | Premium Hobby Store</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://unpkg.com/aos@next/dist/aos.css" />
+    <style>
+        :root { --yellow: #FFD700; --black: #121212; --white: #FFFFFF; --gray: #f8f8f8; }
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Poppins', sans-serif; }
+        body { background-color: var(--white); color: var(--black); }
+
+        /* Navigation */
+        header { background: var(--black); padding: 15px 0; position: sticky; top: 0; z-index: 1000; border-bottom: 2px solid var(--yellow); }
+        .nav-container { max-width: 1200px; margin: auto; display: flex; justify-content: space-between; align-items: center; padding: 0 20px; }
+        .logo { height: 50px; cursor: pointer; }
+        .nav-links button { background: none; border: none; color: white; margin: 0 15px; cursor: pointer; font-weight: 600; font-size: 14px; transition: 0.3s; text-transform: uppercase; }
+        .nav-links button:hover { color: var(--yellow); transform: scale(1.1); }
+        .sign-in-btn { background: var(--yellow) !important; color: black !important; padding: 8px 20px; border-radius: 5px; }
+
+        /* Hero Section */
+        .hero { height: 75vh; background: linear-gradient(rgba(0,0,0,0.7), rgba(0,0,0,0.7)), url('https://images.unsplash.com/photo-1594787318286-3d835c1d207f?q=80&w=2070'); background-size: cover; background-position: center; display: flex; align-items: center; justify-content: center; text-align: center; color: white; }
+        .hero h1 { font-size: 4rem; letter-spacing: 4px; font-weight: 700; }
+        .hero p { font-size: 1.4rem; color: var(--yellow); margin-bottom: 30px; }
+        .cta-main { background: var(--yellow); color: black; padding: 15px 40px; border: none; border-radius: 50px; font-weight: 700; cursor: pointer; transition: 0.4s; font-size: 18px; }
+        .cta-main:hover { background: white; transform: translateY(-5px); box-shadow: 0 10px 20px rgba(255,215,0,0.3); }
+
+        /* Category Interface */
+        .cats { padding: 80px 20px; max-width: 1200px; margin: auto; text-align: center; }
+        .section-title { font-size: 32px; margin-bottom: 50px; position: relative; display: inline-block; }
+        .section-title::after { content: ''; width: 60%; height: 4px; background: var(--yellow); position: absolute; bottom: -10px; left: 20%; }
+        
+        .cat-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 30px; margin-top: 30px; }
+        .cat-card { background: var(--black); color: white; padding: 60px 30px; border-radius: 20px; cursor: pointer; transition: 0.5s; overflow: hidden; position: relative; border: 1px solid #333; }
+        .cat-card:hover { transform: translateY(-15px); border-color: var(--yellow); box-shadow: 0 20px 40px rgba(0,0,0,0.2); }
+        .cat-card h3 { font-size: 24px; z-index: 2; position: relative; }
+        .cat-card i { font-size: 50px; display: block; margin-bottom: 15px; color: var(--yellow); }
+
+        /* Product Grid */
+        .products { padding: 60px 20px; max-width: 1200px; margin: auto; background: var(--gray); border-radius: 30px; margin-bottom: 50px; }
+        .product-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 25px; }
+        .product-item { background: white; border-radius: 15px; padding: 25px; text-align: center; transition: 0.4s; border: 1px solid #eee; }
+        .product-item:hover { transform: scale(1.03); box-shadow: 0 15px 30px rgba(0,0,0,0.1); }
+        .product-item img { width: 100%; height: 220px; object-fit: contain; }
+
+        /* Professional Footer */
+        footer { background: var(--black); color: white; padding: 60px 20px; text-align: center; border-top: 5px solid var(--yellow); }
+        .footer-grid { max-width: 1200px; margin: auto; display: grid; grid-template-columns: repeat(3, 1fr); gap: 40px; text-align: left; }
+        .footer-col h4 { color: var(--yellow); margin-bottom: 20px; font-size: 18px; }
+        .footer-col p { font-size: 14px; color: #bbb; line-height: 1.8; }
+        .social-links { margin-top: 20px; }
+        .bottom-bar { margin-top: 40px; padding-top: 20px; border-top: 1px solid #333; font-size: 12px; color: #777; }
+
+        @media (max-width: 768px) {
+            .hero h1 { font-size: 2.5rem; }
+            .cat-grid { grid-template-columns: 1fr; }
+            .footer-grid { grid-template-columns: 1fr; text-align: center; }
+        }
+    </style>
+</head>
+<body>
+
+<header>
+    <div class="nav-container">
+        <img src="images/logo/logo.png" class="logo" onclick="location.reload()">
+        <nav class="nav-links">
+            <button onclick="showCategory('RC CARS')">RC CARS</button>
+            <button onclick="showCategory('HOT WHEELS')">HOT WHEELS</button>
+            <button onclick="showCategory('ELECTRONICS')">ELECTRONICS</button>
+            <button class="sign-in-btn" onclick="window.location.href='login.html'">SIGN IN</button>
+        </nav>
+    </div>
+</header>
+
+<section class="hero">
+    <div data-aos="zoom-out">
+        <h1>MALAYALI HERE</h1>
+        <p>Fast Cars, Big Smiles! 🏎️💨</p>
+        <button class="cta-main" onclick="document.getElementById('cat-section').scrollIntoView({behavior:'smooth'})">EXPLORE COLLECTIONS</button>
+    </div>
+</section>
+
+<section class="cats" id="cat-section">
+    <h2 class="section-title" data-aos="fade-up">BROWSE BY CATEGORY</h2>
+    <div class="cat-grid">
+        <div class="cat-card" onclick="showCategory('RC CARS')" data-aos="fade-right">
+            <i>🏎️</i>
+            <h3>RC DRIFT CARS</h3>
+        </div>
+        <div class="cat-card" onclick="showCategory('HOT WHEELS')" data-aos="fade-up">
+            <i>🔥</i>
+            <h3>HOT WHEELS</h3>
+        </div>
+        <div class="cat-card" onclick="showCategory('ELECTRONICS')" data-aos="fade-left">
+            <i>🔌</i>
+            <h3>ELECTRONICS</h3>
+        </div>
+    </div>
+</section>
+
+<section class="products" id="product-view" style="display: none;">
+    <h2 id="view-name" class="section-title">COLLECTION</h2>
+    <div id="product-list" class="product-grid"></div>
+</section>
+
+<footer>
+    <div class="footer-grid">
+        <div class="footer-col">
+            <h4>MALAYALI HERE</h4>
+            <p>Your one-stop destination for high-end RC cars and premium accessories. We bring the thrill of racing to your doorstep.</p>
+        </div>
+        <div class="footer-col">
+            <h4>QUICK LINKS</h4>
+            <p>About Us<br>Shipping Policy<br>Return Policy<br>Terms of Service</p>
+        </div>
+        <div class="footer-col">
+            <h4>CONTACT INFO</h4>
+            <p>📍 Kochi, Kerala, India<br>📧 support@malluhere.com<br>📞 +91 98765 43210</p>
+        </div>
+    </div>
+    <div class="bottom-bar">© 2026 Malayali Here. All Rights Reserved.</div>
+</footer>
+
+<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
+<script>
+    const firebaseConfig = {
+        apiKey: "AIzaSyAJi_p1Uuaa66zXEmlFrST_Rx8zMB3LPmM",
+        authDomain: "malluhere.firebaseapp.com",
+        projectId: "malluhere",
+        databaseURL: "https://malluhere-default-rtdb.firebaseio.com", 
+        appId: "1:682697051518:web:f9069b7cefdf87dfaeb72f"
+    };
+    firebase.initializeApp(firebaseConfig);
+    const database = firebase.database();
+
+    function showCategory(cat) {
+        const view = document.getElementById('product-view');
+        const list = document.getElementById('product-list');
+        document.getElementById('view-name').innerText = cat;
+        view.style.display = 'block';
+        
+        database.ref('products').on('value', (snap) => {
+            const data = snap.val();
+            list.innerHTML = '';
+            for (let id in data) {
+                if (data[id].category === cat) {
+                    list.innerHTML += `
+                        <div class="product-item">
+                            <img src="${data[id].image}">
+                            <h3>${data[id].name}</h3>
+                            <p><b>₹${data[id].price}</b> <span style="text-decoration:line-through; color:#999">₹${data[id].oldPrice}</span></p>
+                            <p style="font-size:12px; color:green">Stock: ${data[id].stock}</p>
+                            <button style="width:100%; background:var(--yellow); border:none; padding:10px; margin-top:10px; border-radius:5px; font-weight:bold; cursor:pointer;">BUY NOW</button>
+                        </div>`;
+                }
+            }
+            view.scrollIntoView({behavior: 'smooth'});
+        });
+    }
+</script>
+<script src="https://unpkg.com/aos@next/dist/aos.js"></script>
+<script>AOS.init();</script>
+</body>
+</html><!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Mallu Here | Official Store</title>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://unpkg.com/aos@next/dist/aos.css" />
