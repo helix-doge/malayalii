@@ -53,3 +53,4 @@ function loadProducts(cat) {
 
 window.onhashchange = () => navigateTo(window.location.hash.replace('#', ''));
 window.onload = () => navigateTo(window.location.hash.replace('#', ''));
+ 
