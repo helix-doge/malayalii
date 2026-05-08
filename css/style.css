@@ -1,5 +1,52 @@
 :root {
     --gold: #FFD700;
+    --dark: #0a0a0a;
+    --card: #161616;
+    --red: #ff3b30;
+    --glass: rgba(255, 255, 255, 0.03);
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { background: var(--dark); color: white; font-family: 'Poppins', sans-serif; line-height: 1.6; }
+
+/* Fixed Broken Layout */
+.glass-nav {
+    position: fixed; top: 0; width: 100%; z-index: 1000;
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 15px 5%; background: rgba(0,0,0,0.8); backdrop-filter: blur(10px);
+    border-bottom: 1px solid var(--glass);
+}
+.logo { font-family: 'Orbitron'; font-size: 20px; color: var(--gold); letter-spacing: 2px; cursor: pointer; }
+.nav-links button { background: none; border: none; color: white; margin-left: 15px; font-weight: 600; cursor: pointer; }
+
+/* Hero Section */
+.hero { height: 80vh; background: linear-gradient(rgba(0,0,0,0.5), var(--dark)), url('https://images.unsplash.com/photo-1594787318286-3d835c1d207f?q=80&w=2070'); background-size: cover; display: flex; align-items: center; padding: 0 5%; }
+.hero h1 { font-size: clamp(2rem, 8vw, 4rem); font-family: 'Orbitron'; line-height: 1.1; }
+.gold-text { color: var(--gold); text-shadow: 0 0 20px rgba(255, 215, 0, 0.4); }
+
+/* Product Cards */
+.product-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 25px; padding: 100px 5% 50px; }
+.p-card { background: var(--card); border-radius: 20px; overflow: hidden; border: 1px solid #222; transition: 0.3s; position: relative; }
+.p-card:hover { transform: translateY(-10px); border-color: var(--gold); }
+.p-card img { width: 100%; height: 220px; object-fit: contain; background: #fff; padding: 10px; }
+
+.badge { position: absolute; top: 15px; left: 15px; background: var(--red); padding: 5px 12px; border-radius: 50px; font-size: 12px; font-weight: bold; }
+.stock-status { color: #4cd964; font-size: 13px; margin-bottom: 5px; }
+.p-info { padding: 20px; }
+.p-price { font-size: 24px; font-weight: bold; color: var(--gold); }
+.p-old-price { text-decoration: line-through; color: #777; font-size: 16px; margin-left: 10px; }
+
+/* New Feature: WhatsApp Button */
+.wa-btn { 
+    display: block; width: 100%; padding: 15px; background: #25d366; color: white; 
+    text-align: center; text-decoration: none; border-radius: 10px; font-weight: bold; margin-top: 15px;
+}
+
+@media (max-width: 768px) {
+    .product-grid { grid-template-columns: repeat(2, 1fr); gap: 10px; padding: 100px 10px; }
+    .p-card img { height: 150px; }
+}:root {
+    --gold: #FFD700;
     --dark-bg: #050505;
     --card-bg: #111111;
     --accent: #ff2d55;
