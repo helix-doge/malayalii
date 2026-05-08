@@ -1,4 +1,78 @@
-<div class="admin-box">
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Mallu Here | Admin Dashboard</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body style="background: #f0f0f0; padding: 50px;">
+
+<div style="max-width: 800px; margin: auto; background: white; padding: 40px; border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.1);">
+    <h2 style="color: var(--black);">STORE MANAGER 📦</h2>
+    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+        <input type="text" id="pName" placeholder="Product Name">
+        <input type="number" id="pPrice" placeholder="Selling Price (Rs.)">
+        <input type="number" id="pOldPrice" placeholder="Original Price (for Discount cut)">
+        <input type="text" id="pImage" placeholder="Direct Image URL">
+        <select id="pCat">
+            <option value="RC CARS">RC CARS</option>
+            <option value="ELECTRONICS">ELECTRONICS</option>
+            <option value="HOT WHEELS">HOT WHEELS</option>
+        </select>
+        <select id="pStock">
+            <option value="in">✅ In Stock</option>
+            <option value="out">❌ Out of Stock</option>
+        </select>
+    </div>
+    <button onclick="saveItem()" style="width: 100%; margin-top: 20px; padding: 15px; background: #000; color: white; font-weight: bold; border-radius: 8px; cursor: pointer;">PUBLISH TO LIVE STORE</button>
+
+    <h3 style="margin-top: 50px;">Live Inventory</h3>
+    <div id="admin-list" style="border-top: 2px solid #eee; padding-top: 20px;"></div>
+</div>
+
+<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
+
+<script>
+    const firebaseConfig = {
+        apiKey: "AIzaSyAJi_p1Uuaa66zXEmlFrST_Rx8zMB3LPmM",
+        authDomain: "malluhere.firebaseapp.com",
+        projectId: "malluhere",
+        databaseURL: "https://malluhere-default-rtdb.firebaseio.com", 
+        appId: "1:682697051518:web:f9069b7cefdf87dfaeb72f"
+    };
+    firebase.initializeApp(firebaseConfig);
+    const database = firebase.database();
+
+    function saveItem() {
+        const item = {
+            name: document.getElementById('pName').value,
+            price: parseInt(document.getElementById('pPrice').value),
+            oldPrice: parseInt(document.getElementById('pOldPrice').value),
+            image: document.getElementById('pImage').value,
+            category: document.getElementById('pCat').value,
+            stock: document.getElementById('pStock').value
+        };
+        database.ref('products').push(item).then(() => alert("Product is now LIVE!"));
+    }
+
+    database.ref('products').on('value', (snap) => {
+        const list = document.getElementById('admin-list');
+        const data = snap.val();
+        list.innerHTML = '';
+        for (let id in data) {
+            list.innerHTML += `
+                <div style="display: flex; justify-content: space-between; align-items: center; padding: 10px; border-bottom: 1px solid #eee;">
+                    <span><b>${data[id].name}</b> - ₹${data[id].price}</span>
+                    <button onclick="deleteItem('${id}')" style="background: red; color: white; border: none; padding: 5px 10px; border-radius: 4px; cursor: pointer;">REMOVE</button>
+                </div>
+            `;
+        }
+    });
+
+    function deleteItem(id) { if(confirm("Remove this item forever?")) database.ref('products/' + id).remove(); }
+</script>
+</body>
+</html><div class="admin-box">
     <h2>Add New Stock 📦</h2>
     <input type="text" id="pName" placeholder="Car Name">
     <input type="number" id="pPrice" placeholder="Price (Rs.)">
