@@ -2,679 +2,78 @@
 <html>
 <head>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Admin Dashboard | Malayali Here</title>
+    <title>Master Admin | Malayali Here</title>
     <style>
-        body { background: #f0f2f5; font-family: sans-serif; padding: 20px; }
-        .container { max-width: 900px; margin: auto; }
-        .card { background: white; padding: 30px; border-radius: 15px; box-shadow: 0 5px 20px rgba(0,0,0,0.05); margin-bottom: 20px; }
-        input, select { width: 100%; padding: 12px; margin-bottom: 10px; border: 1px solid #ddd; border-radius: 8px; font-size: 14px; }
-        .submit-btn { width: 100%; padding: 15px; background: #000; color: #FFD700; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; }
+        body { font-family: 'Poppins', sans-serif; background: #f4f7f6; padding: 20px; }
+        .dashboard { max-width: 1000px; margin: auto; }
+        .card { background: white; padding: 30px; border-radius: 15px; box-shadow: 0 10px 30px rgba(0,0,0,0.05); margin-bottom: 25px; }
+        input, select { width: 100%; padding: 12px; margin: 10px 0; border: 1px solid #ddd; border-radius: 8px; }
+        .btn-add { width: 100%; padding: 15px; background: #000; color: #FFD700; border: none; font-weight: bold; cursor: pointer; border-radius: 8px; }
         
-        /* Table Fix */
-        .table-wrap { overflow-x: auto; margin-top: 20px; }
-        table { width: 100%; border-collapse: collapse; min-width: 600px; }
-        th, td { padding: 15px; border-bottom: 1px solid #eee; text-align: left; }
-    </style>
-</head>
-<body>
-
-<div class="container">
-    <div class="card">
-        <h2>ADD PRODUCT 📦</h2>
-        <input type="text" id="pName" placeholder="Product Name">
-        <input type="number" id="pPrice" placeholder="Selling Price">
-        <input type="text" id="pImage" placeholder="Image Link (Direct URL)">
-        <select id="pCat">
-            <option value="RC CARS">RC CARS</option>
-            <option value="HOT WHEELS">HOT WHEELS</option>
-        </select>
-        <button class="submit-btn" onclick="save()">PUBLISH TO STORE</button>
-    </div>
-
-    <div class="card">
-        <h2>INVENTORY MANAGER</h2>
-        <div class="table-wrap">
-            <table id="inventory-table">
-                <thead><tr><th>Name</th><th>Category</th><th>Price</th><th>Action</th></tr></thead>
-                <tbody id="inventory-list"></tbody>
-            </table>
-        </div>
-    </div>
-</div>
-
-<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
-<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
-<script>
-    // USE SAME FIREBASE CONFIG FROM SCRIPT.JS
-    firebase.initializeApp(firebaseConfig);
-    const db = firebase.database();
-
-    function save() {
-        const name = document.getElementById('pName').value;
-        const price = document.getElementById('pPrice').value;
-        const image = document.getElementById('pImage').value;
-        const category = document.getElementById('pCat').value;
-        
-        db.ref('products').push({ name, price, image, category }).then(() => location.reload());
-    }
-
-    db.ref('products').on('value', (snap) => {
-        const list = document.getElementById('inventory-list');
-        const data = snap.val();
-        list.innerHTML = '';
-        for (let id in data) {
-            list.innerHTML += `<tr><td>${data[id].name}</td><td>${data[id].category}</td><td>₹${data[id].price}</td><td><button onclick="del('${id}')" style="color:red; background:none; border:none; cursor:pointer;">DELETE</button></td></tr>`;
-        }
-    });
-
-    function del(id) { if(confirm("Remove?")) db.ref('products/' + id).remove(); }
-</script>
-</body>
-</html><!DOCTYPE html>
-<html>
-<head>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Master Admin | Mallu Here</title>
-    <style>
-        body { font-family: 'Poppins', sans-serif; background: #f4f6f9; color: #333; padding: 30px; }
-        .admin-box { max-width: 900px; margin: auto; }
-        .card { background: white; padding: 30px; border-radius: 15px; box-shadow: 0 10px 25px rgba(0,0,0,0.05); margin-bottom: 30px; }
-        h2 { font-size: 18px; margin-bottom: 20px; border-bottom: 2px solid #FFD700; display: inline-block; padding-bottom: 5px; }
-        
-        input, select { width: 100%; padding: 12px; margin-bottom: 15px; border: 1px solid #ddd; border-radius: 8px; outline: none; }
-        .btn-upload { width: 100%; padding: 15px; background: #000; color: #FFD700; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; text-transform: uppercase; }
-
-        /* Inventory Table */
-        .table-container { overflow-x: auto; }
-        table { width: 100%; border-collapse: collapse; min-width: 600px; }
-        th, td { text-align: left; padding: 15px; border-bottom: 1px solid #eee; font-size: 14px; }
-        th { background: #f9f9f9; font-weight: 600; }
-        .low-stock { color: red; font-weight: bold; }
-        .remove-btn { background: #ff5252; color: white; border: none; padding: 6px 12px; border-radius: 5px; cursor: pointer; }
-    </style>
-</head>
-<body>
-
-<div class="admin-box">
-    <div class="card">
-        <h2>ADD PRODUCT TO LIVE STORE 📦</h2>
-        <input type="text" id="pName" placeholder="Full Product Name">
-        <div style="display: flex; gap: 10px;">
-            <input type="number" id="pPrice" placeholder="Selling Price (Rs.)">
-            <input type="number" id="pOldPrice" placeholder="Original Price (for Sale effect)">
-        </div>
-        <input type="number" id="pStock" placeholder="Current Stock Available">
-        <input type="text" id="pImage" placeholder="Image URL (Link to product photo)">
-        
-        <select id="pCat">
-            <option value="RC CARS">RC CARS</option>
-            <option value="HOT WHEELS">HOT WHEELS</option>
-            <option value="ELECTRONICS">ELECTRONICS</option>
-        </select>
-        
-        <button class="btn-upload" onclick="save()">PUBLISH LIVE</button>
-    </div>
-
-    <div class="card">
-        <h2>LIVE INVENTORY MANAGER</h2>
-        <div class="table-container">
-            <table>
-                <thead>
-                    <tr>
-                        <th>Product Name</th>
-                        <th>Category</th>
-                        <th>Stock</th>
-                        <th>Price</th>
-                        <th>Manage</th>
-                    </tr>
-                </thead>
-                <tbody id="inventory-list"></tbody>
-            </table>
-        </div>
-    </div>
-</div>
-
-<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
-<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
-<script>
-    const firebaseConfig = { /* SAME AS INDEX.HTML */ };
-    firebase.initializeApp(firebaseConfig);
-    const database = firebase.database();
-
-    function save() {
-        const item = {
-            name: document.getElementById('pName').value,
-            price: document.getElementById('pPrice').value,
-            oldPrice: document.getElementById('pOldPrice').value,
-            stock: parseInt(document.getElementById('pStock').value),
-            image: document.getElementById('pImage').value,
-            category: document.getElementById('pCat').value
-        };
-
-        if(!item.name || !item.image) return alert("Fill required details!");
-
-        database.ref('products').push(item).then(() => {
-            alert("Published Successfully!");
-            location.reload();
-        });
-    }
-
-    database.ref('products').on('value', (snapshot) => {
-        const list = document.getElementById('inventory-list');
-        const data = snapshot.val();
-        list.innerHTML = '';
-        for (let id in data) {
-            list.innerHTML += `
-                <tr>
-                    <td>${data[id].name}</td>
-                    <td>${data[id].category}</td>
-                    <td class="${data[id].stock < 5 ? 'low-stock' : ''}">${data[id].stock} Units</td>
-                    <td>₹${data[id].price}</td>
-                    <td><button class="remove-btn" onclick="del('${id}')">DELETE</button></td>
-                </tr>`;
-        }
-    });
-
-    function del(id) { if(confirm("Confirm Delete?")) database.ref('products/' + id).remove(); }
-</script>
-</body>
-</html><!DOCTYPE html>
-<html>
-<head>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Admin | Store Manager</title>
-    <style>
-        body { font-family: sans-serif; background: #f0f2f5; padding: 20px; color: #333; }
-        .admin-container { max-width: 800px; margin: auto; }
-        
-        /* Card Styling */
-        .card { background: white; padding: 25px; border-radius: 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); margin-bottom: 20px; }
-        h2 { margin-bottom: 20px; font-size: 20px; color: #000; border-left: 5px solid #FFD700; padding-left: 10px; }
-
-        /* Inputs */
-        input, select { width: 100%; padding: 12px; margin-bottom: 10px; border: 1px solid #ccc; border-radius: 8px; font-size: 14px; background: #fff; color: #000; }
-        input::placeholder { color: #888; }
-        
-        .publish-btn { width: 100%; padding: 15px; background: black; color: white; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; }
-
-        /* Inventory - SCROLLABLE FIX */
-        .inventory-wrapper { overflow-x: auto; margin-top: 20px; }
         table { width: 100%; border-collapse: collapse; background: white; }
-        th, td { text-align: left; padding: 12px; border-bottom: 1px solid #eee; font-size: 13px; }
-        th { background: #fafafa; }
-        
-        .del-btn { background: #ff4757; color: white; border: none; padding: 6px 10px; border-radius: 5px; cursor: pointer; }
-
-        @media (max-width: 600px) {
-            body { padding: 10px; }
-            .card { padding: 15px; }
-            th, td { padding: 8px; font-size: 11px; }
-        }
-    </style>
-</head>
-<body>
-
-<div class="admin-container">
-    <div class="card">
-        <h2>ADD PRODUCT 📦</h2>
-        <input type="text" id="pName" placeholder="Product Name (e.g. F1 Car)">
-        <div style="display: flex; gap: 10px;">
-            <input type="number" id="pPrice" placeholder="Selling Price">
-            <input type="number" id="pOldPrice" placeholder="Original Price">
-        </div>
-        <input type="number" id="pStock" placeholder="Available Stock Quantity">
-        <input type="text" id="pImage" placeholder="Image Link (Paste URL here)">
-        
-        <select id="pCat">
-            <option value="RC CARS">RC CARS</option>
-            <option value="HOT WHEELS">HOT WHEELS</option>
-            <option value="ELECTRONICS">ELECTRONICS</option>
-        </select>
-        
-        <button class="publish-btn" onclick="saveToFirebase()">PUBLISH TO STORE</button>
-    </div>
-
-    <div class="card">
-        <h2>LIVE INVENTORY</h2>
-        <div class="inventory-wrapper">
-            <table>
-                <thead>
-                    <tr>
-                        <th>Product</th>
-                        <th>Price</th>
-                        <th>Stock</th>
-                        <th>Action</th>
-                    </tr>
-                </thead>
-                <tbody id="inventory-list"></tbody>
-            </table>
-        </div>
-    </div>
-</div>
-
-<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
-<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
-<script>
-    const firebaseConfig = {
-        apiKey: "AIzaSyAJi_p1Uuaa66zXEmlFrST_Rx8zMB3LPmM",
-        authDomain: "malluhere.firebaseapp.com",
-        projectId: "malluhere",
-        databaseURL: "https://malluhere-default-rtdb.firebaseio.com", 
-        appId: "1:682697051518:web:f9069b7cefdf87dfaeb72f"
-    };
-    firebase.initializeApp(firebaseConfig);
-    const database = firebase.database();
-
-    function saveToFirebase() {
-        const name = document.getElementById('pName').value;
-        const price = document.getElementById('pPrice').value;
-        const oldPrice = document.getElementById('pOldPrice').value;
-        const stock = document.getElementById('pStock').value;
-        const image = document.getElementById('pImage').value;
-        const category = document.getElementById('pCat').value;
-
-        if(!name || !price || !image) return alert("Please fill all fields");
-
-        database.ref('products').push({ name, price, oldPrice, stock, image, category })
-        .then(() => {
-            alert("Success!");
-            location.reload();
-        });
-    }
-
-    database.ref('products').on('value', (snapshot) => {
-        const list = document.getElementById('inventory-list');
-        const data = snapshot.val();
-        list.innerHTML = '';
-        for (let id in data) {
-            list.innerHTML += `
-                <tr>
-                    <td>${data[id].name}</td>
-                    <td>₹${data[id].price}</td>
-                    <td>${data[id].stock}</td>
-                    <td><button class="del-btn" onclick="deleteItem('${id}')">DEL</button></td>
-                </tr>`;
-        }
-    });
-
-    function deleteItem(id) {
-        if(confirm("Delete this item?")) database.ref('products/' + id).remove();
-    }
-</script>
-</body>
-</html><!DOCTYPE html>
-<html>
-<head>
-    <title>Store Manager | Admin</title>
-    <style>
-        body { font-family: 'Poppins', sans-serif; background: #f4f7f6; padding: 40px; }
-        .dashboard { max-width: 900px; margin: auto; display: grid; grid-template-columns: 1fr; gap: 30px; }
-        .card { background: white; padding: 30px; border-radius: 15px; box-shadow: 0 10px 25px rgba(0,0,0,0.05); }
-        h2 { margin-bottom: 20px; border-bottom: 2px solid #FFD700; display: inline-block; padding-bottom: 5px; }
-        input, select { width: 100%; padding: 12px; margin-bottom: 15px; border: 1px solid #ddd; border-radius: 8px; }
-        .main-btn { width: 100%; padding: 15px; background: #000; color: white; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; transition: 0.3s; }
-        .main-btn:hover { background: #333; }
-        
-        .inventory-table { width: 100%; border-collapse: collapse; margin-top: 20px; }
-        .inventory-table th, .inventory-table td { text-align: left; padding: 12px; border-bottom: 1px solid #eee; }
-        .stock-high { color: green; font-weight: bold; }
-        .stock-low { color: red; font-weight: bold; }
-        .del-btn { background: #ff4757; color: white; border: none; padding: 5px 10px; border-radius: 4px; cursor: pointer; }
+        th, td { padding: 15px; text-align: left; border-bottom: 1px solid #eee; }
+        .del-btn { color: #ff3b30; border: none; background: none; cursor: pointer; font-weight: bold; }
     </style>
 </head>
 <body>
 
 <div class="dashboard">
     <div class="card">
-        <h2>ADD NEW PRODUCT 📦</h2>
+        <h2>PUBLISH NEW PRODUCT 🚀</h2>
         <input type="text" id="pName" placeholder="Product Name">
-        <div style="display: flex; gap: 10px;">
-            <input type="number" id="pPrice" placeholder="Selling Price">
-            <input type="number" id="pOldPrice" placeholder="Original Price">
-        </div>
-        <input type="number" id="pStock" placeholder="Available Stock (Quantity)">
-        <input type="text" id="pImage" placeholder="Image Link (Direct URL)">
-        <select id="pCat">
-            <option value="RC CARS">RC CARS</option>
-            <option value="HOT WHEELS">HOT WHEELS</option>
-            <option value="ELECTRONICS">ELECTRONICS</option>
-        </select>
-        <button class="main-btn" onclick="upload()">PUBLISH TO STORE</button>
-    </div>
-
-    <div class="card">
-        <h2>LIVE INVENTORY & ANALYTICS</h2>
-        <div style="display: flex; gap: 10px; margin-bottom: 15px;">
-            <input type="text" id="searchInv" placeholder="Search product..." onkeyup="filterInventory()">
-            <select id="sortInv" onchange="filterInventory()">
-                <option value="all">All Categories</option>
-                <option value="RC CARS">RC CARS</option>
-                <option value="HOT WHEELS">HOT WHEELS</option>
-                <option value="ELECTRONICS">ELECTRONICS</option>
-            </select>
-        </div>
-        <table class="inventory-table">
-            <thead>
-                <tr>
-                    <th>Product</th>
-                    <th>Category</th>
-                    <th>Price</th>
-                    <th>Stock</th>
-                    <th>Action</th>
-                </tr>
-            </thead>
-            <tbody id="inventory-body"></tbody>
-        </table>
-    </div>
-</div>
-
-<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
-<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
-<script>
-    const firebaseConfig = { /* USE SAME CONFIG AS INDEX.HTML */ };
-    firebase.initializeApp(firebaseConfig);
-    const db = firebase.database();
-
-    function upload() {
-        const item = {
-            name: document.getElementById('pName').value,
-            price: document.getElementById('pPrice').value,
-            oldPrice: document.getElementById('pOldPrice').value,
-            stock: parseInt(document.getElementById('pStock').value),
-            image: document.getElementById('pImage').value,
-            category: document.getElementById('pCat').value
-        };
-        db.ref('products').push(item).then(() => {
-            alert("Product Added!");
-            location.reload();
-        });
-    }
-
-    db.ref('products').on('value', (snap) => {
-        window.inventoryData = snap.val();
-        filterInventory();
-    });
-
-    function filterInventory() {
-        const query = document.getElementById('searchInv').value.toLowerCase();
-        const catFilter = document.getElementById('sortInv').value;
-        const tbody = document.getElementById('inventory-body');
-        tbody.innerHTML = '';
-
-        for (let id in window.inventoryData) {
-            const p = window.inventoryData[id];
-            if ((catFilter === 'all' || p.category === catFilter) && p.name.toLowerCase().includes(query)) {
-                tbody.innerHTML += `
-                    <tr>
-                        <td>${p.name}</td>
-                        <td>${p.category}</td>
-                        <td>₹${p.price}</td>
-                        <td class="${p.stock < 5 ? 'stock-low' : 'stock-high'}">${p.stock}</td>
-                        <td><button class="del-btn" onclick="remove('${id}')">DEL</button></td>
-                    </tr>`;
-            }
-        }
-    }
-
-    function remove(id) { if(confirm("Delete item?")) db.ref('products/' + id).remove(); }
-</script>
-</body>
-</html><!DOCTYPE html>
-<html>
-<head>
-    <title>Store Manager | Mallu Here</title>
-    <style>
-        body { font-family: sans-serif; background: #f0f2f5; padding: 40px; }
-        .container { max-width: 600px; margin: auto; background: white; padding: 30px; border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); }
-        h2 { text-align: center; margin-bottom: 25px; }
-        input, select { width: 100%; padding: 12px; margin-bottom: 15px; border: 1px solid #ddd; border-radius: 8px; }
-        .publish-btn { width: 100%; padding: 15px; background: black; color: white; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; }
-        .item-list { margin-top: 40px; border-top: 1px solid #eee; padding-top: 20px; }
-        .item-row { display: flex; justify-content: space-between; align-items: center; padding: 10px; border-bottom: 1px solid #f9f9f9; }
-        .del-btn { background: #ff4757; color: white; border: none; padding: 5px 10px; border-radius: 4px; cursor: pointer; }
-    </style>
-</head>
-<body>
-
-<div class="container">
-    <h2>STORE MANAGER 📦</h2>
-    <input type="text" id="pName" placeholder="Product Name">
-    <div style="display: flex; gap: 10px;">
-        <input type="number" id="pPrice" placeholder="Selling Price">
-        <input type="number" id="pOldPrice" placeholder="Fake Old Price">
-    </div>
-    <input type="number" id="pStock" placeholder="Stock Quantity (e.g. 10)">
-    <input type="text" id="pImage" placeholder="Direct Image Link (e.g. Imgur, Drive)">
-    
-    <select id="pCat">
-        <option value="RC CARS">RC CARS</option>
-        <option value="ELECTRONICS">ELECTRONICS</option>
-        <option value="HOT WHEELS">HOT WHEELS</option>
-    </select>
-
-    <button class="publish-btn" onclick="upload()">PUBLISH TO LIVE STORE</button>
-
-    <div class="item-list" id="admin-list">
-        </div>
-</div>
-
-<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
-<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
-
-<script>
-    const firebaseConfig = {
-        apiKey: "AIzaSyAJi_p1Uuaa66zXEmlFrST_Rx8zMB3LPmM",
-        authDomain: "malluhere.firebaseapp.com",
-        projectId: "malluhere",
-        databaseURL: "https://malluhere-default-rtdb.firebaseio.com", 
-        appId: "1:682697051518:web:f9069b7cefdf87dfaeb72f"
-    };
-    firebase.initializeApp(firebaseConfig);
-    const database = firebase.database();
-
-    function upload() {
-        const data = {
-            name: document.getElementById('pName').value,
-            price: document.getElementById('pPrice').value,
-            oldPrice: document.getElementById('pOldPrice').value,
-            stock: document.getElementById('pStock').value,
-            image: document.getElementById('pImage').value,
-            category: document.getElementById('pCat').value
-        };
-        database.ref('products').push(data).then(() => {
-            alert("Live on Site!");
-            location.reload();
-        });
-    }
-
-    database.ref('products').on('value', (snap) => {
-        const list = document.getElementById('admin-list');
-        const data = snap.val();
-        list.innerHTML = '<h3>Live Inventory</h3>';
-        for (let id in data) {
-            list.innerHTML += `
-                <div class="item-row">
-                    <span>${data[id].name} (Qty: ${data[id].stock})</span>
-                    <button class="del-btn" onclick="removeItem('${id}')">REMOVE</button>
-                </div>
-            `;
-        }
-    });
-
-    function removeItem(id) {
-        if(confirm("Delete product?")) database.ref('products/' + id).remove();
-    }
-</script>
-</body>
-</html><!DOCTYPE html>
-<html>
-<head>
-    <title>Mallu Here | Admin Dashboard</title>
-    <link rel="stylesheet" href="css/style.css">
-</head>
-<body style="background: #f0f0f0; padding: 50px;">
-
-<div style="max-width: 800px; margin: auto; background: white; padding: 40px; border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.1);">
-    <h2 style="color: var(--black);">STORE MANAGER 📦</h2>
-    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
-        <input type="text" id="pName" placeholder="Product Name">
-        <input type="number" id="pPrice" placeholder="Selling Price (Rs.)">
-        <input type="number" id="pOldPrice" placeholder="Original Price (for Discount cut)">
+        <input type="number" id="pPrice" placeholder="Selling Price (₹)">
         <input type="text" id="pImage" placeholder="Direct Image URL">
         <select id="pCat">
             <option value="RC CARS">RC CARS</option>
-            <option value="ELECTRONICS">ELECTRONICS</option>
             <option value="HOT WHEELS">HOT WHEELS</option>
+            <option value="ELECTRONICS">ELECTRONICS</option>
         </select>
-        <select id="pStock">
-            <option value="in">✅ In Stock</option>
-            <option value="out">❌ Out of Stock</option>
-        </select>
+        <button class="btn-add" onclick="pushToStore()">ADD TO LIVE STORE</button>
     </div>
-    <button onclick="saveItem()" style="width: 100%; margin-top: 20px; padding: 15px; background: #000; color: white; font-weight: bold; border-radius: 8px; cursor: pointer;">PUBLISH TO LIVE STORE</button>
 
-    <h3 style="margin-top: 50px;">Live Inventory</h3>
-    <div id="admin-list" style="border-top: 2px solid #eee; padding-top: 20px;"></div>
+    <div class="card">
+        <h2>LIVE INVENTORY MANAGER</h2>
+        <div style="overflow-x: auto;">
+            <table>
+                <thead><tr><th>Name</th><th>Category</th><th>Price</th><th>Action</th></tr></thead>
+                <tbody id="inventory"></tbody>
+            </table>
+        </div>
+    </div>
 </div>
 
 <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
 <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
-
 <script>
-    const firebaseConfig = {
-        apiKey: "AIzaSyAJi_p1Uuaa66zXEmlFrST_Rx8zMB3LPmM",
-        authDomain: "malluhere.firebaseapp.com",
-        projectId: "malluhere",
-        databaseURL: "https://malluhere-default-rtdb.firebaseio.com", 
-        appId: "1:682697051518:web:f9069b7cefdf87dfaeb72f"
-    };
+    // USE SAME FIREBASE CONFIG AS ABOVE
     firebase.initializeApp(firebaseConfig);
     const database = firebase.database();
 
-    function saveItem() {
-        const item = {
+    function pushToStore() {
+        const product = {
             name: document.getElementById('pName').value,
-            price: parseInt(document.getElementById('pPrice').value),
-            oldPrice: parseInt(document.getElementById('pOldPrice').value),
+            price: document.getElementById('pPrice').value,
             image: document.getElementById('pImage').value,
-            category: document.getElementById('pCat').value,
-            stock: document.getElementById('pStock').value
+            category: document.getElementById('pCat').value
         };
-        database.ref('products').push(item).then(() => alert("Product is now LIVE!"));
+        database.ref('products').push(product).then(() => location.reload());
     }
 
-    database.ref('products').on('value', (snap) => {
-        const list = document.getElementById('admin-list');
+    database.ref('products').on('value', snap => {
+        const list = document.getElementById('inventory');
         const data = snap.val();
         list.innerHTML = '';
         for (let id in data) {
-            list.innerHTML += `
-                <div style="display: flex; justify-content: space-between; align-items: center; padding: 10px; border-bottom: 1px solid #eee;">
-                    <span><b>${data[id].name}</b> - ₹${data[id].price}</span>
-                    <button onclick="deleteItem('${id}')" style="background: red; color: white; border: none; padding: 5px 10px; border-radius: 4px; cursor: pointer;">REMOVE</button>
-                </div>
-            `;
+            list.innerHTML += `<tr>
+                <td>${data[id].name}</td>
+                <td>${data[id].category}</td>
+                <td>₹${data[id].price}</td>
+                <td><button class="del-btn" onclick="removeItem('${id}')">DELETE</button></td>
+            </tr>`;
         }
     });
 
-    function deleteItem(id) { if(confirm("Remove this item forever?")) database.ref('products/' + id).remove(); }
+    function removeItem(id) { if(confirm("Remove this item?")) database.ref('products/'+id).remove(); }
 </script>
-</body>
-</html><div class="admin-box">
-    <h2>Add New Stock 📦</h2>
-    <input type="text" id="pName" placeholder="Car Name">
-    <input type="number" id="pPrice" placeholder="Price (Rs.)">
-    <input type="text" id="pImage" placeholder="Image URL">
-    
-    <select id="pCat" style="width: 100%; padding: 10px; margin-bottom: 15px;">
-        <option value="RC CARS">RC CARS</option>
-        <option value="CONSTRUCTION">CONSTRUCTION</option>
-        <option value="TRANSPORT">TRANSPORT</option>
-    </select>
-    
-    <button onclick="saveProduct()">Push to Website</button>
-</div>
-
-<script>
-    function saveProduct() {
-        const name = document.getElementById('pName').value;
-        const price = document.getElementById('pPrice').value;
-        const image = document.getElementById('pImage').value;
-        const category = document.getElementById('pCat').value;
-
-        firebase.database().ref('products').push({
-            name: name,
-            price: price,
-            image: image,
-            category: category
-        });
-        alert("Done! It is now live under " + category);
-    }
-</script><!DOCTYPE html>
-<html>
-<head>
-    <title>Mallu Here | Admin Dashboard</title>
-    <link rel="stylesheet" href="css/style.css">
-</head>
-<body style="background: #000; display: flex;">
-
-<div style="width: 250px; height: 100vh; background: #111; padding: 20px; border-right: 1px solid #333;">
-    <h2 style="color: var(--accent);">DASHBOARD</h2>
-    <p>Logged in as Admin</p>
-</div>
-
-<div style="flex: 1; padding: 50px;">
-    <h2>Inventory Management</h2>
-    <div class="admin-box" style="background: var(--card-bg); max-width: 600px; margin: 0;">
-        <input type="text" id="pName" placeholder="Product Name">
-        <input type="number" id="pPrice" placeholder="Price ($)">
-        <input type="text" id="pImage" placeholder="Image URL (Unsplash or direct link)">
-        <button onclick="saveToFirebase()" style="width: 100%; background: #27ae60;">🚀 Publish to Live Site</button>
-    </div>
-</div><!DOCTYPE html>
-<html>
-<head>
-    <title>Mallu Here | Admin</title>
-    <link rel="stylesheet" href="css/style.css">
-</head>
-<body class="admin-page">
-    <div class="admin-box">
-        <h2>Add a New Car 🏎️</h2>
-        <input type="text" id="pName" placeholder="Car Name (e.g. Monster Truck)">
-        <input type="number" id="pPrice" placeholder="Price ($)">
-        <input type="text" id="pImage" placeholder="Image URL (Link to a photo)">
-        <button onclick="saveToFirebase()">Upload to Shop</button>
-    </div>
-
-    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
-
-    <script>
-        const firebaseConfig = {
-            apiKey: "AIzaSyAJi_p1Uuaa66zXEmlFrST_Rx8zMB3LPmM",
-            authDomain: "malluhere.firebaseapp.com",
-            projectId: "malluhere",
-            databaseURL: "https://malluhere-default-rtdb.firebaseio.com", 
-            appId: "1:682697051518:web:f9069b7cefdf87dfaeb72f"
-        };
-        firebase.initializeApp(firebaseConfig);
-
-        function saveToFirebase() {
-            const name = document.getElementById('pName').value;
-            const price = document.getElementById('pPrice').value;
-            const image = document.getElementById('pImage').value;
-
-            firebase.database().ref('products').push({
-                name: name,
-                price: price,
-                image: image
-            }).then(() => {
-                alert("Success! Go check your website.");
-                document.getElementById('pName').value = '';
-                document.getElementById('pPrice').value = '';
-                document.getElementById('pImage').value = '';
-            });
-        }
-    </script>
 </body>
 </html>
