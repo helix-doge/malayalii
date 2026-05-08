@@ -2,6 +2,114 @@
 <html>
 <head>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Master Admin | Mallu Here</title>
+    <style>
+        body { font-family: 'Poppins', sans-serif; background: #f4f6f9; color: #333; padding: 30px; }
+        .admin-box { max-width: 900px; margin: auto; }
+        .card { background: white; padding: 30px; border-radius: 15px; box-shadow: 0 10px 25px rgba(0,0,0,0.05); margin-bottom: 30px; }
+        h2 { font-size: 18px; margin-bottom: 20px; border-bottom: 2px solid #FFD700; display: inline-block; padding-bottom: 5px; }
+        
+        input, select { width: 100%; padding: 12px; margin-bottom: 15px; border: 1px solid #ddd; border-radius: 8px; outline: none; }
+        .btn-upload { width: 100%; padding: 15px; background: #000; color: #FFD700; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; text-transform: uppercase; }
+
+        /* Inventory Table */
+        .table-container { overflow-x: auto; }
+        table { width: 100%; border-collapse: collapse; min-width: 600px; }
+        th, td { text-align: left; padding: 15px; border-bottom: 1px solid #eee; font-size: 14px; }
+        th { background: #f9f9f9; font-weight: 600; }
+        .low-stock { color: red; font-weight: bold; }
+        .remove-btn { background: #ff5252; color: white; border: none; padding: 6px 12px; border-radius: 5px; cursor: pointer; }
+    </style>
+</head>
+<body>
+
+<div class="admin-box">
+    <div class="card">
+        <h2>ADD PRODUCT TO LIVE STORE 📦</h2>
+        <input type="text" id="pName" placeholder="Full Product Name">
+        <div style="display: flex; gap: 10px;">
+            <input type="number" id="pPrice" placeholder="Selling Price (Rs.)">
+            <input type="number" id="pOldPrice" placeholder="Original Price (for Sale effect)">
+        </div>
+        <input type="number" id="pStock" placeholder="Current Stock Available">
+        <input type="text" id="pImage" placeholder="Image URL (Link to product photo)">
+        
+        <select id="pCat">
+            <option value="RC CARS">RC CARS</option>
+            <option value="HOT WHEELS">HOT WHEELS</option>
+            <option value="ELECTRONICS">ELECTRONICS</option>
+        </select>
+        
+        <button class="btn-upload" onclick="save()">PUBLISH LIVE</button>
+    </div>
+
+    <div class="card">
+        <h2>LIVE INVENTORY MANAGER</h2>
+        <div class="table-container">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Product Name</th>
+                        <th>Category</th>
+                        <th>Stock</th>
+                        <th>Price</th>
+                        <th>Manage</th>
+                    </tr>
+                </thead>
+                <tbody id="inventory-list"></tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
+<script>
+    const firebaseConfig = { /* SAME AS INDEX.HTML */ };
+    firebase.initializeApp(firebaseConfig);
+    const database = firebase.database();
+
+    function save() {
+        const item = {
+            name: document.getElementById('pName').value,
+            price: document.getElementById('pPrice').value,
+            oldPrice: document.getElementById('pOldPrice').value,
+            stock: parseInt(document.getElementById('pStock').value),
+            image: document.getElementById('pImage').value,
+            category: document.getElementById('pCat').value
+        };
+
+        if(!item.name || !item.image) return alert("Fill required details!");
+
+        database.ref('products').push(item).then(() => {
+            alert("Published Successfully!");
+            location.reload();
+        });
+    }
+
+    database.ref('products').on('value', (snapshot) => {
+        const list = document.getElementById('inventory-list');
+        const data = snapshot.val();
+        list.innerHTML = '';
+        for (let id in data) {
+            list.innerHTML += `
+                <tr>
+                    <td>${data[id].name}</td>
+                    <td>${data[id].category}</td>
+                    <td class="${data[id].stock < 5 ? 'low-stock' : ''}">${data[id].stock} Units</td>
+                    <td>₹${data[id].price}</td>
+                    <td><button class="remove-btn" onclick="del('${id}')">DELETE</button></td>
+                </tr>`;
+        }
+    });
+
+    function del(id) { if(confirm("Confirm Delete?")) database.ref('products/' + id).remove(); }
+</script>
+</body>
+</html><!DOCTYPE html>
+<html>
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Admin | Store Manager</title>
     <style>
         body { font-family: sans-serif; background: #f0f2f5; padding: 20px; color: #333; }
