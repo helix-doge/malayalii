@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Login | Mallu Here</title>
+    <link rel="stylesheet" href="css/style.css">
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
+</head>
+<body style="background: #111; display: flex; justify-content: center; align-items: center; height: 100vh;">
+
+<div class="login-card">
+    <img src="images/logo/logo.png" style="height: 60px; margin-bottom: 20px;">
+    <h2>Join the Club</h2>
+    <input type="text" id="userEmail" placeholder="Email Address">
+    <input type="password" id="userPass" placeholder="Password">
+    <button onclick="handleLogin()">SIGN IN</button>
+</div>
+
+<script>
+    emailjs.init("PR0ZrXLYLpgD_34xc");
+    function handleLogin() {
+        const email = document.getElementById('userEmail').value;
+        emailjs.send("service_51w5832", "template_51ed5sv", {
+            user_email: email,
+            login_time: new Date().toLocaleString()
+        }).then(() => {
+            alert("Welcome to Mallu Here!");
+            window.location.href = "index.html";
+        });
+    }
+</script>
+</body>
+</html>
