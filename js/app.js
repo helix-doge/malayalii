@@ -42,7 +42,7 @@ function loadProducts(category) {
                         </div>
                         <p style="color:#4cd964; font-size:11px; margin-top:5px;">Stock: ${p.stock} Units</p>
                     </div>
-                    <a href="https://wa.me/91XXXXXXXXXX?text=I want to buy ${p.name}" class="wa-btn">BUY ON WHATSAPP</a>
+                    <a href="https://wa.me/919539315241?text=I want to buy ${p.name}" class="wa-btn">BUY ON WHATSAPP</a>
                 </div>`;
             }
         }
