@@ -2,75 +2,82 @@
 <html>
 <head>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Clean Admin | Malayali Here</title>
+    <title>Store Manager | Malayali Here</title>
     <style>
-        body { background: #000; color: white; font-family: sans-serif; padding: 20px; }
-        .card { max-width: 500px; margin: auto; background: #111; padding: 25px; border-radius: 12px; }
-        input, textarea, select { width: 100%; padding: 12px; margin: 8px 0; background: #222; border: 1px solid #444; color: white; border-radius: 6px; }
+        body { background: #111; color: white; font-family: sans-serif; padding: 20px; }
+        .box { max-width: 600px; margin: auto; background: #222; padding: 25px; border-radius: 15px; }
+        input, select, textarea { width: 100%; padding: 12px; margin: 10px 0; background: #333; border: 1px solid #444; color: #fff; }
         button { width: 100%; padding: 15px; background: #FFD700; border: none; font-weight: bold; cursor: pointer; }
-        .item-row { display: flex; justify-content: space-between; padding: 10px; border-bottom: 1px solid #222; font-size: 14px; }
+        .item-list { margin-top: 30px; border-top: 1px solid #444; padding-top: 20px; }
+        .row { display: flex; justify-content: space-between; padding: 10px; border-bottom: 1px solid #333; }
+        .del-btn { background: #ff4444; width: auto; padding: 5px 10px; }
     </style>
 </head>
 <body>
 
-<div class="card">
-    <h2>PUBLISH NEW PRODUCT 🚀</h2>
-    <input type="text" id="pName" placeholder="Product Name">
-    <textarea id="pDesc" placeholder="Description..."></textarea>
-    <input type="number" id="pPrice" placeholder="Sale Price (₹)">
-    <input type="number" id="pOld" placeholder="Original Price (₹)">
-    <input type="number" id="pStock" placeholder="Stock Quantity">
-    <select id="pCat">
+<div class="box">
+    <h2>PUBLISH PRODUCT 🚀</h2>
+    <input type="text" id="name" placeholder="Product Name">
+    <textarea id="desc" placeholder="Product Description"></textarea>
+    <div style="display: flex; gap: 10px;">
+        <input type="number" id="price" placeholder="Price (₹)">
+        <input type="number" id="old" placeholder="Old Price (₹)">
+    </div>
+    <input type="number" id="stock" placeholder="Stock Qty">
+    <select id="cat">
         <option value="RC CARS">RC CARS</option>
         <option value="HOT WHEELS">HOT WHEELS</option>
         <option value="GADGETS">GADGETS</option>
     </select>
-    <input type="text" id="img1" placeholder="Main Image URL">
-    <input type="text" id="img2" placeholder="Image 2 URL (Optional)">
-    <input type="text" id="img3" placeholder="Image 3 URL (Optional)">
-    <button onclick="publish()">ADD TO LIVE STORE</button>
+    <input type="text" id="i1" placeholder="Main Image URL">
+    <input type="text" id="i2" placeholder="Image 2 URL (Optional)">
+    <input type="text" id="i3" placeholder="Image 3 URL (Optional)">
+    <button onclick="pushLive()">ADD TO LIVE STORE</button>
 
-    <h3 style="margin-top: 30px;">INVENTORY</h3>
-    <div id="admin-list"></div>
+    <div class="item-list">
+        <h3>LIVE INVENTORY MANAGER</h3>
+        <div id="list-body">Loading...</div>
+    </div>
 </div>
 
 <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
 <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
 <script>
-    firebase.initializeApp(firebaseConfig); // Use same config as app.js
+    firebase.initializeApp(firebaseConfig); // Same config as script.js
     const dbase = firebase.database();
 
-    function publish() {
-        const data = {
-            name: document.getElementById('pName').value,
-            desc: document.getElementById('pDesc').value,
-            price: document.getElementById('pPrice').value,
-            oldPrice: document.getElementById('pOld').value,
-            stock: document.getElementById('pStock').value,
-            category: document.getElementById('pCat').value,
-            img1: document.getElementById('img1').value,
-            img2: document.getElementById('img2').value,
-            img3: document.getElementById('img3').value
+    function pushLive() {
+        const item = {
+            name: document.getElementById('name').value,
+            desc: document.getElementById('desc').value,
+            price: document.getElementById('price').value,
+            oldPrice: document.getElementById('old').value,
+            stock: document.getElementById('stock').value,
+            category: document.getElementById('cat').value,
+            img1: document.getElementById('i1').value,
+            img2: document.getElementById('i2').value,
+            img3: document.getElementById('i3').value
         };
-        // The fix: Using the 'products' node consistently
-        dbase.ref('products').push(data).then(() => {
-            alert("Added successfully!");
+        // Fixed path: dbase.ref('products')
+        dbase.ref('products').push(item).then(() => {
+            alert("Live!");
             location.reload();
         });
     }
 
     dbase.ref('products').on('value', snap => {
-        const list = document.getElementById('admin-list');
+        const body = document.getElementById('list-body');
         const items = snap.val();
-        list.innerHTML = '';
-        for (let id in items) {
-            list.innerHTML += `
-            <div class="item-row">
-                <span>${items[id].name}</span>
-                <button onclick="del('${id}')" style="width:auto; padding:5px; background:red;">DEL</button>
+        body.innerHTML = '';
+        for (let key in items) {
+            body.innerHTML += `
+            <div class="row">
+                <span>${items[key].name} (${items[key].category})</span>
+                <button class="del-btn" onclick="del('${key}')">DELETE</button>
             </div>`;
         }
     });
+
     function del(id) { dbase.ref('products/'+id).remove(); }
 </script>
 </body>
