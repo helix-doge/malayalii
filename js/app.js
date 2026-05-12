@@ -66,3 +66,41 @@ function openProduct(id) {
         showView('detail');
     });
 }
+
+function renderProducts(products) {
+    const container = document.getElementById('products');
+    
+    // 1. Sort: Items with 1 or 2 stock come to the TOP for hype
+    products.sort((a, b) => {
+        if (a.stock > 0 && a.stock <= 2) return -1;
+        if (b.stock > 0 && b.stock <= 2) return 1;
+        return 0;
+    });
+
+    container.innerHTML = products.map(p => {
+        let tag = "";
+        let overlay = "";
+        let btnStatus = "";
+
+        // 2. Add Hype Tag
+        if (p.stock > 0 && p.stock <= 2) {
+            tag = `<div class="hype-tag">🔥 FEW LEFT - HOT SALE</div>`;
+        }
+        
+        // 3. Add Out of Stock Banner
+        if (p.stock <= 0) {
+            overlay = `<div class="sold-out">OUT OF STOCK</div>`;
+            btnStatus = "disabled style='opacity:0.5; cursor:not-allowed'";
+        }
+
+        return `
+            <div class="product-card">
+                ${tag} ${overlay}
+                <img src="${p.img1}">
+                <h3>${p.name}</h3>
+                <p>₹${p.price}</p>
+                <button ${btnStatus} onclick="buyNow('${p.id}')">ADD TO GARAGE</button>
+            </div>
+        `;
+    }).join('');
+}
