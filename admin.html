@@ -2,73 +2,76 @@
 <html>
 <head>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Master Admin | Malayali Here</title>
+    <title>Clean Admin | Malayali Here</title>
     <style>
-        body { font-family: sans-serif; background: #0a0a0a; color: white; padding: 20px; }
-        .admin-card { max-width: 600px; margin: auto; background: #151515; padding: 30px; border-radius: 15px; border: 1px solid #333; }
-        input, select, textarea { width: 100%; padding: 12px; margin: 10px 0; background: #222; border: 1px solid #444; color: white; border-radius: 8px; }
-        .add-btn { width: 100%; padding: 15px; background: #FFD700; color: black; border: none; font-weight: bold; cursor: pointer; border-radius: 8px; font-size: 16px; }
-        table { width: 100%; margin-top: 30px; border-collapse: collapse; font-size: 13px; }
-        th, td { padding: 12px; text-align: left; border-bottom: 1px solid #333; }
-        .del { color: #ff3b30; cursor: pointer; border: none; background: none; font-weight: bold; }
+        body { background: #000; color: white; font-family: sans-serif; padding: 20px; }
+        .card { max-width: 500px; margin: auto; background: #111; padding: 25px; border-radius: 12px; }
+        input, textarea, select { width: 100%; padding: 12px; margin: 8px 0; background: #222; border: 1px solid #444; color: white; border-radius: 6px; }
+        button { width: 100%; padding: 15px; background: #FFD700; border: none; font-weight: bold; cursor: pointer; }
+        .item-row { display: flex; justify-content: space-between; padding: 10px; border-bottom: 1px solid #222; font-size: 14px; }
     </style>
 </head>
 <body>
 
-<div class="admin-card">
-    <h2 style="color: #FFD700; margin-bottom: 20px;">ADD PRODUCT 📦</h2>
+<div class="card">
+    <h2>PUBLISH NEW PRODUCT 🚀</h2>
     <input type="text" id="pName" placeholder="Product Name">
-    <textarea id="pDesc" placeholder="Description (e.g. 1:10 Scale Drift Car)"></textarea>
-    <div style="display: flex; gap: 10px;">
-        <input type="number" id="pPrice" placeholder="Sale Price (₹)">
-        <input type="number" id="pOld" placeholder="Original Price (₹)">
-    </div>
-    <div style="display: flex; gap: 10px;">
-        <input type="number" id="pStock" placeholder="Stock Count">
-        <select id="pCat">
-            <option value="RC CARS">RC CARS</option>
-            <option value="HOT WHEELS">HOT WHEELS</option>
-            <option value="GADGETS">GADGETS</option>
-        </select>
-    </div>
-    <input type="text" id="pImage" placeholder="Direct Image URL">
-    <button class="add-btn" onclick="saveItem()">PUBLISH TO STORE</button>
+    <textarea id="pDesc" placeholder="Description..."></textarea>
+    <input type="number" id="pPrice" placeholder="Sale Price (₹)">
+    <input type="number" id="pOld" placeholder="Original Price (₹)">
+    <input type="number" id="pStock" placeholder="Stock Quantity">
+    <select id="pCat">
+        <option value="RC CARS">RC CARS</option>
+        <option value="HOT WHEELS">HOT WHEELS</option>
+        <option value="GADGETS">GADGETS</option>
+    </select>
+    <input type="text" id="img1" placeholder="Main Image URL">
+    <input type="text" id="img2" placeholder="Image 2 URL (Optional)">
+    <input type="text" id="img3" placeholder="Image 3 URL (Optional)">
+    <button onclick="publish()">ADD TO LIVE STORE</button>
 
-    <table>
-        <thead><tr><th>Name</th><th>Price</th><th>Action</th></tr></thead>
-        <tbody id="inventory"></tbody>
-    </table>
+    <h3 style="margin-top: 30px;">INVENTORY</h3>
+    <div id="admin-list"></div>
 </div>
 
 <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
 <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
 <script>
     firebase.initializeApp(firebaseConfig); // Use same config as app.js
-    const database = firebase.database();
+    const dbase = firebase.database();
 
-    function saveItem() {
-        const item = {
+    function publish() {
+        const data = {
             name: document.getElementById('pName').value,
             desc: document.getElementById('pDesc').value,
             price: document.getElementById('pPrice').value,
             oldPrice: document.getElementById('pOld').value,
             stock: document.getElementById('pStock').value,
             category: document.getElementById('pCat').value,
-            image: document.getElementById('pImage').value
+            img1: document.getElementById('img1').value,
+            img2: document.getElementById('img2').value,
+            img3: document.getElementById('img3').value
         };
-        database.ref('products').push(item).then(() => location.reload());
+        // The fix: Using the 'products' node consistently
+        dbase.ref('products').push(data).then(() => {
+            alert("Added successfully!");
+            location.reload();
+        });
     }
 
-    database.ref('products').on('value', snap => {
-        const list = document.getElementById('inventory');
-        const data = snap.val();
+    dbase.ref('products').on('value', snap => {
+        const list = document.getElementById('admin-list');
+        const items = snap.val();
         list.innerHTML = '';
-        for (let id in data) {
-            list.innerHTML += `<tr><td>${data[id].name}</td><td>₹${data[id].price}</td><td><button class="del" onclick="remove('${id}')">DELETE</button></td></tr>`;
+        for (let id in items) {
+            list.innerHTML += `
+            <div class="item-row">
+                <span>${items[id].name}</span>
+                <button onclick="del('${id}')" style="width:auto; padding:5px; background:red;">DEL</button>
+            </div>`;
         }
     });
-
-    function remove(id) { if(confirm("Delete item?")) database.ref('products/' + id).remove(); }
+    function del(id) { dbase.ref('products/'+id).remove(); }
 </script>
 </body>
 </html>
