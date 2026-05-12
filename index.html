@@ -11,12 +11,9 @@
 
 <nav class="glass-nav">
     <div class="logo" onclick="showView('home')">MALAYALI HERE</div>
-    <div class="nav-links">
-        
-        <a href="https://wa.me/919539315241?text=Hello%20MalluHere%20RCstore" target="_blank" style="background:#25D366; color:white; padding:12px 24px; text-decoration:none; border-radius:8px; font-family:sans-serif; display:inline-flex; align-items:center; gap:8px;">
-    <svg width="20" height="20" viewBox="0 0 32 32" fill="white"><path d="M16.04 0c8.84 0 16 7.16 16 16s-7.16 16-16 16c-2.8 0-5.44-.72-7.76-1.96L0 32l2.08-8.2C.72 21.44 0 18.8 0 16 0 7.16 0 16.04 0zm0 2.96c-7.2 0-13.04 5.84-13.04 0 2.64.76 5.12 2.08 7.2L3.92 28l5-1.24c2 1.16 4.28 1.84 6.8 1.84 7.2 0 13.04-5.84 13.04-13.04S23.24 2.96 16.04 2.96zm7.6 18.48c-.32.88-1.84 1.68-2.56 1.76-.64.08-1.44.12-4.72-1.48-4-1.96-6.56-6.8-6.76-7.12-.2-.32-1.6-2.12-1.6-4.04s1.04-2.84 1.4-3.24c.36-.4.8-.52 1.08-.52.28 0 .56 0 .8.04.24.04.56-.08.88.68.32.76 1.08 2.64 1.16 2.84.08.2.16.44.04.72-.12.28-.2.44-.36.68-.16.24-.36.52-.52.68-.16.16-.36.36-.16.72.2.36.88 1.44 1.88 2.32 1.28 1.16 2.36 1.52 2.72 1.68.36.16.56.12.76-.08.2-.2.84-.96 1.08-1.28.24-.32.44-.28.76-.16.32.12 2 0.96 2.36 1.12.36.16.6.24.68.36.08.12.08.76-.24 1.64z"/></svg>
-    Chat on WhatsApp
-</a>
+    <div class="nav-links mobile-hide">
+        <button onclick="showView('categories')">BROWSE</button>
+        <button onclick="window.location.href='admin.html'" class="admin-btn">ADMIN</button>
     </div>
 </nav>
 
@@ -24,7 +21,7 @@
     <div class="hero">
         <div class="hero-content">
             <h1>PREMIUM RC <br><span>COLLECTIONS</span></h1>
-            <p>The #1 Hobby Shop in Kerala</p>
+            <p>Fast Cars, Big Smiles!</p>
             <button class="cta-btn" onclick="showView('categories')">EXPLORE NOW</button>
         </div>
     </div>
@@ -50,11 +47,33 @@
 <section id="view-shop" class="page-view">
     <div class="container">
         <div class="shop-header">
-            <button class="back-btn" onclick="showView('categories')">← BACK</button>
-            <h2 id="current-cat-name">RC CARS</h2>
+            <button class="back-btn" onclick="showView('categories')">← CATEGORIES</button>
+            <h2 id="current-cat-name">PRODUCTS</h2>
         </div>
-        <div class="product-grid" id="product-list">
+        <div class="product-grid" id="product-list"></div>
+    </div>
+</section>
+
+<section id="view-detail" class="page-view">
+    <div class="container detail-layout">
+        <button class="back-btn" onclick="showView('shop')">← BACK TO LIST</button>
+        <div class="detail-container">
+            <div class="gallery-side">
+                <img id="main-detail-img" src="" class="main-img">
+                <div class="thumb-strip" id="detail-thumbs"></div>
             </div>
+            <div class="info-side">
+                <h1 id="detail-name">Product Name</h1>
+                <p class="tagline" id="detail-category">Category</p>
+                <div class="price-box">
+                    <span class="curr-price" id="detail-price">₹0</span>
+                    <span class="old-price" id="detail-old">₹0</span>
+                </div>
+                <p class="product-description" id="detail-desc">Full description goes here...</p>
+                <div class="stock-badge">In Stock: <span id="detail-stock">0</span> units</div>
+                <a href="" id="whatsapp-link" class="buy-now">BUY ON WHATSAPP</a>
+            </div>
+        </div>
     </div>
 </section>
 
