@@ -6,45 +6,43 @@
     <title>Master Control | Malayali Here</title>
     <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700&family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
     <style>
-        :root { --gold: #FFD700; --bg: #0a0a0a; --card: #151515; --red: #ff4444; }
+        :root { --gold: #FFD700; --bg: #0a0a0a; --card: #151515; --red: #ff4444; --green: #25D366; }
         * { margin:0; padding:0; box-sizing: border-box; font-family: 'Poppins', sans-serif; }
         body { background: var(--bg); color: white; display: flex; min-height: 100vh; }
 
         /* Sidebar Navigation */
-        .sidebar { width: 260px; background: #000; border-right: 1px solid #222; padding: 30px 20px; display: flex; flex-direction: column; }
+        .sidebar { width: 260px; background: #000; border-right: 1px solid #222; padding: 30px 20px; display: flex; flex-direction: column; position: fixed; height: 100vh; }
         .sidebar h2 { font-family: 'Orbitron'; color: var(--gold); font-size: 1.2rem; margin-bottom: 40px; text-align: center; }
         .nav-btn { background: none; border: none; color: #888; padding: 15px; text-align: left; cursor: pointer; font-size: 1rem; transition: 0.3s; border-radius: 8px; margin-bottom: 10px; }
         .nav-btn.active { background: var(--card); color: var(--gold); border-left: 4px solid var(--gold); }
-        .nav-btn:hover { color: #fff; background: #111; }
-
-        /* Main Content */
-        .main-content { flex: 1; padding: 40px; overflow-y: auto; }
+        
+        .main-content { flex: 1; margin-left: 260px; padding: 40px; }
         .tab-view { display: none; }
         .tab-view.active { display: block; animation: fadeIn 0.4s; }
         @keyframes fadeIn { from{opacity:0;} to{opacity:1;} }
 
-        /* Dashboard Stats */
-        .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; margin-bottom: 40px; }
-        .stat-box { background: var(--card); padding: 25px; border-radius: 15px; border: 1px solid #222; text-align: center; }
-        .stat-box h3 { color: #777; font-size: 0.9rem; margin-bottom: 10px; }
-        .stat-box p { font-family: 'Orbitron'; font-size: 2rem; color: var(--gold); }
+        /* Controls: Search, Sort, Filter */
+        .controls-bar { display: flex; gap: 15px; margin-bottom: 25px; background: var(--card); padding: 15px; border-radius: 12px; border: 1px solid #222; flex-wrap: wrap; }
+        .controls-bar select, .controls-bar input { flex: 1; min-width: 150px; margin: 0; padding: 10px; background: #222; border: 1px solid #444; color: white; border-radius: 6px; }
+
+        /* Inventory Table */
+        .inventory-table { width: 100%; border-collapse: collapse; background: var(--card); border-radius: 12px; overflow: hidden; }
+        .inventory-table th { background: #222; color: #777; text-align: left; padding: 15px; font-size: 0.8rem; text-transform: uppercase; }
+        .inventory-table td { padding: 12px 15px; border-bottom: 1px solid #222; }
+        
+        /* Inline Editing Fields */
+        .edit-input { width: 80px; padding: 5px; background: #333; border: 1px solid #555; color: var(--gold); border-radius: 4px; font-weight: bold; }
+        
+        .btn-group { display: flex; gap: 8px; }
+        .action-btn { padding: 6px 12px; border-radius: 6px; cursor: pointer; border: none; font-size: 0.75rem; font-weight: 600; }
+        .save-btn { background: var(--green); color: black; }
+        .del-btn { background: var(--red); color: white; }
 
         /* Form Styling */
-        .admin-form { max-width: 700px; background: var(--card); padding: 30px; border-radius: 20px; border: 1px solid #333; margin-top: 20px; }
+        .admin-form { max-width: 700px; background: var(--card); padding: 30px; border-radius: 20px; border: 1px solid #333; }
         .form-row { display: flex; gap: 15px; }
-        input, select, textarea { width: 100%; padding: 14px; margin: 10px 0; background: #222; border: 1px solid #444; color: #fff; border-radius: 10px; outline: none; }
-        input:focus { border-color: var(--gold); }
-        .publish-btn { width: 100%; padding: 18px; background: var(--gold); color: #000; border: none; font-weight: 800; border-radius: 12px; cursor: pointer; margin-top: 20px; font-size: 1rem; }
-
-        /* Inventory List */
-        .inventory-table { width: 100%; border-collapse: collapse; margin-top: 20px; background: var(--card); border-radius: 12px; overflow: hidden; }
-        .inventory-table th { background: #222; color: #777; text-align: left; padding: 15px; font-size: 0.8rem; }
-        .inventory-table td { padding: 15px; border-bottom: 1px solid #222; }
-        .del-btn { background: var(--red); border: none; color: white; padding: 6px 12px; border-radius: 6px; cursor: pointer; font-size: 0.8rem; }
-        
-        .status-badge { padding: 4px 10px; border-radius: 4px; font-size: 0.7rem; font-weight: bold; }
-        .status-instock { background: rgba(0, 255, 0, 0.1); color: #00ff00; }
-        .status-low { background: rgba(255, 68, 68, 0.1); color: var(--red); }
+        input, select, textarea { width: 100%; padding: 14px; margin: 10px 0; background: #222; border: 1px solid #444; color: #fff; border-radius: 10px; }
+        .publish-btn { width: 100%; padding: 18px; background: var(--gold); color: #000; border: none; font-weight: 800; border-radius: 12px; cursor: pointer; }
     </style>
 </head>
 <body>
@@ -54,38 +52,69 @@
         <button class="nav-btn active" onclick="switchTab('dashboard', this)">DASHBOARD</button>
         <button class="nav-btn" onclick="switchTab('add-item', this)">ADD NEW ITEM</button>
         <button class="nav-btn" onclick="switchTab('inventory', this)">INVENTORY LIST</button>
-        <button class="nav-btn" onclick="switchTab('orders', this)">ORDERS / SOLD</button>
-        <div style="margin-top: auto; color: #444; font-size: 0.8rem; text-align: center;">v2.0.26 Beta</div>
+        <button class="nav-btn" onclick="switchTab('orders', this)">ORDERS</button>
     </div>
 
     <div class="main-content">
         
         <section id="tab-dashboard" class="tab-view active">
-            <h1 style="margin-bottom: 20px;">Store Overview</h1>
-            <div class="stats-grid">
-                <div class="stat-box"><h3>TOTAL PRODUCTS</h3><p id="stat-total">0</p></div>
-                <div class="stat-box"><h3>LOW STOCK ITEMS</h3><p id="stat-low" style="color: #ff4444;">0</p></div>
-                <div class="stat-box"><h3>CATEGORIES</h3><p>3</p></div>
-                <div class="stat-box"><h3>STORE VISITS</h3><p>--</p></div>
+            <h1 style="margin-bottom: 25px;">Store Overview</h1>
+            <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px;">
+                <div style="background: var(--card); padding: 20px; border-radius: 15px; border: 1px solid #222;">
+                    <h3 style="color: #777; font-size: 0.8rem;">TOTAL ITEMS</h3>
+                    <p id="stat-total" style="font-size: 2rem; color: var(--gold); font-family: 'Orbitron';">0</p>
+                </div>
+                <div style="background: var(--card); padding: 20px; border-radius: 15px; border: 1px solid #222;">
+                    <h3 style="color: #777; font-size: 0.8rem;">LOW STOCK</h3>
+                    <p id="stat-low" style="font-size: 2rem; color: var(--red); font-family: 'Orbitron';">0</p>
+                </div>
             </div>
+        </section>
+
+        <section id="tab-inventory" class="tab-view">
+            <h1>Inventory Manager</h1>
             
-            <div class="admin-form" style="max-width: 100%;">
-                <h2 style="margin-bottom: 15px; font-size: 1.1rem;">Quick Actions</h2>
-                <button class="publish-btn" style="width: auto; padding: 12px 25px;" onclick="switchTab('add-item', document.querySelectorAll('.nav-btn')[1])">Launch New Product 🚀</button>
+            <div class="controls-bar">
+                <input type="text" id="searchBar" placeholder="Search product name..." oninput="refreshInventory()">
+                
+                <select id="filterCategory" onchange="refreshInventory()">
+                    <option value="ALL">All Categories</option>
+                    <option value="RC CARS">RC CARS</option>
+                    <option value="HOT WHEELS">HOT WHEELS</option>
+                    <option value="GADGETS">GADGETS</option>
+                </select>
+
+                <select id="sortBy" onchange="refreshInventory()">
+                    <option value="newest">Sort: Newest First</option>
+                    <option value="priceHigh">Price: High to Low</option>
+                    <option value="priceLow">Price: Low to High</option>
+                    <option value="stockLow">Stock: Low to High</option>
+                </select>
             </div>
+
+            <table class="inventory-table">
+                <thead>
+                    <tr>
+                        <th>Product</th>
+                        <th>Category</th>
+                        <th>Price (₹)</th>
+                        <th>Stock</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="inventory-body"></tbody>
+            </table>
         </section>
 
         <section id="tab-add-item" class="tab-view">
             <h1>Publish New Product 🚀</h1>
             <div class="admin-form">
-                <input type="text" id="pName" placeholder="Product Name (e.g. F1 Racing Car)">
-                <textarea id="pDesc" rows="4" placeholder="Description (Max speed, scale, battery life...)"></textarea>
-                
+                <input type="text" id="pName" placeholder="Product Name">
+                <textarea id="pDesc" rows="3" placeholder="Description"></textarea>
                 <div class="form-row">
                     <input type="number" id="pPrice" placeholder="Selling Price (₹)">
                     <input type="number" id="pOld" placeholder="Old Price (₹)">
                 </div>
-
                 <div class="form-row">
                     <input type="number" id="pStock" placeholder="Stock Quantity">
                     <select id="pCat">
@@ -94,36 +123,8 @@
                         <option value="GADGETS">GADGETS</option>
                     </select>
                 </div>
-
                 <input type="text" id="i1" placeholder="Main Image URL">
-                <input type="text" id="i2" placeholder="Image 2 URL (Optional)">
-                <input type="text" id="i3" placeholder="Image 3 URL (Optional)">
-                
-                <button class="publish-btn" onclick="saveToFirebase()">PUBLISH TO LIVE STORE</button>
-            </div>
-        </section>
-
-        <section id="tab-inventory" class="tab-view">
-            <h1>Inventory Manager</h1>
-            <table class="inventory-table">
-                <thead>
-                    <tr>
-                        <th>PRODUCT</th>
-                        <th>CATEGORY</th>
-                        <th>PRICE</th>
-                        <th>STOCK</th>
-                        <th>ACTION</th>
-                    </tr>
-                </thead>
-                <tbody id="inventory-body">
-                    </tbody>
-            </table>
-        </section>
-
-        <section id="tab-orders" class="tab-view">
-            <h1>Orders & Sold History</h1>
-            <div class="admin-form" style="text-align: center; color: #555;">
-                <p>Order tracking via WhatsApp logs is coming soon.</p>
+                <button class="publish-btn" onclick="saveToFirebase()">PUBLISH TO STORE</button>
             </div>
         </section>
 
@@ -142,79 +143,95 @@
         firebase.initializeApp(firebaseConfig);
         const db = firebase.database();
 
-        // UI: Tab Switching Logic
-        function switchTab(tabId, btn) {
+        let allProducts = [];
+
+        function switchTab(id, btn) {
             document.querySelectorAll('.tab-view').forEach(t => t.classList.remove('active'));
             document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
-            
-            document.getElementById('tab-' + tabId).classList.add('active');
+            document.getElementById('tab-' + id).classList.add('active');
             btn.classList.add('active');
         }
 
-        // Logic: Save Product
+        // Real-time listener for data
+        db.ref('products').on('value', snap => {
+            const data = snap.val();
+            allProducts = [];
+            for(let id in data) {
+                allProducts.push({ id, ...data[id] });
+            }
+            updateStats();
+            refreshInventory();
+        });
+
+        function updateStats() {
+            document.getElementById('stat-total').innerText = allProducts.length;
+            document.getElementById('stat-low').innerText = allProducts.filter(p => p.stock < 5).length;
+        }
+
+        function refreshInventory() {
+            const list = document.getElementById('inventory-body');
+            const searchTerm = document.getElementById('searchBar').value.toLowerCase();
+            const category = document.getElementById('filterCategory').value;
+            const sort = document.getElementById('sortBy').value;
+
+            let filtered = allProducts.filter(p => {
+                const matchSearch = p.name.toLowerCase().includes(searchTerm);
+                const matchCat = category === "ALL" || p.category === category;
+                return matchSearch && matchCat;
+            });
+
+            // Sort Logic
+            if(sort === "priceHigh") filtered.sort((a,b) => b.price - a.price);
+            if(sort === "priceLow") filtered.sort((a,b) => a.price - b.price);
+            if(sort === "stockLow") filtered.sort((a,b) => a.stock - b.stock);
+            if(sort === "newest") filtered.reverse();
+
+            list.innerHTML = '';
+            filtered.forEach(p => {
+                list.innerHTML += `
+                <tr>
+                    <td><b>${p.name}</b></td>
+                    <td>${p.category}</td>
+                    <td><input type="number" class="edit-input" id="pr-${p.id}" value="${p.price}"></td>
+                    <td><input type="number" class="edit-input" id="st-${p.id}" value="${p.stock}"></td>
+                    <td>
+                        <div class="btn-group">
+                            <button class="action-btn save-btn" onclick="quickUpdate('${p.id}')">SAVE</button>
+                            <button class="action-btn del-btn" onclick="deleteItem('${p.id}')">DEL</button>
+                        </div>
+                    </td>
+                </tr>`;
+            });
+        }
+
+        function quickUpdate(id) {
+            const newPrice = document.getElementById(`pr-${id}`).value;
+            const newStock = document.getElementById(`st-${id}`).value;
+            
+            db.ref('products/' + id).update({
+                price: newPrice,
+                stock: newStock
+            }).then(() => alert("Product Updated!"));
+        }
+
+        function deleteItem(id) {
+            if(confirm("Confirm Delete?")) db.ref('products/' + id).remove();
+        }
+
         function saveToFirebase() {
             const product = {
                 name: document.getElementById('pName').value,
                 desc: document.getElementById('pDesc').value,
                 price: document.getElementById('pPrice').value,
                 oldPrice: document.getElementById('pOld').value,
-                stock: parseInt(document.getElementById('pStock').value),
+                stock: document.getElementById('pStock').value,
                 category: document.getElementById('pCat').value,
-                img1: document.getElementById('i1').value,
-                img2: document.getElementById('i2').value,
-                img3: document.getElementById('i3').value
+                img1: document.getElementById('i1').value
             };
-
-            if(!product.name || !product.price) return alert("Please fill Name and Price!");
-
             db.ref('products').push(product).then(() => {
-                alert("Live on Website! ✅");
-                document.querySelectorAll('input, textarea').forEach(i => i.value = "");
+                alert("Published!");
                 switchTab('inventory', document.querySelectorAll('.nav-btn')[2]);
             });
-        }
-
-        // Logic: Sync Stats & Inventory
-        db.ref('products').on('value', snap => {
-            const data = snap.val();
-            const list = document.getElementById('inventory-body');
-            const totalP = document.getElementById('stat-total');
-            const lowP = document.getElementById('stat-low');
-            
-            list.innerHTML = '';
-            let total = 0;
-            let lowCount = 0;
-
-            if(!data) return list.innerHTML = '<tr><td colspan="5">No items in store.</td></tr>';
-
-            for (let id in data) {
-                const item = data[id];
-                total++;
-                if(item.stock < 5) lowCount++;
-
-                list.innerHTML += `
-                <tr>
-                    <td><b>${item.name}</b></td>
-                    <td>${item.category}</td>
-                    <td>₹${item.price}</td>
-                    <td>
-                        <span class="status-badge ${item.stock < 5 ? 'status-low' : 'status-instock'}">
-                            ${item.stock} UNITS
-                        </span>
-                    </td>
-                    <td>
-                        <button class="del-btn" onclick="deleteItem('${id}')">DELETE</button>
-                    </td>
-                </tr>`;
-            }
-            totalP.innerText = total;
-            lowP.innerText = lowCount;
-        });
-
-        function deleteItem(id) {
-            if(confirm("Confirm removal from Live Store?")) {
-                db.ref('products/' + id).remove();
-            }
         }
     </script>
 </body>
