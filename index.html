@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Malayali Here | Official Store</title>
-    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="css/style.css">
     <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700&family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
 </head>
 <body>
@@ -21,7 +21,7 @@
     <div class="hero">
         <div class="hero-text">
             <h1>PREMIUM RC <br><span>COLLECTIONS</span></h1>
-            <p>Fast Cars, Big Smiles!</p>
+            <p>High Speed. Low Latency. Pure Thrill.</p>
             <button class="cta-btn" onclick="showView('categories')">START SHOPPING</button>
         </div>
     </div>
@@ -32,13 +32,13 @@
         <h2 class="title">CHOOSE CATEGORY</h2>
         <div class="cat-grid">
             <div class="cat-card rc-bg" onclick="openShop('RC CARS')">
-                <div class="cat-overlay"><h3>RC CARS</h3><p>High Speed Drifters</p></div>
+                <div class="cat-overlay"><h3>RC CARS</h3><p>Offroad & Drift</p></div>
             </div>
             <div class="cat-card hw-bg" onclick="openShop('HOT WHEELS')">
-                <div class="cat-overlay"><h3>HOT WHEELS</h3><p>Collectors Edition</p></div>
+                <div class="cat-overlay"><h3>HOT WHEELS</h3><p>Collectors Items</p></div>
             </div>
             <div class="cat-card gd-bg" onclick="openShop('GADGETS')">
-                <div class="cat-overlay"><h3>GADGETS</h3><p>Tech & Electronics</p></div>
+                <div class="cat-overlay"><h3>GADGETS</h3><p>Smart Tech</p></div>
             </div>
         </div>
     </div>
@@ -46,8 +46,8 @@
 
 <section id="view-shop" class="page-view">
     <div class="container">
-        <div class="shop-header">
-            <button class="back-link" onclick="showView('categories')">← BACK</button>
+        <div class="shop-nav">
+            <button class="back-btn" onclick="showView('categories')">← BACK TO CATEGORIES</button>
             <h2 id="active-cat-title">PRODUCTS</h2>
         </div>
         <div class="product-grid" id="product-display"></div>
@@ -55,30 +55,28 @@
 </section>
 
 <section id="view-detail" class="page-view">
-    <div class="container detail-wrapper">
-        <button class="back-link" onclick="showView('shop')">← BACK TO LIST</button>
-        <div class="product-main">
-            <div class="gallery-col">
-                <div class="main-frame"><img id="det-img" src=""></div>
-                <div class="thumb-row" id="det-thumbs"></div>
+    <div class="container detail-flex">
+        <div class="gallery-side">
+            <div class="main-frame"><img id="det-img" src=""></div>
+            <div class="thumb-strip" id="det-thumbs"></div>
+        </div>
+        <div class="info-side">
+            <span class="category-tag" id="det-cat">CATEGORY</span>
+            <h1 id="det-name">Product Name</h1>
+            <div class="price-strip">
+                <span id="det-price" class="price-now">₹0</span>
+                <span id="det-old" class="price-old">₹0</span>
             </div>
-            <div class="info-col">
-                <span class="badge" id="det-cat">CATEGORY</span>
-                <h1 id="det-name">Product Name</h1>
-                <div class="price-strip">
-                    <span class="price-now" id="det-price">₹0</span>
-                    <span class="price-old" id="det-old">₹0</span>
-                </div>
-                <p class="description" id="det-desc">Product information goes here...</p>
-                <div class="status">In Stock: <b id="det-stock">0</b> units</div>
-                <a href="" id="wa-btn" class="buy-btn">BUY ON WHATSAPP</a>
-            </div>
+            <p id="det-desc" class="p-full-desc"></p>
+            <div class="stock-info">Available Stock: <b id="det-stock">0</b> Units</div>
+            <a href="" id="wa-link" class="wa-btn">ORDER VIA WHATSAPP</a>
+            <button class="secondary-btn" onclick="showView('shop')">CONTINUE SHOPPING</button>
         </div>
     </div>
 </section>
 
 <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
 <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
-<script src="script.js"></script>
+<script src="js/app.js"></script>
 </body>
 </html>
