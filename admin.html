@@ -2,83 +2,100 @@
 <html>
 <head>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Store Manager | Malayali Here</title>
+    <title>Master Admin | Malayali Here</title>
     <style>
-        body { background: #111; color: white; font-family: sans-serif; padding: 20px; }
-        .box { max-width: 600px; margin: auto; background: #222; padding: 25px; border-radius: 15px; }
-        input, select, textarea { width: 100%; padding: 12px; margin: 10px 0; background: #333; border: 1px solid #444; color: #fff; }
-        button { width: 100%; padding: 15px; background: #FFD700; border: none; font-weight: bold; cursor: pointer; }
-        .item-list { margin-top: 30px; border-top: 1px solid #444; padding-top: 20px; }
-        .row { display: flex; justify-content: space-between; padding: 10px; border-bottom: 1px solid #333; }
-        .del-btn { background: #ff4444; width: auto; padding: 5px 10px; }
+        body { background: #0a0a0a; color: white; font-family: sans-serif; padding: 20px; }
+        .admin-card { max-width: 600px; margin: auto; background: #151515; padding: 25px; border-radius: 15px; border: 1px solid #333; }
+        input, select, textarea { width: 100%; padding: 12px; margin: 8px 0; background: #222; border: 1px solid #444; color: #fff; border-radius: 8px; }
+        .save-btn { width: 100%; padding: 18px; background: #FFD700; color: #000; border: none; font-weight: 800; border-radius: 10px; cursor: pointer; margin-top: 10px; }
+        .inventory-list { margin-top: 40px; }
+        .item-row { display: flex; justify-content: space-between; padding: 15px; background: #111; margin-bottom: 10px; border-radius: 8px; border: 1px solid #222; align-items: center;}
+        .del-btn { background: #ff4444; border: none; color: white; padding: 8px 12px; border-radius: 5px; cursor: pointer; }
     </style>
 </head>
 <body>
 
-<div class="box">
-    <h2>PUBLISH PRODUCT 🚀</h2>
-    <input type="text" id="name" placeholder="Product Name">
-    <textarea id="desc" placeholder="Product Description"></textarea>
+<div class="admin-card">
+    <h2 style="color: #FFD700;">ADD TO STORE 🚀</h2>
+    <input type="text" id="pName" placeholder="Product Name">
+    <textarea id="pDesc" placeholder="Product Description (Features, scale, etc.)"></textarea>
     <div style="display: flex; gap: 10px;">
-        <input type="number" id="price" placeholder="Price (₹)">
-        <input type="number" id="old" placeholder="Old Price (₹)">
+        <input type="number" id="pPrice" placeholder="Sale Price (₹)">
+        <input type="number" id="pOld" placeholder="Old Price (₹)">
     </div>
-    <input type="number" id="stock" placeholder="Stock Qty">
-    <select id="cat">
-        <option value="RC CARS">RC CARS</option>
-        <option value="HOT WHEELS">HOT WHEELS</option>
-        <option value="GADGETS">GADGETS</option>
-    </select>
+    <div style="display: flex; gap: 10px;">
+        <input type="number" id="pStock" placeholder="Stock Level">
+        <select id="pCat">
+            <option value="RC CARS">RC CARS</option>
+            <option value="HOT WHEELS">HOT WHEELS</option>
+            <option value="GADGETS">GADGETS</option>
+        </select>
+    </div>
     <input type="text" id="i1" placeholder="Main Image URL">
     <input type="text" id="i2" placeholder="Image 2 URL (Optional)">
     <input type="text" id="i3" placeholder="Image 3 URL (Optional)">
-    <button onclick="pushLive()">ADD TO LIVE STORE</button>
+    <button class="save-btn" onclick="saveToFirebase()">PUBLISH TO STORE</button>
 
-    <div class="item-list">
-        <h3>LIVE INVENTORY MANAGER</h3>
-        <div id="list-body">Loading...</div>
+    <div class="inventory-list">
+        <h3>CURRENT INVENTORY</h3>
+        <div id="list-container">Loading list...</div>
     </div>
 </div>
 
 <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
 <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
 <script>
-    firebase.initializeApp(firebaseConfig); // Same config as script.js
-    const dbase = firebase.database();
+    const firebaseConfig = {
+        apiKey: "AIzaSyAJi_p1Uuaa66zXEmlFrST_Rx8zMB3LPmM",
+        authDomain: "malluhere.firebaseapp.com",
+        projectId: "malluhere",
+        databaseURL: "https://malluhere-default-rtdb.firebaseio.com",
+        appId: "1:682697051518:web:f9069b7cefdf87dfaeb72f"
+    };
+    firebase.initializeApp(firebaseConfig);
+    const database = firebase.database();
 
-    function pushLive() {
-        const item = {
-            name: document.getElementById('name').value,
-            desc: document.getElementById('desc').value,
-            price: document.getElementById('price').value,
-            oldPrice: document.getElementById('old').value,
-            stock: document.getElementById('stock').value,
-            category: document.getElementById('cat').value,
+    function saveToFirebase() {
+        const product = {
+            name: document.getElementById('pName').value,
+            desc: document.getElementById('pDesc').value,
+            price: document.getElementById('pPrice').value,
+            oldPrice: document.getElementById('pOld').value,
+            stock: document.getElementById('pStock').value,
+            category: document.getElementById('pCat').value,
             img1: document.getElementById('i1').value,
             img2: document.getElementById('i2').value,
             img3: document.getElementById('i3').value
         };
-        // Fixed path: dbase.ref('products')
-        dbase.ref('products').push(item).then(() => {
-            alert("Live!");
+
+        database.ref('products').push(product).then(() => {
+            alert("Success! Item is Live.");
             location.reload();
         });
     }
 
-    dbase.ref('products').on('value', snap => {
-        const body = document.getElementById('list-body');
-        const items = snap.val();
-        body.innerHTML = '';
-        for (let key in items) {
-            body.innerHTML += `
-            <div class="row">
-                <span>${items[key].name} (${items[key].category})</span>
-                <button class="del-btn" onclick="del('${key}')">DELETE</button>
+    // Display existing items in Admin
+    database.ref('products').on('value', snap => {
+        const container = document.getElementById('list-container');
+        const data = snap.val();
+        container.innerHTML = '';
+        if(!data) return container.innerHTML = "No products found.";
+        
+        for (let id in data) {
+            container.innerHTML += `
+            <div class="item-row">
+                <div>
+                    <b>${data[id].name}</b><br>
+                    <small style="color:#777">${data[id].category}</small>
+                </div>
+                <button class="del-btn" onclick="removeItem('${id}')">DELETE</button>
             </div>`;
         }
     });
 
-    function del(id) { dbase.ref('products/'+id).remove(); }
+    function removeItem(id) {
+        if(confirm("Delete this item?")) database.ref('products/' + id).remove();
+    }
 </script>
 </body>
 </html>
