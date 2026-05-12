@@ -17,34 +17,47 @@ function showView(viewId) {
 function openShop(category) {
     document.getElementById('current-cat-name').innerText = category;
     showView('shop');
-    loadProducts(category);
-}
-
-function loadProducts(category) {
     const list = document.getElementById('product-list');
-    list.innerHTML = `<p style="grid-column:1/-1">Scanning the garage...</p>`;
+    list.innerHTML = `<p>Loading Garage...</p>`;
 
     db.ref('products').on('value', snap => {
         const data = snap.val();
         list.innerHTML = '';
+        if (!data) return;
         for (let id in data) {
             const p = data[id];
             if (p.category === category) {
                 list.innerHTML += `
-                <div class="p-card">
-                    <img src="${p.image}">
-                    <div class="p-info">
-                        <h3>${p.name}</h3>
-                        <p style="font-size:12px; color:#888; margin:5px 0;">${p.desc}</p>
-                        <div class="price-wrap">
-                            <span class="price">₹${p.price}</span>
-                            <span class="old-price">₹${p.oldPrice}</span>
-                        </div>
-                        <p style="color:#4cd964; font-size:11px; margin-top:5px;">Stock: ${p.stock} Units</p>
-                    </div>
-                    <a href="https://wa.me/919539315241?text=I want to buy ${p.name}" class="wa-btn">BUY ON WHATSAPP</a>
+                <div class="p-card" onclick="openProduct('${id}')">
+                    <img src="${p.img1}">
+                    <h3>${p.name}</h3>
+                    <p>₹${p.price}</p>
                 </div>`;
             }
         }
+    });
+}
+
+function openProduct(id) {
+    db.ref('products/' + id).once('value', snap => {
+        const p = snap.val();
+        document.getElementById('detail-name').innerText = p.name;
+        document.getElementById('detail-desc').innerText = p.desc;
+        document.getElementById('detail-price').innerText = '₹' + p.price;
+        document.getElementById('detail-old').innerText = '₹' + p.oldPrice;
+        document.getElementById('detail-stock').innerText = p.stock;
+        document.getElementById('detail-category').innerText = p.category;
+        document.getElementById('main-detail-img').src = p.img1;
+        
+        // Gallery setup
+        const thumbs = document.getElementById('detail-thumbs');
+        thumbs.innerHTML = '';
+        const images = [p.img1, p.img2, p.img3].filter(i => i && i.trim() !== "");
+        images.forEach(url => {
+            thumbs.innerHTML += `<img src="${url}" class="thumb" onclick="document.getElementById('main-detail-img').src='${url}'">`;
+        });
+
+        document.getElementById('whatsapp-link').href = `https://wa.me/91XXXXXXXXXX?text=I want to buy ${p.name}`;
+        showView('detail');
     });
 }
