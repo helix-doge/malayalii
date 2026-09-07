@@ -3,80 +3,862 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Malayali Here | Official Store</title>
-    <link rel="stylesheet" href="css/style.css">
-    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700&family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+
+    <title>MALAYALI HERE • 2 LEVEL SERVER</title>
+
+    <style>
+        :root {
+            --neon: #00ff41;
+            --danger: #ff003c;
+            --gold: #ffea00;
+            --bg: #050505;
+            --card-bg: rgba(15, 23, 42, 0.85);
+            --border-glow: rgba(0, 255, 65, 0.35);
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            background: var(--bg);
+            color: #fff;
+            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            margin: 0;
+            user-select: none;
+            overflow-x: hidden;
+            background-image:
+                radial-gradient(
+                    circle at 50% 10%,
+                    rgba(0, 255, 65, 0.10),
+                    transparent 60%
+                );
+            min-height: 100vh;
+        }
+
+        .header-container {
+            text-align: center;
+            padding: 25px 10px 12px;
+        }
+
+        .zigzag-name {
+            font-size: 32px;
+            font-weight: 900;
+            letter-spacing: 3px;
+            color: #fff;
+            text-transform: uppercase;
+            text-shadow:
+                2px 2px var(--danger),
+                -2px -2px var(--neon),
+                0 0 15px var(--neon);
+            animation: glitch 2s infinite;
+        }
+
+        .sub-title {
+            color: var(--gold);
+            font-size: 10px;
+            letter-spacing: 4px;
+            margin-top: 6px;
+            font-weight: bold;
+        }
+
+        @keyframes glitch {
+            0%, 100% {
+                transform: skew(0deg);
+            }
+
+            20% {
+                transform: skew(-2deg);
+                text-shadow:
+                    2px 2px var(--neon),
+                    -2px -2px var(--danger);
+            }
+
+            40% {
+                transform: skew(2deg);
+            }
+        }
+
+        .glass-box {
+            max-width: 420px;
+            width: calc(100% - 24px);
+            margin: 0 auto 20px;
+            background: var(--card-bg);
+            border: 1px solid var(--border-glow);
+            border-radius: 20px;
+            padding: 20px;
+            backdrop-filter: blur(15px);
+            -webkit-backdrop-filter: blur(15px);
+            box-shadow:
+                0 8px 32px rgba(0, 0, 0, 0.8),
+                0 0 20px rgba(0, 255, 65, 0.15);
+            text-align: center;
+        }
+
+        .brand-small {
+            font-size: 10px;
+            color: #777;
+            font-weight: 700;
+            letter-spacing: 2px;
+            margin-bottom: 8px;
+        }
+
+        .period {
+            color: #aaa;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .level-badge {
+            background: rgba(255, 234, 0, 0.2);
+            color: var(--gold);
+            border: 1px solid var(--gold);
+            font-size: 12px;
+            font-weight: 800;
+            padding: 6px 13px;
+            border-radius: 20px;
+            display: inline-block;
+            margin-bottom: 10px;
+        }
+
+        .pred-val {
+            font-size: 45px;
+            font-weight: 900;
+            margin: 8px 0;
+            text-shadow: 0 0 20px var(--neon);
+            letter-spacing: 2px;
+        }
+
+        .num-box {
+            color: var(--gold);
+            font-size: 14px;
+            font-weight: bold;
+            border: 1px dashed var(--gold);
+            padding: 10px;
+            border-radius: 10px;
+            background: rgba(255, 234, 0, 0.05);
+            margin-bottom: 12px;
+        }
+
+        .stats-grid {
+            display: table;
+            width: 100%;
+            margin-bottom: 15px;
+            background: rgba(0, 0, 0, 0.5);
+            border-radius: 10px;
+            padding: 8px 0;
+            border: 1px solid rgba(255, 255, 255, 0.08);
+        }
+
+        .stat-item {
+            display: table-cell;
+            width: 33.33%;
+            text-align: center;
+        }
+
+        .stat-val {
+            font-size: 16px;
+            font-weight: bold;
+        }
+
+        .stat-lbl {
+            font-size: 9px;
+            color: #aaa;
+            text-transform: uppercase;
+            margin-top: 2px;
+        }
+
+        table {
+            width: 100%;
+            margin-top: 15px;
+            border-collapse: collapse;
+            font-size: 11px;
+        }
+
+        th {
+            color: #888;
+            border-bottom: 1px solid #333;
+            padding: 8px 4px;
+            text-transform: uppercase;
+            font-size: 10px;
+        }
+
+        td {
+            padding: 8px 4px;
+            border-bottom: 1px solid #1a1a1a;
+            text-align: center;
+        }
+
+        .win {
+            color: var(--neon);
+            font-weight: bold;
+        }
+
+        .loss {
+            color: var(--danger);
+            font-weight: bold;
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-size: 9px;
+            font-weight: bold;
+        }
+
+        .badge-big {
+            background: rgba(0, 255, 65, 0.2);
+            color: var(--neon);
+            border: 1px solid var(--neon);
+        }
+
+        .badge-small {
+            background: rgba(255, 0, 60, 0.2);
+            color: var(--danger);
+            border: 1px solid var(--danger);
+        }
+
+        .register-btn {
+            display: block;
+            width: 100%;
+            padding: 13px;
+            margin-top: 20px;
+            background: linear-gradient(135deg, #ffea00, #ff9100);
+            color: #000;
+            font-weight: 800;
+            text-decoration: none;
+            border-radius: 12px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            box-shadow: 0 4px 15px rgba(255, 234, 0, 0.3);
+            transition: transform 0.2s;
+        }
+
+        .register-btn:active {
+            transform: scale(0.97);
+        }
+
+        .footer {
+            text-align: center;
+            color: #555;
+            font-size: 9px;
+            letter-spacing: 2px;
+            margin-top: 16px;
+            text-transform: uppercase;
+        }
+    </style>
 </head>
-<body>
 
-<nav class="glass-nav">
-    <div class="logo" onclick="showView('home')">MALAYALI HERE</div>
-    <div class="nav-links">
-        <button onclick="window.showView('categories')">COLLECTIONS</button>
-      
-    </div>
-</nav>
+<body oncontextmenu="return false;">
 
-<section id="view-home" class="page-view active">
-    <div class="hero">
-        <div class="hero-text">
-            <h1>PREMIUM RC <br><span>COLLECTIONS</span></h1>
-            <p>High Speed. Low Latency. Pure Thrill.</p>
-            <button class="cta-btn" onclick="showView('categories')">START SHOPPING</button>
+    <!-- MALAYALI HERE HEADER -->
+    <div class="header-container">
+
+        <div class="zigzag-name">
+            MALAYALI HERE
         </div>
-    </div>
-</section>
 
-<section id="view-categories" class="page-view">
-    <div class="container">
-        <h2 class="title">CHOOSE CATEGORY</h2>
-        <div class="cat-grid">
-            <div class="cat-card rc-bg" onclick="openShop('RC CARS')">
-                <div class="cat-overlay"><h3>RC CARS</h3><p>Offroad & Drift</p></div>
+        <div class="sub-title">
+            VIP SERVER • 2-LEVEL ENGINE
+        </div>
+
+    </div>
+
+    <!-- DASHBOARD -->
+    <div id="appPage" class="glass-box">
+
+        <div class="brand-small">
+            MALAYALI HERE PREDICTION SERVER
+        </div>
+
+        <div class="period" id="pID">
+            PERIOD: CALCULATING...
+        </div>
+
+        <div style="margin-top:10px;">
+            <span class="level-badge" id="levelInfo">
+                LEVEL: 1 (PRIMARY)
+            </span>
+        </div>
+
+        <!-- PREDICTION -->
+        <div class="pred-val" id="pRes">
+            WAITING
+        </div>
+
+        <!-- NUMBERS -->
+        <div class="num-box" id="pOpps">
+            ANALYZING TRENDS...
+        </div>
+
+        <!-- LIVE STATS -->
+        <div class="stats-grid">
+
+            <div class="stat-item">
+                <div
+                    class="stat-val"
+                    id="totalWins"
+                    style="color:var(--neon);"
+                >
+                    0
+                </div>
+
+                <div class="stat-lbl">
+                    WINS
+                </div>
             </div>
-            <div class="cat-card hw-bg" onclick="openShop('HOT WHEELS')">
-                <div class="cat-overlay"><h3>HOT WHEELS</h3><p>Collectors Items</p></div>
-            </div>
-            <div class="cat-card gd-bg" onclick="openShop('GADGETS')">
-                <div class="cat-overlay"><h3>GADGETS</h3><p>Smart Tech</p></div>
-            </div>
-        </div>
-    </div>
-</section>
 
-<section id="view-shop" class="page-view">
-    <div class="container">
-        <div class="shop-nav">
-            <button class="back-btn" onclick="showView('categories')">← BACK TO CATEGORIES</button>
-            <h2 id="active-cat-title">PRODUCTS</h2>
-        </div>
-        <div class="product-grid" id="product-display"></div>
-    </div>
-</section>
+            <div class="stat-item">
+                <div
+                    class="stat-val"
+                    id="totalLosses"
+                    style="color:var(--danger);"
+                >
+                    0
+                </div>
 
-<section id="view-detail" class="page-view">
-    <div class="container detail-flex">
-        <div class="gallery-side">
-            <div class="main-frame"><img id="det-img" src=""></div>
-            <div class="thumb-strip" id="det-thumbs"></div>
-        </div>
-        <div class="info-side">
-            <span class="category-tag" id="det-cat">CATEGORY</span>
-            <h1 id="det-name">Product Name</h1>
-            <div class="price-strip">
-                <span id="det-price" class="price-now">₹0</span>
-                <span id="det-old" class="price-old">₹0</span>
+                <div class="stat-lbl">
+                    LOSSES
+                </div>
             </div>
-            <p id="det-desc" class="p-full-desc"></p>
-            <div class="stock-info">Available Stock: <b id="det-stock">0</b> Units</div>
-            <a href="" id="wa-link" class="wa-btn">PURCHASE NOW</a>
-            <button class="secondary-btn" onclick="showView('shop')">CONTINUE SHOPPING</button>
-        </div>
-    </div>
-</section>
 
-<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
-<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
-<script src="js/app.js"></script>
+            <div class="stat-item">
+                <div
+                    class="stat-val"
+                    id="winRate"
+                    style="color:var(--gold);"
+                >
+                    100%
+                </div>
+
+                <div class="stat-lbl">
+                    ACCURACY
+                </div>
+            </div>
+
+        </div>
+
+        <!-- RESULT HISTORY -->
+        <table>
+            <thead>
+                <tr>
+                    <th>PERIOD</th>
+                    <th>PRED</th>
+                    <th>RESULT</th>
+                    <th>STATUS</th>
+                </tr>
+            </thead>
+
+            <tbody id="logs"></tbody>
+        </table>
+
+        <!-- NEW REGISTER LINK -->
+        <a
+            href="https://tirangaclub.org/#/register?invitationCode=242272834439"
+            target="_blank"
+            rel="noopener noreferrer"
+            class="register-btn"
+        >
+            PLATFORM REGISTER LINK
+        </a>
+
+        <div class="footer">
+            POWERED BY MALAYALI HERE
+        </div>
+
+    </div>
+
+
+<script>
+
+/* ==========================================
+   MALAYALI HERE
+   2-LEVEL PREDICTION ENGINE
+========================================== */
+
+const BIG_POOL = [5, 6, 7, 8, 9];
+const SMALL_POOL = [0, 1, 2, 3, 4];
+
+let currentPrediction = null;
+let currentNumbers = [];
+
+let currentLevel = 1;
+
+let previousPrediction = null;
+let previousNumbers = [];
+
+let winsCount = 0;
+let lossCount = 0;
+
+
+/* ==========================================
+   START
+========================================== */
+
+window.onload = () => {
+    initEngine();
+};
+
+
+/* ==========================================
+   BASE PREDICTION
+========================================== */
+
+function calculateBasePrediction(history) {
+
+    if (!history || history.length < 5) {
+        return Math.random() > 0.5
+            ? "BIG"
+            : "SMALL";
+    }
+
+    let bigs = 0;
+    let smalls = 0;
+
+    /*
+        Weighted analysis of
+        the latest 10 rounds
+    */
+
+    for (
+        let i = 0;
+        i < Math.min(10, history.length);
+        i++
+    ) {
+
+        const num = parseInt(history[i].number);
+        const weight = 10 - i;
+
+        if (num >= 5) {
+            bigs += weight;
+        } else {
+            smalls += weight;
+        }
+    }
+
+
+    /* ==========================================
+       ANTI-STREAK PATTERN
+    ========================================== */
+
+    const last3 = history
+        .slice(0, 3)
+        .map(x =>
+            parseInt(x.number) >= 5
+                ? "BIG"
+                : "SMALL"
+        );
+
+
+    if (
+        last3.length === 3 &&
+        last3[0] === last3[1] &&
+        last3[1] === last3[2]
+    ) {
+
+        return last3[0] === "BIG"
+            ? "SMALL"
+            : "BIG";
+    }
+
+
+    return bigs >= smalls
+        ? "BIG"
+        : "SMALL";
+}
+
+
+/* ==========================================
+   GENERATE TWO NUMBERS
+========================================== */
+
+function generateNumbers(prediction) {
+
+    let primaryPool =
+        prediction === "BIG"
+            ? BIG_POOL
+            : SMALL_POOL;
+
+    let secondaryPool =
+        prediction === "BIG"
+            ? SMALL_POOL
+            : BIG_POOL;
+
+
+    let num1 =
+        primaryPool[
+            Math.floor(
+                Math.random() * primaryPool.length
+            )
+        ];
+
+
+    let num2 =
+        secondaryPool[
+            Math.floor(
+                Math.random() * secondaryPool.length
+            )
+        ];
+
+
+    return [num1, num2].sort(
+        (a, b) => a - b
+    );
+}
+
+
+/* ==========================================
+   INITIALIZE ENGINE
+========================================== */
+
+async function initEngine() {
+
+    fetchData();
+
+    setInterval(
+        fetchData,
+        3000
+    );
+}
+
+
+/* ==========================================
+   FETCH LIVE RESULTS
+========================================== */
+
+async function fetchData() {
+
+    try {
+
+        const res = await fetch(
+            'https://draw.ar-lottery01.com/WinGo/WinGo_1M/GetHistoryIssuePage.json',
+            {
+                cache: "no-store"
+            }
+        );
+
+
+        const json = await res.json();
+
+
+        if (
+            !json ||
+            !json.data ||
+            !json.data.list ||
+            !json.data.list.length
+        ) {
+            return;
+        }
+
+
+        const list = json.data.list;
+
+        const latest = list[0];
+
+
+        const currentPeriod =
+            (
+                BigInt(latest.issueNumber)
+                +
+                1n
+            ).toString();
+
+
+        /* ==========================================
+           DETECT NEW PERIOD
+        ========================================== */
+
+        if (
+            window.lastProcessedPeriod !==
+            latest.issueNumber
+        ) {
+
+
+            /* ==========================================
+               CHECK PREVIOUS PREDICTION
+            ========================================== */
+
+            if (
+                window.lastProcessedPeriod &&
+                currentPrediction
+            ) {
+
+                const actualNum =
+                    parseInt(latest.number);
+
+
+                const actualSize =
+                    actualNum >= 5
+                        ? "BIG"
+                        : "SMALL";
+
+
+                const isWin =
+                    (
+                        currentPrediction ===
+                        actualSize
+                    )
+                    ||
+                    currentNumbers.includes(
+                        actualNum
+                    );
+
+
+                /* ==========================================
+                   WIN / LOSS
+                ========================================== */
+
+                if (isWin) {
+
+                    winsCount++;
+
+                    // WIN = RESET TO LEVEL 1
+                    currentLevel = 1;
+
+                } else {
+
+                    lossCount++;
+
+                    // LEVEL 1 LOSS -> LEVEL 2
+                    if (currentLevel === 1) {
+
+                        currentLevel = 2;
+
+                    } else {
+
+                        // LEVEL 2 LOSS -> RESET LEVEL 1
+                        currentLevel = 1;
+
+                    }
+                }
+
+
+                updateStats();
+
+
+                /* ==========================================
+                   HISTORY ROW
+                ========================================== */
+
+                const row = `
+                    <tr>
+
+                        <td>
+                            ${latest.issueNumber.slice(-4)}
+                        </td>
+
+                        <td>
+                            <span
+                                class="badge ${
+                                    currentPrediction === 'BIG'
+                                        ? 'badge-big'
+                                        : 'badge-small'
+                                }"
+                            >
+                                ${currentPrediction}
+                            </span>
+                        </td>
+
+                        <td>
+                            <b style="color:#fff;">
+                                ${actualNum}
+                            </b>
+                            (${actualSize})
+                        </td>
+
+                        <td
+                            class="${
+                                isWin
+                                    ? 'win'
+                                    : 'loss'
+                            }"
+                        >
+                            ${
+                                isWin
+                                    ? 'WIN 🐯'
+                                    : 'LOSS 🖤'
+                            }
+                        </td>
+
+                    </tr>
+                `;
+
+
+                document.getElementById(
+                    'logs'
+                ).innerHTML =
+                    row +
+                    document.getElementById(
+                        'logs'
+                    ).innerHTML;
+            }
+
+
+            /* ==========================================
+               CALCULATE NEXT PREDICTION
+            ========================================== */
+
+            const basePred =
+                calculateBasePrediction(list);
+
+
+            if (
+                currentLevel === 2 &&
+                currentPrediction
+            ) {
+
+                /*
+                    Level 2 recovery:
+                    flip previous size prediction.
+                */
+
+                currentPrediction =
+                    currentPrediction === "BIG"
+                        ? "SMALL"
+                        : "BIG";
+
+            } else {
+
+                currentPrediction =
+                    basePred;
+            }
+
+
+            currentNumbers =
+                generateNumbers(
+                    currentPrediction
+                );
+
+
+            window.lastProcessedPeriod =
+                latest.issueNumber;
+        }
+
+
+        /* ==========================================
+           UPDATE CURRENT PERIOD
+        ========================================== */
+
+        document.getElementById(
+            'pID'
+        ).innerText =
+            "NEXT PERIOD: " +
+            currentPeriod;
+
+
+        /* ==========================================
+           UPDATE BIG / SMALL
+        ========================================== */
+
+        document.getElementById(
+            'pRes'
+        ).innerText =
+            currentPrediction ||
+            "SYNCING...";
+
+
+        /* ==========================================
+           UPDATE NUMBERS
+        ========================================== */
+
+        document.getElementById(
+            'pOpps'
+        ).innerText =
+            "2-LEVEL NUMBERS: " +
+            (
+                currentNumbers.length
+                    ? currentNumbers.join(" | ")
+                    : "ANALYZING..."
+            );
+
+
+        /* ==========================================
+           LEVEL INDICATOR
+        ========================================== */
+
+        const lvlElement =
+            document.getElementById(
+                'levelInfo'
+            );
+
+
+        if (currentLevel === 1) {
+
+            lvlElement.innerText =
+                "LEVEL: 1 (PRIMARY)";
+
+            lvlElement.style.borderColor =
+                "var(--gold)";
+
+            lvlElement.style.color =
+                "var(--gold)";
+
+            lvlElement.style.background =
+                "rgba(255,234,0,0.20)";
+
+        } else {
+
+            lvlElement.innerText =
+                "LEVEL: 2 (RECOVERY)";
+
+            lvlElement.style.borderColor =
+                "var(--neon)";
+
+            lvlElement.style.color =
+                "var(--neon)";
+
+            lvlElement.style.background =
+                "rgba(0,255,65,0.12)";
+        }
+
+    } catch (e) {
+
+        console.log(
+            "MALAYALI HERE SERVER CONNECTION WAITING...",
+            e
+        );
+    }
+}
+
+
+/* ==========================================
+   UPDATE STATISTICS
+========================================== */
+
+function updateStats() {
+
+    document.getElementById(
+        'totalWins'
+    ).innerText =
+        winsCount;
+
+
+    document.getElementById(
+        'totalLosses'
+    ).innerText =
+        lossCount;
+
+
+    const total =
+        winsCount + lossCount;
+
+
+    const rate =
+        total > 0
+            ? Math.round(
+                (winsCount / total) * 100
+            )
+            : 100;
+
+
+    document.getElementById(
+        'winRate'
+    ).innerText =
+        rate + "%";
+}
+
+</script>
+
 </body>
 </html>
