@@ -121,6 +121,88 @@
             margin-bottom: 10px;
         }
 
+        .mode-title {
+            color: #8a8f98;
+            font-size: 9px;
+            font-weight: 800;
+            letter-spacing: 2px;
+            margin: 16px 0 8px;
+            text-transform: uppercase;
+        }
+
+        .mode-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 7px;
+            margin-bottom: 14px;
+        }
+
+        .mode-btn {
+            appearance: none;
+            background: rgba(255, 255, 255, 0.04);
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            border-radius: 10px;
+            color: #a9adb5;
+            cursor: pointer;
+            font: inherit;
+            font-size: 11px;
+            font-weight: 900;
+            padding: 10px 4px;
+            transition: 0.2s ease;
+        }
+
+        .mode-btn:hover {
+            border-color: var(--neon);
+            color: #fff;
+        }
+
+        .mode-btn.active {
+            background: rgba(0, 255, 65, 0.14);
+            border-color: var(--neon);
+            box-shadow: 0 0 14px rgba(0, 255, 65, 0.18);
+            color: var(--neon);
+        }
+
+        .countdown-card {
+            align-items: center;
+            background: rgba(0, 0, 0, 0.5);
+            border: 1px solid rgba(0, 255, 65, 0.24);
+            border-radius: 14px;
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 13px;
+            padding: 12px 15px;
+        }
+
+        .countdown-copy {
+            text-align: left;
+        }
+
+        .countdown-label {
+            color: #8a8f98;
+            font-size: 9px;
+            font-weight: 800;
+            letter-spacing: 1.5px;
+        }
+
+        .active-mode-label {
+            color: var(--gold);
+            font-size: 11px;
+            font-weight: 800;
+            margin-top: 4px;
+        }
+
+        .countdown {
+            color: #fff;
+            font-family: Consolas, Monaco, monospace;
+            font-size: 30px;
+            font-weight: 900;
+            letter-spacing: 2px;
+            min-width: 92px;
+            text-align: right;
+            text-shadow: 0 0 15px var(--neon);
+        }
+
         .pred-val {
             font-size: 45px;
             font-weight: 900;
@@ -276,6 +358,23 @@
             PERIOD: CALCULATING...
         </div>
 
+        <div class="mode-title">Select prediction time</div>
+
+        <div class="mode-grid" id="modeGrid">
+            <button class="mode-btn" type="button" data-mode="30S">30 SEC</button>
+            <button class="mode-btn active" type="button" data-mode="1M">1 MIN</button>
+            <button class="mode-btn" type="button" data-mode="3M">3 MIN</button>
+            <button class="mode-btn" type="button" data-mode="5M">5 MIN</button>
+        </div>
+
+        <div class="countdown-card">
+            <div class="countdown-copy">
+                <div class="countdown-label">NEXT RESULT IN</div>
+                <div class="active-mode-label" id="activeModeLabel">1 MINUTE MODE</div>
+            </div>
+            <div class="countdown" id="countdown">01:00</div>
+        </div>
+
         <div style="margin-top:10px;">
             <span class="level-badge" id="levelInfo">
                 LEVEL: 1 (PRIMARY)
@@ -380,6 +479,32 @@
 const BIG_POOL = [5, 6, 7, 8, 9];
 const SMALL_POOL = [0, 1, 2, 3, 4];
 
+const MODES = {
+    "30S": {
+        label: "30 SECOND MODE",
+        seconds: 30,
+        endpoint: "WinGo_30S"
+    },
+    "1M": {
+        label: "1 MINUTE MODE",
+        seconds: 60,
+        endpoint: "WinGo_1M"
+    },
+    "3M": {
+        label: "3 MINUTE MODE",
+        seconds: 180,
+        endpoint: "WinGo_3M"
+    },
+    "5M": {
+        label: "5 MINUTE MODE",
+        seconds: 300,
+        endpoint: "WinGo_5M"
+    }
+};
+
+let activeMode = "1M";
+let fetchTimer = null;
+
 let currentPrediction = null;
 let currentNumbers = [];
 
@@ -397,8 +522,74 @@ let lossCount = 0;
 ========================================== */
 
 window.onload = () => {
+    setupModeButtons();
+    updateCountdown();
+    setInterval(updateCountdown, 250);
     initEngine();
 };
+
+
+/* ==========================================
+   MODE SELECTOR + COUNTDOWN
+========================================== */
+
+function setupModeButtons() {
+    document.querySelectorAll(".mode-btn").forEach(button => {
+        button.addEventListener("click", () => {
+            const newMode = button.dataset.mode;
+
+            if (!MODES[newMode] || newMode === activeMode) {
+                return;
+            }
+
+            activeMode = newMode;
+
+            document.querySelectorAll(".mode-btn").forEach(item => {
+                item.classList.toggle("active", item.dataset.mode === activeMode);
+            });
+
+            document.getElementById("activeModeLabel").innerText =
+                MODES[activeMode].label;
+
+            resetEngineForMode();
+            updateCountdown();
+            fetchData();
+        });
+    });
+}
+
+function resetEngineForMode() {
+    currentPrediction = null;
+    currentNumbers = [];
+    currentLevel = 1;
+    winsCount = 0;
+    lossCount = 0;
+    window.lastProcessedPeriod = null;
+
+    document.getElementById("logs").innerHTML = "";
+    document.getElementById("pID").innerText = "PERIOD: CALCULATING...";
+    document.getElementById("pRes").innerText = "SYNCING...";
+    document.getElementById("pOpps").innerText = "ANALYZING TRENDS...";
+    updateStats();
+}
+
+function updateCountdown() {
+    const duration = MODES[activeMode].seconds;
+    const nowSeconds = Math.floor(Date.now() / 1000);
+    let remaining = duration - (nowSeconds % duration);
+
+    if (remaining === duration) {
+        remaining = 0;
+    }
+
+    const minutes = Math.floor(remaining / 60);
+    const seconds = remaining % 60;
+
+    document.getElementById("countdown").innerText =
+        String(minutes).padStart(2, "0") +
+        ":" +
+        String(seconds).padStart(2, "0");
+}
 
 
 /* ==========================================
@@ -516,7 +707,7 @@ async function initEngine() {
 
     fetchData();
 
-    setInterval(
+    fetchTimer = setInterval(
         fetchData,
         3000
     );
@@ -531,8 +722,11 @@ async function fetchData() {
 
     try {
 
+        const requestedMode = activeMode;
+        const mode = MODES[requestedMode];
+
         const res = await fetch(
-            'https://draw.ar-lottery01.com/WinGo/WinGo_1M/GetHistoryIssuePage.json',
+            `https://draw.ar-lottery01.com/WinGo/${mode.endpoint}/GetHistoryIssuePage.json`,
             {
                 cache: "no-store"
             }
@@ -540,6 +734,11 @@ async function fetchData() {
 
 
         const json = await res.json();
+
+        // Ignore a delayed response after the user changes mode.
+        if (requestedMode !== activeMode) {
+            return;
+        }
 
 
         if (
