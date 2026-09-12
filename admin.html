@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard • VIP HACKS SHOP</title>
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body class="min-h-screen p-4 sm:p-6">
+
+    <div class="max-w-4xl mx-auto space-y-6">
+        <div class="glass-card rounded-[28px] p-5 sm:p-6 flex items-center justify-between">
+            <div>
+                <h1 class="text-lg font-black text-yellow-300">Admin Control Panel</h1>
+                <span class="text-xs text-emerald-400 font-bold">● Supabase Connected</span>
+            </div>
+            <button onclick="logoutAdmin()" class="px-4 py-2 bg-red-500/20 text-red-400 rounded-xl text-xs font-bold hover:bg-red-500/30">Logout</button>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <!-- Add Product -->
+            <div class="glass-card rounded-[28px] p-5 space-y-3">
+                <h3 class="text-sm font-black text-yellow-300 uppercase">+ Create Product Category</h3>
+                <input type="text" id="newProdName" placeholder="Product Title (e.g., Malayali iOS VIP)" class="w-full bg-black border border-yellow-500/40 rounded-xl p-3 text-xs">
+                <input type="text" id="newProdHint" placeholder="Subtitle / Setup Info" class="w-full bg-black border border-yellow-500/40 rounded-xl p-3 text-xs">
+                <div class="grid grid-cols-2 gap-2">
+                    <input type="number" id="price5h" placeholder="5h Price (₹)" class="bg-black border border-yellow-500/40 rounded-xl p-2.5 text-xs">
+                    <input type="number" id="price1d" placeholder="1d Price (₹)" class="bg-black border border-yellow-500/40 rounded-xl p-2.5 text-xs">
+                    <input type="number" id="price7d" placeholder="7d Price (₹)" class="bg-black border border-yellow-500/40 rounded-xl p-2.5 text-xs">
+                    <input type="number" id="price30d" placeholder="30d Price (₹)" class="bg-black border border-yellow-500/40 rounded-xl p-2.5 text-xs">
+                </div>
+                <button onclick="createNewProduct()" class="w-full btn-gold-gradient py-3 rounded-xl text-xs uppercase">Save Product</button>
+            </div>
+
+            <!-- Add Key -->
+            <div class="glass-card rounded-[28px] p-5 space-y-3">
+                <h3 class="text-sm font-black text-yellow-300 uppercase">+ Add Manual Key</h3>
+                <input type="text" id="newKeyStr" placeholder="Key String (e.g. MALAYALI-VIP-8891)" class="w-full bg-black border border-yellow-500/40 rounded-xl p-3 text-xs">
+                <select id="keyProdSelect" class="w-full bg-black border border-yellow-500/40 rounded-xl p-3 text-xs"></select>
+                <select id="keyDurSelect" class="w-full bg-black border border-yellow-500/40 rounded-xl p-3 text-xs">
+                    <option value="5 Hour ⏱️">5 Hour ⏱️</option>
+                    <option value="1 Day 💛">1 Day 💛</option>
+                    <option value="7 Day 💎">7 Day 💎</option>
+                    <option value="30 Day / Month 🔥">30 Day / Month 🔥</option>
+                </select>
+                <button onclick="addKeyToDatabase()" class="w-full btn-gold-gradient py-3 rounded-xl text-xs uppercase">Save Key</button>
+            </div>
+        </div>
+
+        <!-- Inventory List -->
+        <div class="glass-card rounded-[28px] p-5 space-y-3">
+            <h3 class="text-sm font-black text-yellow-300 uppercase">Existing Keys Inventory</h3>
+            <div id="keyList" class="space-y-2 max-h-60 overflow-y-auto"></div>
+        </div>
+    </div>
+
+    <script src="js/config.js"></script>
+    <script src="js/auth.js"></script>
+    <script src="js/admin.js"></script>
+</body>
+</html>
