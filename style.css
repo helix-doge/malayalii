@@ -1,0 +1,96 @@
+:root {
+    --gold: #ffea00;
+    --gold-glow: rgba(255, 234, 0, 0.4);
+    --dark-bg: #070709;
+    --card-bg: rgba(15, 15, 20, 0.88);
+    --border-gold: rgba(255, 234, 0, 0.35);
+}
+
+@keyframes float {
+    0%, 100% { transform: translateY(0px) rotate(0deg); }
+    50% { transform: translateY(-8px) rotate(1deg); }
+}
+
+@keyframes gold-pulse {
+    0%, 100% { box-shadow: 0 0 20px rgba(255, 234, 0, 0.25), inset 0 0 15px rgba(255, 234, 0, 0.1); }
+    50% { box-shadow: 0 0 40px rgba(255, 234, 0, 0.5), inset 0 0 25px rgba(255, 234, 0, 0.2); }
+}
+
+@keyframes scanline {
+    0% { transform: translateY(-100%); }
+    100% { transform: translateY(100vh); }
+}
+
+body {
+    background-color: var(--dark-bg);
+    color: #fff;
+    background-image: 
+        radial-gradient(circle at 50% 15%, rgba(255, 234, 0, 0.08) 0%, transparent 60%),
+        radial-gradient(circle at 10% 90%, rgba(255, 140, 0, 0.05) 0%, transparent 50%);
+    position: relative;
+    overflow-x: hidden;
+}
+
+body::before {
+    content: '';
+    position: fixed;
+    top: 0; left: 0; width: 100%; height: 100%;
+    background: linear-gradient(90deg, transparent 98%, rgba(255, 234, 0, 0.015) 100%),
+                linear-gradient(0deg, transparent 98%, rgba(255, 234, 0, 0.015) 100%);
+    background-size: 40px 40px;
+    pointer-events: none;
+    z-index: 0;
+    animation: scanline 10s linear infinite;
+}
+
+.glass-card {
+    background: var(--card-bg);
+    backdrop-filter: blur(25px);
+    -webkit-backdrop-filter: blur(25px);
+    border: 1px solid var(--border-gold);
+    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.8), 0 0 20px rgba(255, 234, 0, 0.1);
+    animation: gold-pulse 4s ease-in-out infinite;
+}
+
+.custom-dropdown-menu {
+    background: #111116;
+    border: 1px solid var(--border-gold);
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.9);
+    border-radius: 20px;
+}
+
+.btn-gold-gradient {
+    background: linear-gradient(135deg, #ffea00 0%, #ff9100 100%);
+    color: #050505;
+    font-weight: 900;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 20px rgba(255, 234, 0, 0.35);
+}
+
+.btn-gold-gradient:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 30px rgba(255, 234, 0, 0.6);
+    opacity: 0.95;
+}
+
+.admin-menu-btn {
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 234, 0, 0.2);
+    transition: all 0.2s ease;
+}
+
+.admin-menu-btn:hover {
+    background: rgba(255, 255, 255, 0.08);
+    border-color: var(--gold);
+    transform: translateY(-2px);
+}
+
+.sparkle {
+    position: absolute;
+    pointer-events: none;
+    animation: float 3s ease-in-out infinite;
+}
+
+.logo-glow {
+    filter: drop-shadow(0 0 20px rgba(255, 234, 0, 0.7));
+}
