@@ -13,7 +13,7 @@ async function initApp() {
     checkAutoRedirectReturn();
 }
 
-/* FETCH LIVE PRODUCTS & PLANS FROM SUPABASE */
+/* FETCH PRODUCTS & PLANS DYNAMICALLY FROM SUPABASE */
 async function fetchDatabaseProducts() {
     const btnText = document.getElementById('productBtnText');
     if (btnText) btnText.innerText = "Loading Products...";
@@ -26,23 +26,7 @@ async function fetchDatabaseProducts() {
             }
         }
     } catch (e) {
-        console.warn('DB product fetch error:', e);
-    }
-
-    // Fallback default structure if database table is empty or offline
-    if (!productsData || productsData.length === 0) {
-        productsData = [
-            {
-                id: 1,
-                name: "Malayali VIP Android",
-                hint: "Official Malayali VIP Loader & Setup Included",
-                plans: [
-                    { name: "1 Day", price: 100 },
-                    { name: "7 Days", price: 400 },
-                    { name: "30 Days", price: 900 }
-                ]
-            }
-        ];
+        console.warn('Error fetching products from DB:', e);
     }
 
     renderProductDropdown();
@@ -55,6 +39,11 @@ function renderProductDropdown() {
     if (!btnText || !dropdown) return;
     dropdown.innerHTML = '';
 
+    if (!productsData || productsData.length === 0) {
+        btnText.innerText = "No Products Found";
+        return;
+    }
+
     productsData.forEach((product, idx) => {
         const item = document.createElement('div');
         item.className = "p-2.5 hover:bg-yellow-500/20 rounded-lg cursor-pointer text-xs font-bold text-white transition flex justify-between items-center";
@@ -66,9 +55,7 @@ function renderProductDropdown() {
         dropdown.appendChild(item);
     });
 
-    if (productsData.length > 0) {
-        selectProduct(0);
-    }
+    selectProduct(0);
 }
 
 function selectProduct(index) {
@@ -80,7 +67,7 @@ function selectProduct(index) {
 
     if (btnText) btnText.innerText = selectedProduct.name;
     if (hintElement) {
-        hintElement.innerText = selectedProduct.hint || "Official VIP Loader & Setup Included";
+        hintElement.innerText = selectedProduct.hint || selectedProduct.description || "";
     }
 
     toggleDropdown('productDropdown', false);
@@ -130,7 +117,7 @@ function selectPlan(index) {
     const planBtnText = document.getElementById('planBtnText');
     const totalPrice = document.getElementById('totalPrice');
 
-    if (planBtnText) planBtnText.innerText = `${selectedPlan.name} - ₹${selectedPlan.price}`;
+    if (planBtnText) planBtnText.innerText = `${selectedPlan.name}`;
     if (totalPrice) totalPrice.innerText = `₹ ${selectedPlan.price}`;
 
     toggleDropdown('planDropdown', false);
