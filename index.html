@@ -143,7 +143,6 @@
                 <p class="text-[10px] text-gray-400">Get APK files, setup guides, latest updates, announcements and support from our official channels.</p>
 
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1">
-                    <!-- Owner Contact Card -->
                     <div class="bg-[#0a0a0a] border border-yellow-500/20 rounded-xl p-3 text-left space-y-2">
                         <div class="flex items-center space-x-2">
                             <span class="text-base">👑</span>
@@ -162,7 +161,6 @@
                         </a>
                     </div>
 
-                    <!-- Main Channel Card -->
                     <div class="bg-[#0a0a0a] border border-yellow-500/20 rounded-xl p-3 text-left space-y-2">
                         <div class="flex items-center space-x-2">
                             <span class="text-base">📢</span>
@@ -211,6 +209,90 @@
             © 2026 MALAYALI HERE · FAMPAY GATEWAY INTEGRATION (FAMPAYGATEWAY.SITE)
         </p>
     </footer>
+
+    <!-- FAMPAY CHECKOUT MODAL -->
+    <div id="paymentModal" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
+        <div class="glass-card w-full max-w-sm rounded-3xl border border-yellow-500/40 p-5 bg-[#0a0a0a] text-white relative space-y-4 shadow-[0_0_40px_rgba(255,204,0,0.2)]">
+            
+            <div class="flex items-center justify-between border-b border-yellow-500/20 pb-3">
+                <div class="flex flex-col">
+                    <div class="flex items-center space-x-1.5 text-xs font-black text-yellow-400 uppercase tracking-wide">
+                        <i class="fa-solid fa-shield-halved text-yellow-500"></i>
+                        <span>FAMPAY GATEWAY CHECKOUT</span>
+                    </div>
+                    <span id="modalOrderId" class="text-[9px] font-mono text-gray-500 tracking-tight mt-0.5">ORDER ID: --</span>
+                </div>
+                <button onclick="closePaymentModal()" class="w-7 h-7 bg-white/10 hover:bg-white/20 rounded-full flex items-center justify-center text-xs text-gray-300">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+
+            <div class="bg-[#111] border border-yellow-500/30 rounded-2xl p-3 space-y-2">
+                <div class="text-[10px] font-bold text-yellow-500 uppercase flex items-center space-x-1">
+                    <i class="fa-solid fa-bag-shopping"></i>
+                    <span>ORDER SUMMARY</span>
+                </div>
+                <div class="grid grid-cols-3 gap-1 text-center pt-1 border-t border-yellow-500/10">
+                    <div>
+                        <div class="text-[8px] text-gray-400 uppercase">PRODUCT</div>
+                        <div id="modalProdName" class="text-[10px] font-bold text-white truncate">--</div>
+                    </div>
+                    <div>
+                        <div class="text-[8px] text-gray-400 uppercase">DURATION</div>
+                        <div id="modalPlanName" class="text-[10px] font-bold text-yellow-400">--</div>
+                    </div>
+                    <div>
+                        <div class="text-[8px] text-gray-400 uppercase">AMOUNT</div>
+                        <div id="modalAmount" class="text-[10px] font-black text-yellow-400">₹ --</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-[#050505] border border-yellow-500/30 rounded-2xl p-4 text-center space-y-3">
+                <div class="text-xs font-black text-yellow-400 uppercase flex items-center justify-center space-x-1">
+                    <span>💛 FAMPAI SCAN & PAY 💛</span>
+                </div>
+                <div id="modalUpiId" class="text-[10px] font-mono text-gray-400">UPI ID: Malayali@upi</div>
+
+                <div class="w-44 h-44 mx-auto bg-white p-2.5 rounded-2xl shadow-inner border-2 border-yellow-500/40">
+                    <img id="qrCodeImg" src="" alt="Scan QR Code" class="w-full h-full object-contain">
+                </div>
+
+                <div class="flex justify-center items-center space-x-1.5 pt-1">
+                    <span class="bg-[#221800] border border-yellow-500/30 text-yellow-500 text-[9px] font-bold px-2 py-0.5 rounded-md">PhonePe</span>
+                    <span class="bg-[#221800] border border-yellow-500/30 text-yellow-500 text-[9px] font-bold px-2 py-0.5 rounded-md">Google Pay</span>
+                    <span class="bg-[#221800] border border-yellow-500/30 text-yellow-500 text-[9px] font-bold px-2 py-0.5 rounded-md">Paytm</span>
+                    <span class="bg-[#221800] border border-yellow-500/30 text-yellow-500 text-[9px] font-bold px-2 py-0.5 rounded-md">FamPay</span>
+                </div>
+            </div>
+
+            <div class="space-y-2">
+                <a id="payDirectBtn" href="#" target="_blank" class="w-full bg-gradient-to-r from-amber-400 to-yellow-500 text-black font-black text-xs py-3 rounded-xl uppercase flex items-center justify-center space-x-2 shadow-[0_0_15px_rgba(255,204,0,0.3)]">
+                    <span>OPEN FAMPAY CHECKOUT PAGE</span>
+                    <i class="fa-solid fa-arrow-right"></i>
+                </a>
+
+                <button onclick="verifyPayment()" class="w-full bg-[#141414] border border-yellow-500/40 text-yellow-400 font-bold text-xs py-2.5 rounded-xl uppercase hover:bg-yellow-500/10 transition">
+                    VERIFY PAYMENT STATUS
+                </button>
+            </div>
+
+            <div class="bg-[#111] border border-yellow-500/20 rounded-xl p-2 flex items-center justify-between text-[9px]">
+                <div class="space-y-0.5">
+                    <div class="text-yellow-500 font-bold uppercase flex items-center space-x-1">
+                        <i class="fa-regular fa-clock"></i>
+                        <span>EXPIRES AT</span>
+                    </div>
+                    <div id="countdownTimer" class="font-mono text-xs font-bold text-yellow-400">05 : 00</div>
+                </div>
+                <div class="text-right">
+                    <span class="bg-yellow-500/20 text-yellow-400 border border-yellow-500/30 px-2 py-0.5 rounded-full font-bold">● FAMPAI AUTO-VERIFY</span>
+                    <div class="text-gray-500 text-[8px] font-mono mt-0.5">Listening for UTR...</div>
+                </div>
+            </div>
+
+        </div>
+    </div>
 
     <script src="js/config.js"></script>
     <script src="js/app.js"></script>
