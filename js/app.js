@@ -22,10 +22,13 @@ async function fetchDatabaseProducts() {
             const { data, error } = await db.from('products').select('*');
             if (!error && data && data.length > 0) {
                 productsData = data;
+            } else {
+                productsData = [];
             }
         }
     } catch (e) {
         console.warn('Error fetching products from DB:', e);
+        productsData = [];
     }
 
     renderProductDropdown();
@@ -39,13 +42,15 @@ function renderProductDropdown() {
     dropdown.innerHTML = '';
 
     if (!productsData || productsData.length === 0) {
-        btnText.innerText = "No Products Found";
+        btnText.innerText = "No Products Found in DB";
+        const hintElement = document.getElementById('productHint');
+        if (hintElement) hintElement.innerText = "Please add products inside your Supabase database table.";
         return;
     }
 
     productsData.forEach((product, idx) => {
         const item = document.createElement('div');
-        item.className = "p-2.5 hover:bg-yellow-500/20 rounded-lg cursor-pointer text-xs font-bold text-white transition flex justify-between items-center";
+        item.className = "p-2.5 hover:bg-yellow-500/20 rounded-xl cursor-pointer text-xs font-bold text-white transition flex justify-between items-center";
         item.innerText = product.name;
         item.onclick = (e) => {
             e.stopPropagation();
@@ -80,6 +85,11 @@ function renderPlanDropdown() {
     if (!btnText || !dropdown) return;
     dropdown.innerHTML = '';
 
+    if (!selectedProduct) {
+        btnText.innerText = "Select Product First";
+        return;
+    }
+
     let plans = selectedProduct.plans;
     if (typeof plans === 'string') {
         try { plans = JSON.parse(plans); } catch(e) { plans = []; }
@@ -92,7 +102,7 @@ function renderPlanDropdown() {
 
     plans.forEach((plan, idx) => {
         const item = document.createElement('div');
-        item.className = "p-2.5 hover:bg-yellow-500/20 rounded-lg cursor-pointer text-xs font-bold text-white flex justify-between items-center transition";
+        item.className = "p-2.5 hover:bg-yellow-500/20 rounded-xl cursor-pointer text-xs font-bold text-white flex justify-between items-center transition";
         item.innerHTML = `<span>${plan.name}</span><span class="text-yellow-400">₹${plan.price}</span>`;
         item.onclick = (e) => {
             e.stopPropagation();
@@ -105,12 +115,14 @@ function renderPlanDropdown() {
 }
 
 function selectPlan(index) {
+    if (!selectedProduct) return;
+
     let plans = selectedProduct.plans;
     if (typeof plans === 'string') {
         try { plans = JSON.parse(plans); } catch(e) { plans = []; }
     }
 
-    if (!plans[index]) return;
+    if (!plans || !plans[index]) return;
 
     selectedPlan = plans[index];
     const planBtnText = document.getElementById('planBtnText');
@@ -127,6 +139,8 @@ async function checkStockCount() {
     const stockElement = document.getElementById('stockCount');
     if (!stockElement || !selectedProduct || !selectedPlan) return;
 
+    stockElement.innerText = "Checking...";
+
     try {
         if (typeof db !== 'undefined' && db) {
             const { count, error } = await db.from('keys')
@@ -141,7 +155,7 @@ async function checkStockCount() {
             }
         }
     } catch (e) {
-        // Fallback
+        console.warn('Stock check error:', e);
     }
     stockElement.innerText = "Available";
 }
@@ -190,7 +204,7 @@ async function initiateAutoPayment() {
             body: JSON.stringify({
                 amount: selectedPlan.price,
                 customer_name: "VIP Customer",
-                redirect_url: window.location.href + (window.location.search ? '&' : '?') + 'verify_auto=true'
+                redirect_url: window.location.href.split('?')[0] + '?verify_auto=true'
             })
         });
 
@@ -210,7 +224,7 @@ async function initiateAutoPayment() {
                     .single();
 
                 if (keyData) {
-                    assignedKey = keyData.key_code;
+                    assignedKey = keyData.key_code || keyData.key;
                     await db.from('keys')
                         .update({ status: 'Pending_Payment', order_id: order_id })
                         .eq('id', keyData.id);
