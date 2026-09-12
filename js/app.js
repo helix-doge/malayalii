@@ -1,10 +1,4 @@
-// State variables
-let productsData = [];
-let selectedProduct = null;
-let selectedPlan = null;
-
-// Fallback sample data in case DB connection fails or is slow
-const fallbackProducts = [
+let productsData = [
     {
         id: 1,
         name: "Malayali VIP Android",
@@ -27,49 +21,27 @@ const fallbackProducts = [
     }
 ];
 
-// Run setup as soon as page loads
-document.addEventListener('DOMContentLoaded', () => {
+let selectedProduct = null;
+let selectedPlan = null;
+let timerInterval = null;
+const MERCHANT_UPI = "Malayali@upi"; // Replace with your merchant UPI ID
+
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initApp);
+} else {
     initApp();
-});
+}
 
-async function initApp() {
-    const productBtnText = document.getElementById('productBtnText');
-    
-    try {
-        // Fetch products from database with a 3-second timeout guard
-        const dbPromise = (typeof db !== 'undefined' && db) 
-            ? db.from('products').select('*') 
-            : Promise.reject('Database client not initialized');
-
-        const timeoutPromise = new Promise((_, reject) => 
-            setTimeout(() => reject(new Error('Fetch timeout')), 3000)
-        );
-
-        const response = await Promise.race([dbPromise, timeoutPromise]);
-
-        if (response && response.data && response.data.length > 0) {
-            productsData = response.data;
-        } else {
-            productsData = fallbackProducts;
-        }
-    } catch (err) {
-        console.warn('Database fetch failed or timed out. Loading fallback data:', err);
-        productsData = fallbackProducts;
-    }
-
+function initApp() {
     renderProductDropdown();
+    fetchDatabaseProducts();
 }
 
 function renderProductDropdown() {
     const btnText = document.getElementById('productBtnText');
     const dropdown = document.getElementById('productDropdown');
 
-    if (!productsData || productsData.length === 0) {
-        btnText.innerText = "No Products Available";
-        return;
-    }
-
-    btnText.innerText = "Select Product";
+    if (!btnText || !dropdown) return;
     dropdown.innerHTML = '';
 
     productsData.forEach((product, idx) => {
@@ -83,18 +55,18 @@ function renderProductDropdown() {
         dropdown.appendChild(item);
     });
 
-    // Automatically select the first product for fast UX
     selectProduct(0);
 }
 
 function selectProduct(index) {
-    selectedProduct = productsData[index];
-    document.getElementById('productBtnText').innerText = selectedProduct.name;
+    if (!productsData[index]) return;
     
+    selectedProduct = productsData[index];
+    const btnText = document.getElementById('productBtnText');
     const hintElement = document.getElementById('productHint');
-    if (hintElement && selectedProduct.hint) {
-        hintElement.innerText = selectedProduct.hint;
-    }
+
+    if (btnText) btnText.innerText = selectedProduct.name;
+    if (hintElement && selectedProduct.hint) hintElement.innerText = selectedProduct.hint;
 
     toggleDropdown('productDropdown', false);
     renderPlanDropdown();
@@ -104,17 +76,13 @@ function renderPlanDropdown() {
     const btnText = document.getElementById('planBtnText');
     const dropdown = document.getElementById('planDropdown');
     
+    if (!btnText || !dropdown) return;
     dropdown.innerHTML = '';
-    selectedPlan = null;
-    document.getElementById('totalPrice').innerText = '₹ --';
-    document.getElementById('stockCount').innerText = 'Checking...';
 
     if (!selectedProduct || !selectedProduct.plans || selectedProduct.plans.length === 0) {
         btnText.innerText = "No Plans Available";
         return;
     }
-
-    btnText.innerText = "Choose Duration";
 
     selectedProduct.plans.forEach((plan, idx) => {
         const item = document.createElement('div');
@@ -127,22 +95,40 @@ function renderPlanDropdown() {
         dropdown.appendChild(item);
     });
 
-    // Auto select first plan
     selectPlan(0);
 }
 
 function selectPlan(index) {
+    if (!selectedProduct || !selectedProduct.plans[index]) return;
+
     selectedPlan = selectedProduct.plans[index];
-    document.getElementById('planBtnText').innerText = `${selectedPlan.name} - ₹${selectedPlan.price}`;
-    document.getElementById('totalPrice').innerText = `₹ ${selectedPlan.price}`;
-    
+    const planBtnText = document.getElementById('planBtnText');
+    const totalPrice = document.getElementById('totalPrice');
+
+    if (planBtnText) planBtnText.innerText = `${selectedPlan.name} - ₹${selectedPlan.price}`;
+    if (totalPrice) totalPrice.innerText = `₹ ${selectedPlan.price}`;
+
     toggleDropdown('planDropdown', false);
     checkStockCount();
 }
 
+async function fetchDatabaseProducts() {
+    try {
+        if (typeof db !== 'undefined' && db) {
+            const { data, error } = await db.from('products').select('*');
+            if (!error && data && data.length > 0) {
+                productsData = data;
+                renderProductDropdown();
+            }
+        }
+    } catch (e) {
+        console.warn('DB live sync skipped:', e);
+    }
+}
+
 async function checkStockCount() {
     const stockElement = document.getElementById('stockCount');
-    if (!selectedProduct || !selectedPlan) return;
+    if (!stockElement || !selectedProduct || !selectedPlan) return;
 
     try {
         if (typeof db !== 'undefined' && db) {
@@ -158,19 +144,15 @@ async function checkStockCount() {
             }
         }
     } catch (e) {
-        console.warn('Stock check error:', e);
+        // Fallback silently
     }
-
-    // Default status if query fails
-    stockElement.innerText = `Available`;
+    stockElement.innerText = "Available";
 }
 
-// Global UI Helper Functions
 function toggleDropdown(id, forceState) {
     const dropdown = document.getElementById(id);
     if (!dropdown) return;
 
-    // Close other dropdowns first
     ['productDropdown', 'planDropdown'].forEach(dId => {
         if (dId !== id) {
             const other = document.getElementById(dId);
@@ -186,7 +168,6 @@ function toggleDropdown(id, forceState) {
     }
 }
 
-// Close dropdowns if user clicks outside
 document.addEventListener('click', (e) => {
     if (!e.target.closest('#productDropdown') && !e.target.closest('#planDropdown') && !e.target.closest('button')) {
         toggleDropdown('productDropdown', false);
@@ -194,10 +175,57 @@ document.addEventListener('click', (e) => {
     }
 });
 
+/* FAMPAY MODAL & PAYMENT LOGIC */
 function payNow() {
     if (!selectedProduct || !selectedPlan) {
         alert('Please select a product and plan first!');
         return;
     }
-    alert(`Redirecting to FamPay Gateway for ${selectedProduct.name} (${selectedPlan.name}) - Total: ₹${selectedPlan.price}`);
+
+    const orderId = 'ORD' + Date.now() + Math.random().toString(36).substring(2, 6).toUpperCase();
+    const amount = parseFloat(selectedPlan.price).toFixed(2);
+    
+    document.getElementById('modalOrderId').innerText = `ORDER ID: ${orderId}`;
+    document.getElementById('modalProdName').innerText = selectedProduct.name;
+    document.getElementById('modalPlanName').innerText = `${selectedPlan.name} 💛`;
+    document.getElementById('modalAmount').innerText = `₹ ${amount}`;
+    document.getElementById('modalUpiId').innerText = `UPI ID: ${MERCHANT_UPI}`;
+
+    const upiUrl = `upi://pay?pa=${MERCHANT_UPI}&pn=Malayali%20Shop&am=${amount}&cu=INR&tn=${orderId}`;
+    const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=${encodeURIComponent(upiUrl)}`;
+    
+    document.getElementById('qrCodeImg').src = qrUrl;
+    document.getElementById('payDirectBtn').href = upiUrl;
+
+    document.getElementById('paymentModal').classList.remove('hidden');
+    startCountdown(300);
+}
+
+function closePaymentModal() {
+    document.getElementById('paymentModal').classList.add('hidden');
+    if (timerInterval) clearInterval(timerInterval);
+}
+
+function startCountdown(seconds) {
+    if (timerInterval) clearInterval(timerInterval);
+    let remaining = seconds;
+
+    const timerDisplay = document.getElementById('countdownTimer');
+    
+    timerInterval = setInterval(() => {
+        const mins = String(Math.floor(remaining / 60)).padStart(2, '0');
+        const secs = String(remaining % 60).padStart(2, '0');
+        timerDisplay.innerText = `${mins} : ${secs}`;
+
+        if (--remaining < 0) {
+            clearInterval(timerInterval);
+            timerDisplay.innerText = "00 : 00";
+            alert("Payment session expired. Please generate a new order.");
+            closePaymentModal();
+        }
+    }, 1000);
+}
+
+function verifyPayment() {
+    alert("Checking transaction status on FamPay Gateway... No pending UTR match found yet.");
 }
