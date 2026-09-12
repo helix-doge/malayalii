@@ -9,40 +9,32 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="css/style.css">
 </head>
-<body class="min-h-screen pb-12 selection:bg-yellow-500 selection:text-black">
+<body class="min-h-screen pb-12 selection:bg-yellow-500 selection:text-black flex flex-col justify-between">
 
-    <!-- Header -->
-    <header class="flex items-center justify-between p-4 max-w-lg mx-auto w-full">
-        <div class="flex items-center space-x-2 border border-yellow-500/40 rounded-full px-3 py-1.5 bg-black/50">
-            <img src="images/logo/logo.png" alt="Logo" class="w-6 h-6 rounded-full" onerror="this.src='https://via.placeholder.com/24/ffcc00/000000?text=M'">
-            <div class="flex flex-col">
-                <span class="text-[9px] text-yellow-500 font-bold leading-none">VIP SHOP</span>
-                <span class="text-xs font-black text-yellow-400">MALAYALI HERE</span>
-            </div>
-        </div>
-        <div class="flex items-center space-x-2">
-            <button onclick="switchView('ai')" class="flex items-center space-x-1.5 border border-yellow-500/40 rounded-full px-3 py-1 bg-black/50">
-                <div class="w-5 h-5 rounded-full bg-slate-600 relative overflow-hidden">
-                    <img src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=50&q=80" class="w-full h-full object-cover">
-                    <div class="absolute bottom-0 right-0 w-1.5 h-1.5 bg-green-400 rounded-full ai-indicator"></div>
+    <div class="flex-1">
+        <!-- Header -->
+        <header class="flex items-center justify-between p-4 max-w-lg mx-auto w-full relative z-50">
+            <div class="flex items-center space-x-2 border border-yellow-500/40 rounded-full px-3 py-1.5 bg-black/50">
+                <img src="images/logo/logo.png" alt="Logo" class="w-6 h-6 rounded-full" onerror="this.src='https://via.placeholder.com/24/ffcc00/000000?text=M'">
+                <div class="flex flex-col">
+                    <span class="text-[9px] text-yellow-500 font-bold leading-none">VIP SHOP</span>
+                    <span class="text-xs font-black text-yellow-400">MALAYALI HERE</span>
                 </div>
-                <span class="text-[10px] font-black text-yellow-400">LUNA AI</span>
-            </button>
-            <button onclick="document.getElementById('navMenu').classList.toggle('hidden')" class="w-9 h-9 rounded-full border border-yellow-500/40 bg-black/50 text-yellow-400 flex items-center justify-center">
-                <i class="fa-solid fa-bars"></i>
-            </button>
+            </div>
+            <div class="flex items-center space-x-2">
+                <button onclick="document.getElementById('navMenu').classList.toggle('hidden')" class="w-9 h-9 rounded-full border border-yellow-500/40 bg-black/50 text-yellow-400 flex items-center justify-center">
+                    <i class="fa-solid fa-bars"></i>
+                </button>
+            </div>
+        </header>
+
+        <!-- Dropdown Menu -->
+        <div id="navMenu" class="hidden absolute top-16 right-4 glass-card p-3 w-48 z-50">
+            <a href="index.html" class="block w-full text-left px-4 py-2 text-sm text-yellow-400 font-bold hover:bg-yellow-500/20 rounded-lg">Home</a>
+            <a href="admin.html" class="block w-full text-left px-4 py-2 text-sm text-yellow-400 font-bold hover:bg-yellow-500/20 rounded-lg mt-1">Admin Login</a>
         </div>
-    </header>
 
-    <!-- Dropdown Menu -->
-    <div id="navMenu" class="hidden absolute top-16 right-4 glass-card p-3 w-48 z-50">
-        <button onclick="switchView('home'); document.getElementById('navMenu').classList.add('hidden')" class="block w-full text-left px-4 py-2 text-sm text-yellow-400 font-bold hover:bg-yellow-500/20 rounded-lg">Home</button>
-        <a href="admin-login.html" class="block w-full text-left px-4 py-2 text-sm text-yellow-400 font-bold hover:bg-yellow-500/20 rounded-lg mt-1">Admin Login</a>
-    </div>
-
-    <main class="max-w-lg mx-auto px-4 relative z-20">
-        <!-- HOME VIEW -->
-        <div id="view-home" class="space-y-6">
+        <main class="max-w-lg mx-auto px-4 relative z-20 space-y-6">
             
             <!-- Hero -->
             <div class="text-center pt-4 pb-2 space-y-4">
@@ -51,17 +43,17 @@
                 </div>
                 <div>
                     <span class="text-[10px] font-black text-yellow-500 tracking-widest">⚡ MALAYALI HERE ⚡</span>
-                    <h1 class="text-2xl font-black text-yellow-400 mt-1 uppercase leading-tight">VIP Hacks Delivered<br>Instantly</h1>
+                    <h1 class="text-2xl font-black text-yellow-400 mt-1 uppercase leading-tight drop-shadow-md">VIP Hacks Delivered<br>Instantly</h1>
                 </div>
             </div>
 
             <!-- Setup Banner -->
-            <a href="https://t.me/MALAYALI7" target="_blank" class="block bg-[#e5a00d] rounded-xl p-4 text-black flex items-center justify-between font-bold shadow-lg hover:opacity-90">
+            <a href="https://t.me/MALAYALI7" target="_blank" class="block bg-gradient-to-r from-[#cc8400] to-[#e5a00d] rounded-xl p-4 text-black flex items-center justify-between font-bold shadow-lg hover:opacity-90">
                 <div class="flex items-center space-x-3">
                     <span class="text-xl">🚀</span>
                     <div>
-                        <div class="text-sm font-black">Tap to Go Setup Channel</div>
-                        <div class="text-[10px] font-semibold opacity-80">Download Loader · Files · Setup Guide</div>
+                        <div class="text-sm font-black text-black">Tap to Go Setup Channel</div>
+                        <div class="text-[10px] font-bold text-black/80">Download Loader · Files · Setup Guide</div>
                     </div>
                 </div>
                 <i class="fa-solid fa-arrow-right"></i>
@@ -69,24 +61,23 @@
 
             <!-- Purchase Card -->
             <div class="glass-card p-5 relative">
-                <div class="w-12 h-1 bg-yellow-500 mx-auto rounded-full mb-4"></div>
                 <h2 class="text-center text-lg font-black text-yellow-400 mb-6">Purchase Your Key</h2>
 
                 <div class="space-y-4">
                     <div>
                         <label class="block text-[10px] font-bold text-yellow-500 mb-1.5 uppercase tracking-wide">Select Product / Brand</label>
                         <button onclick="toggleDropdown('productDropdown')" class="w-full bg-[#0a0a0a] border border-yellow-500/30 rounded-xl px-4 py-3 flex justify-between items-center text-sm font-bold">
-                            <span id="productBtnText">Loading...</span>
+                            <span id="productBtnText" class="text-white">Loading Products...</span>
                             <i class="fa-solid fa-chevron-down text-yellow-500"></i>
                         </button>
                         <div id="productDropdown" class="hidden absolute left-4 right-4 mt-1 custom-dropdown-menu p-2 space-y-1"></div>
-                        <p id="productHint" class="text-[10px] text-gray-400 mt-2 ml-1"></p>
+                        <p id="productHint" class="text-[10px] text-gray-400 mt-2 ml-1">Official Malayali VIP Loader & Setup Included</p>
                     </div>
 
                     <div>
                         <label class="block text-[10px] font-bold text-yellow-500 mb-1.5 uppercase tracking-wide">Select Duration / Plan</label>
                         <button onclick="toggleDropdown('planDropdown')" class="w-full bg-[#0a0a0a] border border-yellow-500/30 rounded-xl px-4 py-3 flex justify-between items-center text-sm font-bold">
-                            <span id="planBtnText">Choose App First</span>
+                            <span id="planBtnText" class="text-white">Choose Duration</span>
                             <i class="fa-solid fa-chevron-down text-yellow-500"></i>
                         </button>
                         <div id="planDropdown" class="hidden absolute left-4 right-4 mt-1 custom-dropdown-menu p-2 space-y-1"></div>
@@ -102,290 +93,25 @@
                         </div>
                         <div class="bg-[#0a0a0a] border border-yellow-500/30 rounded-xl p-3">
                             <div class="text-[9px] text-yellow-500 font-bold uppercase">Total</div>
-                            <div id="totalPrice" class="text-sm font-black text-yellow-400">₹ 0</div>
-                        </div>
-                    </div>
-
-                    <button onclick="payNow()" class="w-full btn-gold py-3.5 rounded-xl flex items-center justify-center space-x-2 text-xs uppercase mt-2">
-                        <i class="fa-solid fa-shield-halved"></i>
-                        <span>Pay Via Fampay Gateway</span>
-                    </button>
-                    <div class="text-center text-[9px] text-gray-500 mt-2">Powered by FamPay Gateway</div>
-                </div>
-            </div>
-
-            <!-- Features -->
-            <div class="grid grid-cols-3 gap-2">
-                <div class="glass-card py-3 flex flex-col items-center justify-center text-yellow-500 text-[10px] font-black uppercase">
-                    <i class="fa-solid fa-bolt mb-1"></i> Instant
-                </div>
-                <div class="glass-card py-3 flex flex-col items-center justify-center text-yellow-500 text-[10px] font-black uppercase">
-                    <i class="fa-solid fa-shield-halved mb-1"></i> Fampay UPI
-                </div>
-                <div class="glass-card py-3 flex flex-col items-center justify-center text-emerald-400 text-[10px] font-black uppercase">
-                    <i class="fa-solid fa-circle-check mb-1"></i> Verified
-                </div>
-            </div>
-
-            <!-- Telegram Cards -->
-            <div class="glass-card p-5 space-y-4">
-                <div class="flex items-center justify-center space-x-2 text-yellow-400 font-black">
-                    <i class="fa-brands fa-telegram"></i>
-                    <span>Official Telegram Channels</span>
-                </div>
-                <p class="text-[10px] text-center text-gray-400">Get APK files, setup guides, latest updates, announcements and support.</p>
-                <div class="grid grid-cols-2 gap-3">
-                    <div class="bg-[#0a0a0a] border border-yellow-500/30 rounded-xl p-3 flex flex-col justify-between h-full space-y-3">
-                        <div class="flex items-center space-x-2">
-                            <span class="text-xl">👑</span>
-                            <div class="leading-tight">
-                                <div class="text-[10px] font-black text-yellow-400">MALAYALI</div>
-                                <div class="text-[8px] text-gray-500">(@MALAYALI7)</div>
-                            </div>
-                        </div>
-                        <ul class="text-[9px] text-gray-400 space-y-1 flex-1">
-                            <li>• Direct Support</li>
-                            <li>• Payment Issues</li>
-                        </ul>
-                        <a href="https://t.me/MALAYALI7" target="_blank" class="w-full btn-gold py-2 rounded-lg text-[10px] text-center flex items-center justify-center space-x-1">
-                            <i class="fa-brands fa-telegram"></i> <span>Contact</span>
-                        </a>
-                    </div>
-                    <div class="bg-[#0a0a0a] border border-yellow-500/30 rounded-xl p-3 flex flex-col justify-between h-full space-y-3">
-                        <div class="flex items-center space-x-2">
-                            <span class="text-xl">📢</span>
-                            <div class="leading-tight">
-                                <div class="text-[10px] font-black text-yellow-400">Main Channel</div>
-                                <div class="text-[8px] text-gray-500">(@MALAYALI7)</div>
-                            </div>
-                        </div>
-                        <ul class="text-[9px] text-gray-400 space-y-1 flex-1">
-                            <li>• Latest Updates</li>
-                            <li>• Community</li>
-                        </ul>
-                        <a href="https://t.me/MALAYALI7" target="_blank" class="w-full btn-gold py-2 rounded-lg text-[10px] text-center flex items-center justify-center space-x-1">
-                            <i class="fa-brands fa-telegram"></i> <span>Join</span>
-                        </a>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Luna Teaser Card -->
-            <div class="glass-card p-5 flex items-center justify-between">
-                <div class="space-y-2">
-                    <span class="text-[9px] font-black bg-yellow-500/20 text-yellow-400 px-2 py-1 rounded border border-yellow-500/30">✨ LUNA AI</span>
-                    <h3 class="text-sm font-black text-yellow-400">Your AI Gaming Assistant</h3>
-                    <p class="text-[10px] text-gray-400 w-4/5">Get the best loader, plans, setup help & more. 24/7 💛</p>
-                    <button onclick="switchView('ai')" class="btn-gold px-4 py-2 rounded-lg text-[10px] flex items-center space-x-1 uppercase mt-2">
-                        <i class="fa-solid fa-microphone"></i> <span>Talk to Luna AI</span>
-                    </button>
-                </div>
-                <img src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&q=80" class="w-20 h-24 object-cover rounded-xl border border-yellow-500/40">
-            </div>
-        </div>
-
-        <!-- LUNA AI VIEW -->
-        <div id="view-ai" class="hidden space-y-4 pt-4">
-            <button onclick="switchView('home')" class="text-xs text-yellow-500 font-bold mb-2"><i class="fa-solid fa-arrow-left"></i> Back to Store</button>
-            <div class="glass-card p-4 flex flex-col h-[600px]">
-                <div class="flex items-center space-x-3 border-b border-yellow-500/20 pb-3 mb-3">
-                    <img src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=50&q=80" class="w-10 h-10 rounded-full border border-yellow-500">
-                    <div>
-                        <h3 class="text-sm font-black text-yellow-400">Luna Assistant</h3>
-                        <p class="text-[10px] text-emerald-400 font-bold">● Online 24/7</p>
-                    </div>
-                </div>
-                
-                <div id="chatBox" class="flex-1 overflow-y-auto space-y-4 p-2 text-xs">
-                    <div class="flex gap-2">
-                        <img src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=50&q=80" class="w-6 h-6 rounded-full">
-                        <div class="bg-[#1a1a1a] p-3 rounded-2xl rounded-tl-none border border-yellow-500/20 text-gray-200">
-                            Hi! I'm Luna. Are you looking for loader setup help, or do you want to know about our VIP keys?
-                        </div>
-                    </div>
-                </div>
-
-                <div class="mt-3 relative">
-                    <input type="text" id="aiInput" onkeydown="if(event.key==='Enter') sendAI()" placeholder="Ask me anything..." class="w-full bg-[#1a1a1a] border border-yellow-500/40 rounded-xl pl-4 pr-12 py-3 text-sm text-white focus:outline-none focus:border-yellow-400">
-                    <button onclick="sendAI()" class="absolute right-2 top-2 w-8 h-8 rounded-lg btn-gold flex items-center justify-center">
-                        <i class="fa-solid fa-paper-plane text-xs"></i>
-                    </button>
-                </div>
-            </div>
-        </div>
-    </main>
-
-    <script src="js/config.js"></script>
-    <script src="js/app.js"></script>
-</body>
-</html><!DOCTYPE html>
-<html lang="en" class="dark">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MALAYALI HERE • VIP HACKS SHOP</title>
-    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link rel="stylesheet" href="css/style.css">
-</head>
-<body class="min-h-screen font-sans selection:bg-yellow-400 selection:text-black">
-
-    <div class="fixed inset-0 overflow-hidden pointer-events-none z-0 opacity-40">
-        <div class="absolute top-10 left-6 text-yellow-400 text-xs sparkle">✨</div>
-        <div class="absolute top-20 right-10 text-yellow-500 text-sm sparkle" style="animation-delay: 1s;">⭐</div>
-        <div class="absolute top-40 left-1/4 text-yellow-300 text-xs sparkle" style="animation-delay: 2s;">⚡</div>
-    </div>
-
-    <header class="relative z-30 flex items-center justify-between px-4 py-3 max-w-lg mx-auto w-full">
-        <div class="flex items-center space-x-2 bg-[#121217]/90 backdrop-blur px-3 py-1.5 rounded-full border border-yellow-500/40 shadow-md">
-            <img src="https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=100&auto=format&fit=crop&q=80" alt="Logo" class="w-6 h-6 rounded-full object-cover border border-yellow-400">
-            <div class="flex flex-col">
-                <span class="text-[9px] uppercase tracking-wider text-yellow-400 font-bold leading-none">VIP SHOP</span>
-                <span id="brandTitleNav" class="text-xs font-black tracking-wider text-yellow-300">MALAYALI HERE</span>
-            </div>
-        </div>
-
-        <div class="flex items-center space-x-2">
-            <button onclick="switchView('ai')" class="flex items-center space-x-1.5 bg-[#121217]/90 backdrop-blur px-3 py-1 rounded-full border border-yellow-500/40 shadow-md hover:border-yellow-400 transition">
-                <div class="relative">
-                    <img src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100&auto=format&fit=crop&q=80" alt="AI Assistant" class="w-6 h-6 rounded-full object-cover border border-yellow-400">
-                    <span class="absolute -bottom-0.5 -right-0.5 w-2 h-2 bg-emerald-400 rounded-full border border-black"></span>
-                </div>
-                <span class="text-[11px] font-black tracking-tight text-yellow-400">LUNA AI</span>
-            </button>
-            <button onclick="toggleMenu()" class="w-9 h-9 rounded-full bg-[#121217]/90 backdrop-blur flex items-center justify-center border border-yellow-500/40 shadow-md hover:bg-yellow-500/20 text-yellow-400 transition">
-                <i class="fa-solid fa-bars text-sm"></i>
-            </button>
-        </div>
-    </header>
-
-    <div id="navModal" class="fixed inset-0 z-50 bg-black/80 backdrop-blur-md hidden flex items-start justify-end p-3 transition-opacity">
-        <div class="glass-card w-64 rounded-3xl p-4 shadow-2xl mt-12">
-            <div class="flex items-center justify-between pb-3 border-b border-yellow-500/20 mb-3">
-                <span class="text-xs font-black tracking-widest uppercase text-yellow-400">Navigation</span>
-                <button onclick="toggleMenu()" class="w-7 h-7 rounded-full bg-slate-900 flex items-center justify-center text-slate-400 hover:text-red-400">
-                    <i class="fa-solid fa-xmark"></i>
-                </button>
-            </div>
-            <nav class="space-y-1.5">
-                <button onclick="switchView('home'); toggleMenu();" class="w-full flex items-center space-x-3 px-3.5 py-2.5 rounded-2xl bg-yellow-500/10 text-yellow-400 font-bold text-sm transition">
-                    <i class="fa-solid fa-house w-4"></i>
-                    <span>Home</span>
-                </button>
-                <button onclick="switchView('contact'); toggleMenu();" class="w-full flex items-center space-x-3 px-3.5 py-2.5 rounded-2xl hover:bg-yellow-500/10 text-slate-300 font-bold text-sm transition">
-                    <i class="fa-regular fa-comment-dots w-4"></i>
-                    <span>Contact</span>
-                </button>
-                <a href="admin-login.html" class="w-full flex items-center space-x-3 px-3.5 py-2.5 rounded-2xl hover:bg-yellow-500/10 text-slate-300 font-bold text-sm transition">
-                    <i class="fa-solid fa-shield-halved w-4"></i>
-                    <span>Admin Login</span>
-                </a>
-            </nav>
-        </div>
-    </div>
-
-    <main class="max-w-lg mx-auto px-4 pb-12 relative z-20">
-        <div id="view-home" class="space-y-5">
-            <div class="text-center pt-2 pb-1 space-y-3">
-                <div class="relative w-40 h-40 mx-auto logo-glow">
-                    <div class="absolute inset-0 rounded-full bg-gradient-to-tr from-yellow-500 via-amber-400 to-yellow-600 animate-pulse opacity-85 blur-lg"></div>
-                    <div class="relative w-full h-full rounded-full border-4 border-yellow-400 overflow-hidden bg-black shadow-2xl flex items-center justify-center p-1.5">
-                        <img src="https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=400&auto=format&fit=crop&q=80" alt="Malayali Here Logo" class="w-full h-full object-cover rounded-full">
-                        <div class="absolute bottom-2.5 bg-black/90 px-2.5 py-0.5 rounded-full border border-yellow-400 text-[10px] font-black text-yellow-400 shadow">@MALAYALI7</div>
-                    </div>
-                </div>
-                <div>
-                    <span class="text-[11px] font-black tracking-widest text-yellow-400 uppercase">⚡ MALAYALI HERE ⚡</span>
-                    <h1 class="text-2xl sm:text-3xl font-black tracking-tight mt-1 bg-gradient-to-r from-yellow-300 via-amber-400 to-yellow-500 bg-clip-text text-transparent">VIP HACKS DELIVERED INSTANTLY</h1>
-                </div>
-            </div>
-
-            <a href="https://t.me/MALAYALI7" target="_blank" class="flex items-center justify-between px-4 py-3 rounded-2xl bg-gradient-to-r from-yellow-500 via-amber-500 to-yellow-600 text-black font-extrabold shadow-lg">
-                <div class="flex items-center space-x-3">
-                    <span class="text-lg">🚀</span>
-                    <div class="flex flex-col text-left">
-                        <span id="setupBannerText" class="text-xs font-black leading-tight">Tap to Go Setup Channel</span>
-                        <span class="text-[10px] text-black/80 font-bold">Download Loader · Files · Setup Guide</span>
-                    </div>
-                </div>
-                <i class="fa-solid fa-arrow-right text-xs"></i>
-            </a>
-
-            <div class="glass-card rounded-[28px] p-5 sm:p-6 relative">
-                <div class="w-16 h-1.5 bg-gradient-to-r from-yellow-400 to-amber-500 rounded-full mx-auto mb-5 shadow-lg"></div>
-                <h2 class="text-lg font-black text-center mb-5 tracking-tight text-yellow-300">Purchase Your Key</h2>
-
-                <div class="space-y-4">
-                    <div>
-                        <label class="block text-xs font-black uppercase tracking-wider text-yellow-400/80 mb-1.5">Select Product / Brand</label>
-                        <div class="relative">
-                            <button onclick="toggleDropdown('productDropdown')" id="selectedProductBtn" class="w-full flex items-center justify-between bg-black/80 border border-yellow-500/40 rounded-2xl px-4 py-3.5 text-sm font-bold text-left">
-                                <span id="productBtnText">Loading Products...</span>
-                                <i class="fa-solid fa-chevron-down text-xs text-yellow-400"></i>
-                            </button>
-                            <div id="productDropdown" class="absolute top-full left-0 right-0 mt-2 custom-dropdown-menu p-2 z-40 hidden space-y-1"></div>
-                        </div>
-                        <p id="productSubHint" class="text-[11px] text-slate-400 mt-1.5 ml-1">Official Malayali VIP Loader & Setup Included</p>
-                    </div>
-
-                    <div>
-                        <label class="block text-xs font-black uppercase tracking-wider text-yellow-400/80 mb-1.5">Select Duration / Plan</label>
-                        <div class="relative">
-                            <button onclick="toggleDropdown('planDropdown')" id="selectedPlanBtn" class="w-full flex items-center justify-between bg-black/80 border border-yellow-500/40 rounded-2xl px-4 py-3.5 text-sm font-bold text-left">
-                                <span id="planBtnText">Choose Duration</span>
-                                <i class="fa-solid fa-chevron-down text-xs text-yellow-400"></i>
-                            </button>
-                            <div id="planDropdown" class="absolute top-full left-0 right-0 mt-2 custom-dropdown-menu p-2 z-40 hidden space-y-1"></div>
-                        </div>
-                    </div>
-
-                    <div class="grid grid-cols-2 gap-3 pt-1">
-                        <div class="bg-black/60 border border-yellow-500/30 rounded-2xl p-3 flex items-center space-x-2.5">
-                            <span class="text-base">📦</span>
-                            <div>
-                                <div class="text-[9px] uppercase tracking-wider text-yellow-400/80 font-bold">Available Keys</div>
-                                <div id="stockCount" class="text-xs font-black text-emerald-400">0 Keys Ready</div>
-                            </div>
-                        </div>
-                        <div class="bg-black/60 border border-yellow-500/30 rounded-2xl p-3 flex flex-col justify-center">
-                            <div class="text-[9px] uppercase tracking-wider text-yellow-400/80 font-bold">Total</div>
                             <div id="totalPrice" class="text-sm font-black text-yellow-400">₹ --</div>
                         </div>
                     </div>
 
-                    <button onclick="startSecureCheckout()" class="w-full btn-gold-gradient py-4 rounded-2xl flex items-center justify-center space-x-2 uppercase text-xs mt-2">
-                        <i class="fa-solid fa-shield-halved"></i>
-                        <span>Pay Securely</span>
-                    </button>
+                    <div class="pt-2">
+                        <button onclick="payNow()" class="w-full flex items-center justify-center space-x-2 text-[11px] font-bold text-gray-300 hover:text-white uppercase tracking-wider py-2">
+                            <i class="fa-solid fa-shield-halved"></i>
+                            <span>Pay Securely</span>
+                        </button>
+                    </div>
                 </div>
             </div>
-        </div>
+        </main>
+    </div>
 
-        <div id="view-contact" class="space-y-5 hidden">
-            <div class="glass-card rounded-[28px] p-6 space-y-4">
-                <h2 class="text-base font-black text-yellow-300">Contact Us</h2>
-                <form onsubmit="submitContact(event)" class="space-y-4">
-                    <input type="text" placeholder="Your Name" required class="w-full bg-black/80 border border-yellow-500/40 rounded-2xl px-4 py-3 text-sm">
-                    <textarea rows="4" placeholder="How can we help?" required class="w-full bg-black/80 border border-yellow-500/40 rounded-2xl px-4 py-3 text-sm resize-none"></textarea>
-                    <button type="submit" class="w-full btn-gold-gradient py-4 rounded-2xl uppercase text-xs">Send Message</button>
-                </form>
-            </div>
-        </div>
-
-        <div id="view-ai" class="space-y-4 hidden">
-            <div class="glass-card rounded-[28px] p-5 flex flex-col h-[520px]">
-                <div id="chatMessages" class="flex-1 overflow-y-auto py-4 space-y-3 text-xs"></div>
-                <div class="pt-3 border-t border-yellow-500/30 flex items-center space-x-2">
-                    <input type="text" id="chatInput" placeholder="Ask Luna..." onkeydown="if(event.key==='Enter') sendChatMessage()" class="flex-1 bg-black border border-yellow-500/40 rounded-2xl px-4 py-3 text-xs">
-                    <button onclick="sendChatMessage()" class="w-11 h-11 btn-gold-gradient rounded-2xl flex items-center justify-center"><i class="fa-solid fa-paper-plane text-xs"></i></button>
-                </div>
-            </div>
-        </div>
-    </main>
-
-    <footer class="max-w-lg mx-auto px-4 py-8 text-center text-[10px] text-yellow-500/80 font-bold uppercase tracking-widest">
-        <span id="footerBrand">© 2026 MALAYALI HERE</span> · Instant Digital Key Delivery (@MALAYALI7)
+    <footer class="w-full max-w-lg mx-auto px-4 mt-12 mb-4">
+        <p class="text-[9px] font-bold text-yellow-600 text-center uppercase tracking-widest">
+            © 2026 MALAYALI HERE · INSTANT DIGITAL KEY DELIVERY (@MALAYALI7)
+        </p>
     </footer>
 
     <script src="js/config.js"></script>
