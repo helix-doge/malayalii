@@ -11,6 +11,203 @@
 </head>
 <body class="min-h-screen p-4 md:p-8">
 
+    <div class="max-w-4xl mx-auto space-y-6">
+        
+        <!-- Header -->
+        <div class="glass-card p-5 flex items-center justify-between mb-6">
+            <div class="flex items-center space-x-3">
+                <div class="text-3xl">👑</div>
+                <div>
+                    <h1 class="text-xl font-black text-yellow-400">Admin Control Panel</h1>
+                    <span class="text-xs text-emerald-400 font-bold">● Active Session</span>
+                </div>
+            </div>
+            <button onclick="logoutAdmin()" class="px-5 py-2 bg-red-500/10 text-red-400 border border-red-500/30 rounded-xl text-sm font-bold hover:bg-red-500/20 transition">Logout</button>
+        </div>
+
+        <!-- VIEW 1: MAIN MENU GRID -->
+        <div id="admin-menu-view" class="space-y-6">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                
+                <div onclick="mockAction('FamPay Setup')" class="glass-card p-4 flex items-center space-x-4 cursor-pointer hover:bg-yellow-500/5 transition">
+                    <div class="text-2xl text-yellow-500 w-8 text-center"><i class="fa-solid fa-credit-card"></i></div>
+                    <div>
+                        <h2 class="text-sm font-black text-yellow-400">FamPay Gateway Setup (API Key)</h2>
+                        <p class="text-[10px] text-gray-400 font-mono mt-0.5">FAM_A5698AB66B3DAA...</p>
+                    </div>
+                </div>
+
+                <div onclick="mockAction('Admin Management')" class="glass-card p-4 flex items-center space-x-4 cursor-pointer hover:bg-yellow-500/5 transition">
+                    <div class="text-2xl text-blue-500 w-8 text-center"><i class="fa-solid fa-user-group"></i></div>
+                    <div>
+                        <h2 class="text-sm font-black text-yellow-400">Admin Management</h2>
+                        <p class="text-[10px] text-gray-400 mt-0.5">Roles & permissions</p>
+                    </div>
+                </div>
+
+                <div onclick="mockAction('Check Income')" class="glass-card p-4 flex items-center space-x-4 cursor-pointer hover:bg-yellow-500/5 transition">
+                    <div class="text-2xl text-emerald-500 w-8 text-center"><i class="fa-solid fa-chart-column"></i></div>
+                    <div>
+                        <h2 class="text-sm font-black text-yellow-400">Check Income</h2>
+                        <p class="text-[10px] text-gray-400 mt-0.5">Revenue & sales stats</p>
+                    </div>
+                </div>
+
+                <div onclick="mockAction('Update Prices')" class="glass-card p-4 flex items-center space-x-4 cursor-pointer hover:bg-yellow-500/5 transition">
+                    <div class="text-2xl text-green-500 w-8 text-center"><i class="fa-solid fa-dollar-sign"></i></div>
+                    <div>
+                        <h2 class="text-sm font-black text-yellow-400">Update Prices & Durations</h2>
+                        <p class="text-[10px] text-gray-400 mt-0.5">Enable/disable 5h, 1d, 7d and set prices</p>
+                    </div>
+                </div>
+
+                <div onclick="mockAction('Brand Maintenance')" class="glass-card p-4 flex items-center space-x-4 cursor-pointer hover:bg-yellow-500/5 transition">
+                    <div class="text-2xl text-gray-400 w-8 text-center"><i class="fa-solid fa-screwdriver-wrench"></i></div>
+                    <div>
+                        <h2 class="text-sm font-black text-yellow-400">Brand Maintenance</h2>
+                        <p class="text-[10px] text-gray-400 mt-0.5">Customize name, brand, logo, UPI ID</p>
+                    </div>
+                </div>
+
+                <div onclick="mockAction('Tutorial Management')" class="glass-card p-4 flex items-center space-x-4 cursor-pointer hover:bg-yellow-500/5 transition">
+                    <div class="text-2xl text-red-400 w-8 text-center"><i class="fa-solid fa-book"></i></div>
+                    <div>
+                        <h2 class="text-sm font-black text-yellow-400">Tutorial Management</h2>
+                        <p class="text-[10px] text-gray-400 mt-0.5">Setup guides & loader links</p>
+                    </div>
+                </div>
+
+                <!-- THE ACTIVE BUTTON FOR KEYS -->
+                <div onclick="switchAdminView('keys')" class="glass-card p-4 flex items-center space-x-4 cursor-pointer hover:scale-[1.02] hover:border-yellow-400 transition transform">
+                    <div class="text-2xl text-yellow-500 w-8 text-center"><i class="fa-solid fa-key"></i></div>
+                    <div>
+                        <h2 class="text-sm font-black text-yellow-400">Keys Stock & Manual Entry</h2>
+                        <p class="text-[10px] text-gray-400 mt-0.5">Add manual keys with custom durations</p>
+                    </div>
+                </div>
+
+                <div onclick="mockAction('Redeem Codes')" class="glass-card p-4 flex items-center space-x-4 cursor-pointer hover:bg-yellow-500/5 transition">
+                    <div class="text-2xl text-orange-500 w-8 text-center"><i class="fa-solid fa-gift"></i></div>
+                    <div>
+                        <h2 class="text-sm font-black text-yellow-400">Redeem Codes</h2>
+                        <p class="text-[10px] text-gray-400 mt-0.5">Manage promotional discount codes</p>
+                    </div>
+                </div>
+
+                <div onclick="mockAction('Support Settings')" class="glass-card p-4 flex items-center space-x-4 cursor-pointer hover:bg-yellow-500/5 transition">
+                    <div class="text-2xl text-red-500 w-8 text-center"><i class="fa-solid fa-life-ring"></i></div>
+                    <div>
+                        <h2 class="text-sm font-black text-yellow-400">Support Settings</h2>
+                        <p class="text-[10px] text-gray-400 mt-0.5">Owner Telegram & chat links</p>
+                    </div>
+                </div>
+
+                <div onclick="mockAction('Paid Channel Settings')" class="glass-card p-4 flex items-center space-x-4 cursor-pointer hover:bg-yellow-500/5 transition">
+                    <div class="text-2xl text-gray-500 w-8 text-center"><i class="fa-solid fa-link"></i></div>
+                    <div>
+                        <h2 class="text-sm font-black text-yellow-400">Paid Channel Settings</h2>
+                        <p class="text-[10px] text-gray-400 mt-0.5">VIP channel access URLs</p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="text-center mt-8">
+                <a href="index.html" class="text-yellow-500 font-bold hover:underline text-sm">← Back to shop</a>
+            </div>
+        </div>
+
+
+        <!-- VIEW 2: KEYS MANAGER -->
+        <div id="admin-keys-view" class="hidden space-y-6">
+            <button onclick="switchAdminView('menu')" class="text-yellow-500 font-bold hover:underline text-sm mb-2"><i class="fa-solid fa-arrow-left"></i> Back to Main Menu</button>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <!-- ADD APP (PRODUCT) -->
+                <div class="glass-card p-6 space-y-4">
+                    <h2 class="text-sm font-black text-yellow-400 uppercase tracking-wide border-b border-yellow-500/20 pb-2">+ Add New App (Product)</h2>
+                    
+                    <input type="text" id="appName" placeholder="App Name (e.g., Malayali VIP iOS)" class="w-full bg-[#111] border border-yellow-500/40 rounded-xl p-3 text-sm focus:outline-none focus:border-yellow-400 text-white">
+                    <input type="text" id="appHint" placeholder="Subtitle (e.g., iOS Hack Update Link in Setup)" class="w-full bg-[#111] border border-yellow-500/40 rounded-xl p-3 text-sm focus:outline-none focus:border-yellow-400 text-white">
+                    
+                    <div class="bg-[#1a1a1a] p-4 rounded-xl border border-yellow-500/20 space-y-3">
+                        <div class="flex justify-between items-center">
+                            <label class="text-xs font-bold text-yellow-500 uppercase">Pricing Plans</label>
+                            <button onclick="addPlanRow()" class="text-xs text-yellow-400 font-bold hover:underline">+ Add Plan</button>
+                        </div>
+                        <div id="plansContainer" class="space-y-2">
+                            <!-- Dynamic plan rows injected here -->
+                        </div>
+                    </div>
+
+                    <button onclick="saveApp()" class="w-full btn-gold py-3 rounded-xl text-xs font-black uppercase">Save Application</button>
+                </div>
+
+                <!-- ADD KEYS -->
+                <div class="glass-card p-6 space-y-4">
+                    <h2 class="text-sm font-black text-yellow-400 uppercase tracking-wide border-b border-yellow-500/20 pb-2">+ Add Keys for App</h2>
+                    
+                    <textarea id="keyStrings" rows="4" placeholder="Enter Key Strings (One per line for bulk add)&#10;ABCD-1234&#10;EFGH-5678" class="w-full bg-[#111] border border-yellow-500/40 rounded-xl p-3 text-sm text-white focus:outline-none focus:border-yellow-400 resize-none"></textarea>
+                    
+                    <select id="keyAppSelect" onchange="updateKeyPlanDropdown()" class="w-full bg-[#111] border border-yellow-500/40 rounded-xl p-3 text-sm text-white focus:outline-none"></select>
+                    <select id="keyPlanSelect" class="w-full bg-[#111] border border-yellow-500/40 rounded-xl p-3 text-sm text-white focus:outline-none"></select>
+                    
+                    <button onclick="saveKeys()" class="w-full btn-gold py-3 rounded-xl text-xs font-black uppercase">Save Keys</button>
+                </div>
+            </div>
+
+            <!-- KEY INVENTORY -->
+            <div class="glass-card p-6 space-y-4">
+                <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center border-b border-yellow-500/20 pb-3 gap-3">
+                    <h2 class="text-sm font-black text-yellow-400 uppercase tracking-wide">Keys Inventory Management</h2>
+                    
+                    <div class="flex space-x-2 w-full sm:w-auto">
+                        <select id="filterApp" onchange="loadInventory()" class="bg-[#111] border border-yellow-500/40 rounded-lg px-3 py-1.5 text-xs text-white">
+                            <option value="All">All Apps</option>
+                        </select>
+                        <select id="filterStatus" onchange="loadInventory()" class="bg-[#111] border border-yellow-500/40 rounded-lg px-3 py-1.5 text-xs text-white">
+                            <option value="All">All Status</option>
+                            <option value="Live">Live</option>
+                            <option value="Sold">Sold</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left text-xs">
+                        <thead class="text-yellow-500 uppercase bg-[#1a1a1a]">
+                            <tr>
+                                <th class="px-4 py-3 rounded-tl-lg">Key String</th>
+                                <th class="px-4 py-3">App & Plan</th>
+                                <th class="px-4 py-3">Status</th>
+                                <th class="px-4 py-3 text-right rounded-tr-lg">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="inventoryList" class="divide-y divide-yellow-500/10 text-white">
+                            <!-- Inventory rows injected here -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="js/config.js"></script>
+    <script src="js/auth.js"></script>
+    <script src="js/admin.js"></script>
+</body>
+</html><!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard • VIP SHOP</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body class="min-h-screen p-4 md:p-8">
+
     <div class="max-w-6xl mx-auto space-y-6">
         
         <!-- Header -->
