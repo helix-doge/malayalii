@@ -3,6 +3,118 @@ let keysStock = [];
 let currentProduct = null;
 let currentPlan = null;
 
+document.addEventListener('DOMContentLoaded', () => {
+    // Start fetch immediately without blocking
+    fetchStoreData();
+});
+
+async function fetchStoreData() {
+    try {
+        const { data: prodData } = await db.from('products').select('*');
+        const { data: keyData } = await db.from('keys').select('*').eq('status', 'Live');
+        
+        products = prodData || [];
+        keysStock = keyData || [];
+        
+        renderAppDropdown();
+    } catch (error) {
+        document.getElementById('productBtnText').innerText = 'Error Loading Apps';
+        console.error("Supabase Error:", error);
+    }
+}
+
+function toggleDropdown(id) {
+    const el = document.getElementById(id);
+    if(el.classList.contains('hidden')) {
+        document.querySelectorAll('.custom-dropdown-menu').forEach(d => d.classList.add('hidden'));
+        el.classList.remove('hidden');
+    } else {
+        el.classList.add('hidden');
+    }
+}
+
+function renderAppDropdown() {
+    const drop = document.getElementById('productDropdown');
+    drop.innerHTML = '';
+    
+    if (products.length === 0) {
+        document.getElementById('productBtnText').innerText = 'No Apps Available';
+        return;
+    }
+
+    products.forEach(p => {
+        drop.innerHTML += `
+            <div onclick='selectApp(${JSON.stringify(p)})' class="p-3 hover:bg-yellow-500/20 rounded-lg cursor-pointer flex justify-between items-center font-bold text-sm text-white">
+                <span>${p.name}</span>
+            </div>
+        `;
+    });
+    
+    // Automatically select the first app to save user time
+    selectApp(products[0]);
+}
+
+function selectApp(p) {
+    currentProduct = p;
+    document.getElementById('productBtnText').innerText = p.name;
+    document.getElementById('productHint').innerText = p.hint || 'Official Malayali VIP Loader & Setup Included';
+    document.getElementById('productDropdown').classList.add('hidden');
+    
+    document.getElementById('planBtnText').innerText = "Choose Duration";
+    currentPlan = null;
+    document.getElementById('totalPrice').innerText = `₹ --`;
+    
+    renderPlanDropdown(p.plans || []);
+    updateStock();
+}
+
+function renderPlanDropdown(plans) {
+    const drop = document.getElementById('planDropdown');
+    drop.innerHTML = '';
+    
+    if (plans.length === 0) {
+        drop.innerHTML = `<div class="p-3 text-xs text-gray-400">No plans configured</div>`;
+        return;
+    }
+
+    plans.forEach(plan => {
+        drop.innerHTML += `
+            <div onclick='selectPlan(${JSON.stringify(plan)})' class="p-3 hover:bg-yellow-500/20 rounded-lg cursor-pointer flex justify-between items-center font-bold text-sm text-white">
+                <span>${plan.name}</span>
+                <span class="text-yellow-400">₹${plan.price}</span>
+            </div>
+        `;
+    });
+}
+
+function selectPlan(plan) {
+    currentPlan = plan;
+    document.getElementById('planBtnText').innerText = plan.name;
+    document.getElementById('totalPrice').innerText = `₹ ${plan.price}`;
+    document.getElementById('planDropdown').classList.add('hidden');
+    updateStock();
+}
+
+function updateStock() {
+    if(!currentProduct || !currentPlan) {
+        document.getElementById('stockCount').innerText = '0 Keys Ready';
+        return;
+    }
+    const count = keysStock.filter(k => k.product_name === currentProduct.name && k.plan_name === currentPlan.name).length;
+    document.getElementById('stockCount').innerText = `${count} Keys Ready`;
+}
+
+function payNow() {
+    if (!currentPlan) return alert("Select a duration plan first!");
+    if (keysStock.filter(k => k.product_name === currentProduct.name && k.plan_name === currentPlan.name).length === 0) {
+        return alert("Out of stock for this plan!");
+    }
+    alert(`Redirecting to FamPay for ₹${currentPlan.price}...`);
+}let products = [];
+let keysStock = [];
+let currentProduct = null;
+let currentPlan = null;
+
 document.addEventListener('DOMContentLoaded', async () => {
     await fetchStoreData();
 });
