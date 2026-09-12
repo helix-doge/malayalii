@@ -1,32 +1,6 @@
-let productsData = [
-    {
-        id: 1,
-        name: "Malayali VIP Android",
-        hint: "Official Malayali VIP Loader & Setup Included",
-        plans: [
-            { name: "1 Day", price: 100 },
-            { name: "7 Days", price: 400 },
-            { name: "30 Days", price: 900 }
-        ]
-    },
-    {
-        id: 2,
-        name: "Malayali VIP iOS",
-        hint: "iOS Hack Update Link in Setup",
-        plans: [
-            { name: "1 Day", price: 150 },
-            { name: "7 Days", price: 500 },
-            { name: "30 Days", price: 1200 }
-        ]
-    }
-];
-
+let productsData = [];
 let selectedProduct = null;
 let selectedPlan = null;
-let timerInterval = null;
-let autoVerifyInterval = null;
-let currentOrderId = null;
-const MERCHANT_UPI = "Malayali@upi"; // Replace with your target UPI ID
 
 if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', initApp);
@@ -34,9 +8,44 @@ if (document.readyState === 'loading') {
     initApp();
 }
 
-function initApp() {
+async function initApp() {
+    await fetchDatabaseProducts();
+    checkAutoRedirectReturn();
+}
+
+/* FETCH LIVE PRODUCTS & PLANS FROM SUPABASE */
+async function fetchDatabaseProducts() {
+    const btnText = document.getElementById('productBtnText');
+    if (btnText) btnText.innerText = "Loading Products...";
+
+    try {
+        if (typeof db !== 'undefined' && db) {
+            const { data, error } = await db.from('products').select('*');
+            if (!error && data && data.length > 0) {
+                productsData = data;
+            }
+        }
+    } catch (e) {
+        console.warn('DB product fetch error:', e);
+    }
+
+    // Fallback default structure if database table is empty or offline
+    if (!productsData || productsData.length === 0) {
+        productsData = [
+            {
+                id: 1,
+                name: "Malayali VIP Android",
+                hint: "Official Malayali VIP Loader & Setup Included",
+                plans: [
+                    { name: "1 Day", price: 100 },
+                    { name: "7 Days", price: 400 },
+                    { name: "30 Days", price: 900 }
+                ]
+            }
+        ];
+    }
+
     renderProductDropdown();
-    fetchDatabaseProducts();
 }
 
 function renderProductDropdown() {
@@ -57,7 +66,9 @@ function renderProductDropdown() {
         dropdown.appendChild(item);
     });
 
-    selectProduct(0);
+    if (productsData.length > 0) {
+        selectProduct(0);
+    }
 }
 
 function selectProduct(index) {
@@ -68,7 +79,9 @@ function selectProduct(index) {
     const hintElement = document.getElementById('productHint');
 
     if (btnText) btnText.innerText = selectedProduct.name;
-    if (hintElement && selectedProduct.hint) hintElement.innerText = selectedProduct.hint;
+    if (hintElement) {
+        hintElement.innerText = selectedProduct.hint || "Official VIP Loader & Setup Included";
+    }
 
     toggleDropdown('productDropdown', false);
     renderPlanDropdown();
@@ -81,12 +94,17 @@ function renderPlanDropdown() {
     if (!btnText || !dropdown) return;
     dropdown.innerHTML = '';
 
-    if (!selectedProduct || !selectedProduct.plans || selectedProduct.plans.length === 0) {
+    let plans = selectedProduct.plans;
+    if (typeof plans === 'string') {
+        try { plans = JSON.parse(plans); } catch(e) { plans = []; }
+    }
+
+    if (!plans || plans.length === 0) {
         btnText.innerText = "No Plans Available";
         return;
     }
 
-    selectedProduct.plans.forEach((plan, idx) => {
+    plans.forEach((plan, idx) => {
         const item = document.createElement('div');
         item.className = "p-2.5 hover:bg-yellow-500/20 rounded-lg cursor-pointer text-xs font-bold text-white flex justify-between items-center transition";
         item.innerHTML = `<span>${plan.name}</span><span class="text-yellow-400">₹${plan.price}</span>`;
@@ -101,9 +119,14 @@ function renderPlanDropdown() {
 }
 
 function selectPlan(index) {
-    if (!selectedProduct || !selectedProduct.plans[index]) return;
+    let plans = selectedProduct.plans;
+    if (typeof plans === 'string') {
+        try { plans = JSON.parse(plans); } catch(e) { plans = []; }
+    }
 
-    selectedPlan = selectedProduct.plans[index];
+    if (!plans[index]) return;
+
+    selectedPlan = plans[index];
     const planBtnText = document.getElementById('planBtnText');
     const totalPrice = document.getElementById('totalPrice');
 
@@ -112,20 +135,6 @@ function selectPlan(index) {
 
     toggleDropdown('planDropdown', false);
     checkStockCount();
-}
-
-async function fetchDatabaseProducts() {
-    try {
-        if (typeof db !== 'undefined' && db) {
-            const { data, error } = await db.from('products').select('*');
-            if (!error && data && data.length > 0) {
-                productsData = data;
-                renderProductDropdown();
-            }
-        }
-    } catch (e) {
-        console.warn('DB live sync skipped:', e);
-    }
 }
 
 async function checkStockCount() {
@@ -177,112 +186,105 @@ document.addEventListener('click', (e) => {
     }
 });
 
-/* CHECKOUT & AUTO-VERIFICATION SYSTEM */
-function payNow() {
+/* FAMGATEWAY API AUTOMATED PAYMENT */
+async function initiateAutoPayment() {
     if (!selectedProduct || !selectedPlan) {
         alert('Please select a product and plan first!');
         return;
     }
 
-    currentOrderId = 'ORD' + Date.now() + Math.random().toString(36).substring(2, 6).toUpperCase();
-    const amount = parseFloat(selectedPlan.price).toFixed(2);
-    
-    document.getElementById('modalOrderId').innerText = `ORDER ID: ${currentOrderId}`;
-    document.getElementById('modalProdName').innerText = selectedProduct.name;
-    document.getElementById('modalPlanName').innerText = `${selectedPlan.name} 💛`;
-    document.getElementById('modalAmount').innerText = `₹ ${amount}`;
-    document.getElementById('modalUpiId').innerText = `UPI ID: ${MERCHANT_UPI}`;
+    const apiKey = "FAM_A5698AB66B3DAA71C7D62594E1D06EC124A1F48D";
 
-    const upiUrl = `upi://pay?pa=${MERCHANT_UPI}&pn=Malayali%20Shop&am=${amount}&cu=INR&tn=${currentOrderId}`;
-    const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=${encodeURIComponent(upiUrl)}`;
-    
-    document.getElementById('qrCodeImg').src = qrUrl;
-    document.getElementById('payDirectBtn').href = upiUrl;
-
-    document.getElementById('paymentModal').classList.remove('hidden');
-    
-    startCountdown(300);
-    startAutoVerification(currentOrderId);
-}
-
-function closePaymentModal() {
-    document.getElementById('paymentModal').classList.add('hidden');
-    if (timerInterval) clearInterval(timerInterval);
-    if (autoVerifyInterval) clearInterval(autoVerifyInterval);
-}
-
-function startCountdown(seconds) {
-    if (timerInterval) clearInterval(timerInterval);
-    let remaining = seconds;
-
-    const timerDisplay = document.getElementById('countdownTimer');
-    
-    timerInterval = setInterval(() => {
-        const mins = String(Math.floor(remaining / 60)).padStart(2, '0');
-        const secs = String(remaining % 60).padStart(2, '0');
-        timerDisplay.innerText = `${mins} : ${secs}`;
-
-        if (--remaining < 0) {
-            clearInterval(timerInterval);
-            if (autoVerifyInterval) clearInterval(autoVerifyInterval);
-            timerDisplay.innerText = "00 : 00";
-            alert("Payment session expired. Please generate a new order.");
-            closePaymentModal();
-        }
-    }, 1000);
-}
-
-// Polling auto-verifier
-function startAutoVerification(orderId) {
-    if (autoVerifyInterval) clearInterval(autoVerifyInterval);
-
-    autoVerifyInterval = setInterval(async () => {
-        await checkOrderAndDeliver(orderId, false);
-    }, 3000); // Check database every 3 seconds
-}
-
-async function verifyPaymentManually() {
-    if (!currentOrderId) return;
-    const verified = await checkOrderAndDeliver(currentOrderId, true);
-    if (!verified) {
-        alert("Payment verification in progress... No matching completed transaction found yet.");
-    }
-}
-
-async function checkOrderAndDeliver(orderId, isManualCheck = false) {
     try {
-        if (typeof db !== 'undefined' && db) {
-            // Check order table status
-            const { data, error } = await db.from('orders')
-                .select('*')
-                .eq('order_id', orderId)
-                .eq('status', 'SUCCESS')
-                .single();
+        const response = await fetch('https://famgateway.in/api/create-order', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-Api-Key': apiKey
+            },
+            body: JSON.stringify({
+                amount: selectedPlan.price,
+                customer_name: "VIP Customer",
+                redirect_url: window.location.href + (window.location.search ? '&' : '?') + 'verify_auto=true'
+            })
+        });
 
-            if (!error && data && data.key_code) {
-                fulfillOrder(data.key_code, orderId);
-                return true;
+        const result = await response.json();
+
+        if (result.status === "success" && result.data) {
+            const { order_id, checkout_url } = result.data;
+
+            let assignedKey = null;
+            if (typeof db !== 'undefined' && db) {
+                const { data: keyData } = await db.from('keys')
+                    .select('*')
+                    .eq('product_name', selectedProduct.name)
+                    .eq('plan_name', selectedPlan.name)
+                    .eq('status', 'Live')
+                    .limit(1)
+                    .single();
+
+                if (keyData) {
+                    assignedKey = keyData.key_code;
+                    await db.from('keys')
+                        .update({ status: 'Pending_Payment', order_id: order_id })
+                        .eq('id', keyData.id);
+                }
             }
-        }
-    } catch (err) {
-        // Log error silently during polling
-    }
 
-    return false;
+            if (!assignedKey) {
+                assignedKey = "MALAYALI-" + Math.random().toString(36).substring(2, 10).toUpperCase();
+            }
+
+            localStorage.setItem('pendingOrder', JSON.stringify({
+                orderId: order_id,
+                product: selectedProduct.name,
+                plan: selectedPlan.name,
+                key: assignedKey
+            }));
+
+            window.location.href = checkout_url;
+        } else {
+            alert('Failed to generate automated gateway session. Please check API configuration.');
+        }
+
+    } catch (err) {
+        console.error('FamGateway Error:', err);
+        alert('Network error while connecting to FamGateway API.');
+    }
 }
 
-// Deliver Key & Show Screen
-function fulfillOrder(keyCode, orderId) {
-    closePaymentModal();
+/* AUTOMATIC VERIFICATION ON RETURN */
+async function checkAutoRedirectReturn() {
+    const urlParams = new URLSearchParams(window.location.search);
+    const verifyAuto = urlParams.get('verify_auto');
 
+    if (!verifyAuto) return;
+
+    const savedOrder = JSON.parse(localStorage.getItem('pendingOrder') || '{}');
+
+    if (savedOrder && savedOrder.orderId) {
+        if (typeof db !== 'undefined' && db) {
+            await db.from('keys')
+                .update({ status: 'Sold' })
+                .eq('order_id', savedOrder.orderId);
+        }
+
+        fulfillOrder(savedOrder.key, savedOrder.product, savedOrder.plan, savedOrder.orderId);
+
+        localStorage.removeItem('pendingOrder');
+        window.history.replaceState({}, document.title, window.location.pathname);
+    }
+}
+
+function fulfillOrder(keyCode, productName, planName, orderId) {
     document.getElementById('deliveryKeyText').innerText = keyCode;
-    document.getElementById('deliveryProd').innerText = selectedProduct ? selectedProduct.name : "VIP Product";
-    document.getElementById('deliveryPlan').innerText = selectedPlan ? selectedPlan.name : "VIP Plan";
+    document.getElementById('deliveryProd').innerText = productName || (selectedProduct ? selectedProduct.name : "VIP Hack");
+    document.getElementById('deliveryPlan').innerText = planName || (selectedPlan ? selectedPlan.name : "VIP Plan");
     document.getElementById('deliveryOrder').innerText = orderId;
 
     document.getElementById('keyDeliveryModal').classList.remove('hidden');
 
-    // Auto Copy Key to Clipboard
     copyKeyToClipboard();
 }
 
@@ -302,7 +304,7 @@ function copyKeyToClipboard() {
             if (copyToast) copyToast.classList.add('hidden');
         }, 3000);
     }).catch(() => {
-        console.warn("Auto-copy blocked by browser permissions.");
+        console.warn("Auto-copy blocked.");
     });
 }
 
