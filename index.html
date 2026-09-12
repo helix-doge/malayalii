@@ -1,1063 +1,174 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" class="dark">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-    <title>MALAYALI HERE • 2 LEVEL SERVER</title>
-
-    <style>
-        :root {
-            --neon: #00ff41;
-            --danger: #ff003c;
-            --gold: #ffea00;
-            --bg: #050505;
-            --card-bg: rgba(15, 23, 42, 0.85);
-            --border-glow: rgba(0, 255, 65, 0.35);
-        }
-
-        * {
-            box-sizing: border-box;
-        }
-
-        body {
-            background: var(--bg);
-            color: #fff;
-            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
-            margin: 0;
-            user-select: none;
-            overflow-x: hidden;
-            background-image:
-                radial-gradient(
-                    circle at 50% 10%,
-                    rgba(0, 255, 65, 0.10),
-                    transparent 60%
-                );
-            min-height: 100vh;
-        }
-
-        .header-container {
-            text-align: center;
-            padding: 25px 10px 12px;
-        }
-
-        .zigzag-name {
-            font-size: 32px;
-            font-weight: 900;
-            letter-spacing: 3px;
-            color: #fff;
-            text-transform: uppercase;
-            text-shadow:
-                2px 2px var(--danger),
-                -2px -2px var(--neon),
-                0 0 15px var(--neon);
-            animation: glitch 2s infinite;
-        }
-
-        .sub-title {
-            color: var(--gold);
-            font-size: 10px;
-            letter-spacing: 4px;
-            margin-top: 6px;
-            font-weight: bold;
-        }
-
-        @keyframes glitch {
-            0%, 100% {
-                transform: skew(0deg);
-            }
-
-            20% {
-                transform: skew(-2deg);
-                text-shadow:
-                    2px 2px var(--neon),
-                    -2px -2px var(--danger);
-            }
-
-            40% {
-                transform: skew(2deg);
-            }
-        }
-
-        .glass-box {
-            max-width: 420px;
-            width: calc(100% - 24px);
-            margin: 0 auto 20px;
-            background: var(--card-bg);
-            border: 1px solid var(--border-glow);
-            border-radius: 20px;
-            padding: 20px;
-            backdrop-filter: blur(15px);
-            -webkit-backdrop-filter: blur(15px);
-            box-shadow:
-                0 8px 32px rgba(0, 0, 0, 0.8),
-                0 0 20px rgba(0, 255, 65, 0.15);
-            text-align: center;
-        }
-
-        .brand-small {
-            font-size: 10px;
-            color: #777;
-            font-weight: 700;
-            letter-spacing: 2px;
-            margin-bottom: 8px;
-        }
-
-        .period {
-            color: #aaa;
-            font-size: 12px;
-            font-weight: 600;
-        }
-
-        .level-badge {
-            background: rgba(255, 234, 0, 0.2);
-            color: var(--gold);
-            border: 1px solid var(--gold);
-            font-size: 12px;
-            font-weight: 800;
-            padding: 6px 13px;
-            border-radius: 20px;
-            display: inline-block;
-            margin-bottom: 10px;
-        }
-
-        .mode-title {
-            color: #8a8f98;
-            font-size: 9px;
-            font-weight: 800;
-            letter-spacing: 2px;
-            margin: 16px 0 8px;
-            text-transform: uppercase;
-        }
-
-        .mode-grid {
-            display: grid;
-            grid-template-columns: repeat(4, 1fr);
-            gap: 7px;
-            margin-bottom: 14px;
-        }
-
-        .mode-btn {
-            appearance: none;
-            background: rgba(255, 255, 255, 0.04);
-            border: 1px solid rgba(255, 255, 255, 0.12);
-            border-radius: 10px;
-            color: #a9adb5;
-            cursor: pointer;
-            font: inherit;
-            font-size: 11px;
-            font-weight: 900;
-            padding: 10px 4px;
-            transition: 0.2s ease;
-        }
-
-        .mode-btn:hover {
-            border-color: var(--neon);
-            color: #fff;
-        }
-
-        .mode-btn.active {
-            background: rgba(0, 255, 65, 0.14);
-            border-color: var(--neon);
-            box-shadow: 0 0 14px rgba(0, 255, 65, 0.18);
-            color: var(--neon);
-        }
-
-        .countdown-card {
-            align-items: center;
-            background: rgba(0, 0, 0, 0.5);
-            border: 1px solid rgba(0, 255, 65, 0.24);
-            border-radius: 14px;
-            display: flex;
-            justify-content: space-between;
-            margin-bottom: 13px;
-            padding: 12px 15px;
-        }
-
-        .countdown-copy {
-            text-align: left;
-        }
-
-        .countdown-label {
-            color: #8a8f98;
-            font-size: 9px;
-            font-weight: 800;
-            letter-spacing: 1.5px;
-        }
-
-        .active-mode-label {
-            color: var(--gold);
-            font-size: 11px;
-            font-weight: 800;
-            margin-top: 4px;
-        }
-
-        .countdown {
-            color: #fff;
-            font-family: Consolas, Monaco, monospace;
-            font-size: 30px;
-            font-weight: 900;
-            letter-spacing: 2px;
-            min-width: 92px;
-            text-align: right;
-            text-shadow: 0 0 15px var(--neon);
-        }
-
-        .pred-val {
-            font-size: 45px;
-            font-weight: 900;
-            margin: 8px 0;
-            text-shadow: 0 0 20px var(--neon);
-            letter-spacing: 2px;
-        }
-
-        .num-box {
-            color: var(--gold);
-            font-size: 14px;
-            font-weight: bold;
-            border: 1px dashed var(--gold);
-            padding: 10px;
-            border-radius: 10px;
-            background: rgba(255, 234, 0, 0.05);
-            margin-bottom: 12px;
-        }
-
-        .stats-grid {
-            display: table;
-            width: 100%;
-            margin-bottom: 15px;
-            background: rgba(0, 0, 0, 0.5);
-            border-radius: 10px;
-            padding: 8px 0;
-            border: 1px solid rgba(255, 255, 255, 0.08);
-        }
-
-        .stat-item {
-            display: table-cell;
-            width: 33.33%;
-            text-align: center;
-        }
-
-        .stat-val {
-            font-size: 16px;
-            font-weight: bold;
-        }
-
-        .stat-lbl {
-            font-size: 9px;
-            color: #aaa;
-            text-transform: uppercase;
-            margin-top: 2px;
-        }
-
-        table {
-            width: 100%;
-            margin-top: 15px;
-            border-collapse: collapse;
-            font-size: 11px;
-        }
-
-        th {
-            color: #888;
-            border-bottom: 1px solid #333;
-            padding: 8px 4px;
-            text-transform: uppercase;
-            font-size: 10px;
-        }
-
-        td {
-            padding: 8px 4px;
-            border-bottom: 1px solid #1a1a1a;
-            text-align: center;
-        }
-
-        .win {
-            color: var(--neon);
-            font-weight: bold;
-        }
-
-        .loss {
-            color: var(--danger);
-            font-weight: bold;
-        }
-
-        .badge {
-            display: inline-block;
-            padding: 2px 6px;
-            border-radius: 4px;
-            font-size: 9px;
-            font-weight: bold;
-        }
-
-        .badge-big {
-            background: rgba(0, 255, 65, 0.2);
-            color: var(--neon);
-            border: 1px solid var(--neon);
-        }
-
-        .badge-small {
-            background: rgba(255, 0, 60, 0.2);
-            color: var(--danger);
-            border: 1px solid var(--danger);
-        }
-
-        .register-btn {
-            display: block;
-            width: 100%;
-            padding: 13px;
-            margin-top: 20px;
-            background: linear-gradient(135deg, #ffea00, #ff9100);
-            color: #000;
-            font-weight: 800;
-            text-decoration: none;
-            border-radius: 12px;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            box-shadow: 0 4px 15px rgba(255, 234, 0, 0.3);
-            transition: transform 0.2s;
-        }
-
-        .register-btn:active {
-            transform: scale(0.97);
-        }
-
-        .footer {
-            text-align: center;
-            color: #555;
-            font-size: 9px;
-            letter-spacing: 2px;
-            margin-top: 16px;
-            text-transform: uppercase;
-        }
-    </style>
+    <title>MALAYALI HERE • VIP HACKS SHOP</title>
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="css/style.css">
 </head>
+<body class="min-h-screen font-sans selection:bg-yellow-400 selection:text-black">
 
-<body oncontextmenu="return false;">
-
-    <!-- MALAYALI HERE HEADER -->
-    <div class="header-container">
-
-        <div class="zigzag-name">
-            MALAYALI HERE
-        </div>
-
-        <div class="sub-title">
-            VIP SERVER • 2-LEVEL ENGINE
-        </div>
-
+    <div class="fixed inset-0 overflow-hidden pointer-events-none z-0 opacity-40">
+        <div class="absolute top-10 left-6 text-yellow-400 text-xs sparkle">✨</div>
+        <div class="absolute top-20 right-10 text-yellow-500 text-sm sparkle" style="animation-delay: 1s;">⭐</div>
+        <div class="absolute top-40 left-1/4 text-yellow-300 text-xs sparkle" style="animation-delay: 2s;">⚡</div>
     </div>
 
-    <!-- DASHBOARD -->
-    <div id="appPage" class="glass-box">
-
-        <div class="brand-small">
-            MALAYALI HERE PREDICTION SERVER
-        </div>
-
-        <div class="period" id="pID">
-            PERIOD: CALCULATING...
-        </div>
-
-        <div class="mode-title">Select prediction time</div>
-
-        <div class="mode-grid" id="modeGrid">
-            <button class="mode-btn" type="button" data-mode="30S">30 SEC</button>
-            <button class="mode-btn active" type="button" data-mode="1M">1 MIN</button>
-            <button class="mode-btn" type="button" data-mode="3M">3 MIN</button>
-            <button class="mode-btn" type="button" data-mode="5M">5 MIN</button>
-        </div>
-
-        <div class="countdown-card">
-            <div class="countdown-copy">
-                <div class="countdown-label">NEXT RESULT IN</div>
-                <div class="active-mode-label" id="activeModeLabel">1 MINUTE MODE</div>
+    <header class="relative z-30 flex items-center justify-between px-4 py-3 max-w-lg mx-auto w-full">
+        <div class="flex items-center space-x-2 bg-[#121217]/90 backdrop-blur px-3 py-1.5 rounded-full border border-yellow-500/40 shadow-md">
+            <img src="https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=100&auto=format&fit=crop&q=80" alt="Logo" class="w-6 h-6 rounded-full object-cover border border-yellow-400">
+            <div class="flex flex-col">
+                <span class="text-[9px] uppercase tracking-wider text-yellow-400 font-bold leading-none">VIP SHOP</span>
+                <span id="brandTitleNav" class="text-xs font-black tracking-wider text-yellow-300">MALAYALI HERE</span>
             </div>
-            <div class="countdown" id="countdown">01:00</div>
         </div>
 
-        <div style="margin-top:10px;">
-            <span class="level-badge" id="levelInfo">
-                LEVEL: 1 (PRIMARY)
-            </span>
-        </div>
-
-        <!-- PREDICTION -->
-        <div class="pred-val" id="pRes">
-            WAITING
-        </div>
-
-        <!-- NUMBERS -->
-        <div class="num-box" id="pOpps">
-            ANALYZING TRENDS...
-        </div>
-
-        <!-- LIVE STATS -->
-        <div class="stats-grid">
-
-            <div class="stat-item">
-                <div
-                    class="stat-val"
-                    id="totalWins"
-                    style="color:var(--neon);"
-                >
-                    0
+        <div class="flex items-center space-x-2">
+            <button onclick="switchView('ai')" class="flex items-center space-x-1.5 bg-[#121217]/90 backdrop-blur px-3 py-1 rounded-full border border-yellow-500/40 shadow-md hover:border-yellow-400 transition">
+                <div class="relative">
+                    <img src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100&auto=format&fit=crop&q=80" alt="AI Assistant" class="w-6 h-6 rounded-full object-cover border border-yellow-400">
+                    <span class="absolute -bottom-0.5 -right-0.5 w-2 h-2 bg-emerald-400 rounded-full border border-black"></span>
                 </div>
+                <span class="text-[11px] font-black tracking-tight text-yellow-400">LUNA AI</span>
+            </button>
+            <button onclick="toggleMenu()" class="w-9 h-9 rounded-full bg-[#121217]/90 backdrop-blur flex items-center justify-center border border-yellow-500/40 shadow-md hover:bg-yellow-500/20 text-yellow-400 transition">
+                <i class="fa-solid fa-bars text-sm"></i>
+            </button>
+        </div>
+    </header>
 
-                <div class="stat-lbl">
-                    WINS
-                </div>
+    <div id="navModal" class="fixed inset-0 z-50 bg-black/80 backdrop-blur-md hidden flex items-start justify-end p-3 transition-opacity">
+        <div class="glass-card w-64 rounded-3xl p-4 shadow-2xl mt-12">
+            <div class="flex items-center justify-between pb-3 border-b border-yellow-500/20 mb-3">
+                <span class="text-xs font-black tracking-widest uppercase text-yellow-400">Navigation</span>
+                <button onclick="toggleMenu()" class="w-7 h-7 rounded-full bg-slate-900 flex items-center justify-center text-slate-400 hover:text-red-400">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
             </div>
-
-            <div class="stat-item">
-                <div
-                    class="stat-val"
-                    id="totalLosses"
-                    style="color:var(--danger);"
-                >
-                    0
-                </div>
-
-                <div class="stat-lbl">
-                    LOSSES
-                </div>
-            </div>
-
-            <div class="stat-item">
-                <div
-                    class="stat-val"
-                    id="winRate"
-                    style="color:var(--gold);"
-                >
-                    100%
-                </div>
-
-                <div class="stat-lbl">
-                    ACCURACY
-                </div>
-            </div>
-
+            <nav class="space-y-1.5">
+                <button onclick="switchView('home'); toggleMenu();" class="w-full flex items-center space-x-3 px-3.5 py-2.5 rounded-2xl bg-yellow-500/10 text-yellow-400 font-bold text-sm transition">
+                    <i class="fa-solid fa-house w-4"></i>
+                    <span>Home</span>
+                </button>
+                <button onclick="switchView('contact'); toggleMenu();" class="w-full flex items-center space-x-3 px-3.5 py-2.5 rounded-2xl hover:bg-yellow-500/10 text-slate-300 font-bold text-sm transition">
+                    <i class="fa-regular fa-comment-dots w-4"></i>
+                    <span>Contact</span>
+                </button>
+                <a href="admin-login.html" class="w-full flex items-center space-x-3 px-3.5 py-2.5 rounded-2xl hover:bg-yellow-500/10 text-slate-300 font-bold text-sm transition">
+                    <i class="fa-solid fa-shield-halved w-4"></i>
+                    <span>Admin Login</span>
+                </a>
+            </nav>
         </div>
-
-        <!-- RESULT HISTORY -->
-        <table>
-            <thead>
-                <tr>
-                    <th>PERIOD</th>
-                    <th>PRED</th>
-                    <th>RESULT</th>
-                    <th>STATUS</th>
-                </tr>
-            </thead>
-
-            <tbody id="logs"></tbody>
-        </table>
-
-        <!-- NEW REGISTER LINK -->
-        <a
-            href="https://tirangaclub.org/#/register?invitationCode=242272834439"
-            target="_blank"
-            rel="noopener noreferrer"
-            class="register-btn"
-        >
-            PLATFORM REGISTER LINK
-        </a>
-
-        <div class="footer">
-            POWERED BY MALAYALI HERE
-        </div>
-
     </div>
 
-
-<script>
-
-/* ==========================================
-   MALAYALI HERE
-   2-LEVEL PREDICTION ENGINE
-========================================== */
-
-const BIG_POOL = [5, 6, 7, 8, 9];
-const SMALL_POOL = [0, 1, 2, 3, 4];
-
-const MODES = {
-    "30S": {
-        label: "30 SECOND MODE",
-        seconds: 30,
-        endpoint: "WinGo_30S"
-    },
-    "1M": {
-        label: "1 MINUTE MODE",
-        seconds: 60,
-        endpoint: "WinGo_1M"
-    },
-    "3M": {
-        label: "3 MINUTE MODE",
-        seconds: 180,
-        endpoint: "WinGo_3M"
-    },
-    "5M": {
-        label: "5 MINUTE MODE",
-        seconds: 300,
-        endpoint: "WinGo_5M"
-    }
-};
-
-let activeMode = "1M";
-let fetchTimer = null;
-
-let currentPrediction = null;
-let currentNumbers = [];
-
-let currentLevel = 1;
-
-let previousPrediction = null;
-let previousNumbers = [];
-
-let winsCount = 0;
-let lossCount = 0;
-
-
-/* ==========================================
-   START
-========================================== */
-
-window.onload = () => {
-    setupModeButtons();
-    updateCountdown();
-    setInterval(updateCountdown, 250);
-    initEngine();
-};
-
-
-/* ==========================================
-   MODE SELECTOR + COUNTDOWN
-========================================== */
-
-function setupModeButtons() {
-    document.querySelectorAll(".mode-btn").forEach(button => {
-        button.addEventListener("click", () => {
-            const newMode = button.dataset.mode;
-
-            if (!MODES[newMode] || newMode === activeMode) {
-                return;
-            }
-
-            activeMode = newMode;
-
-            document.querySelectorAll(".mode-btn").forEach(item => {
-                item.classList.toggle("active", item.dataset.mode === activeMode);
-            });
-
-            document.getElementById("activeModeLabel").innerText =
-                MODES[activeMode].label;
-
-            resetEngineForMode();
-            updateCountdown();
-            fetchData();
-        });
-    });
-}
-
-function resetEngineForMode() {
-    currentPrediction = null;
-    currentNumbers = [];
-    currentLevel = 1;
-    winsCount = 0;
-    lossCount = 0;
-    window.lastProcessedPeriod = null;
-
-    document.getElementById("logs").innerHTML = "";
-    document.getElementById("pID").innerText = "PERIOD: CALCULATING...";
-    document.getElementById("pRes").innerText = "SYNCING...";
-    document.getElementById("pOpps").innerText = "ANALYZING TRENDS...";
-    updateStats();
-}
-
-function updateCountdown() {
-    const duration = MODES[activeMode].seconds;
-    const nowSeconds = Math.floor(Date.now() / 1000);
-    let remaining = duration - (nowSeconds % duration);
-
-    if (remaining === duration) {
-        remaining = 0;
-    }
-
-    const minutes = Math.floor(remaining / 60);
-    const seconds = remaining % 60;
-
-    document.getElementById("countdown").innerText =
-        String(minutes).padStart(2, "0") +
-        ":" +
-        String(seconds).padStart(2, "0");
-}
-
-
-/* ==========================================
-   BASE PREDICTION
-========================================== */
-
-function calculateBasePrediction(history) {
-
-    if (!history || history.length < 5) {
-        return Math.random() > 0.5
-            ? "BIG"
-            : "SMALL";
-    }
-
-    let bigs = 0;
-    let smalls = 0;
-
-    /*
-        Weighted analysis of
-        the latest 10 rounds
-    */
-
-    for (
-        let i = 0;
-        i < Math.min(10, history.length);
-        i++
-    ) {
-
-        const num = parseInt(history[i].number);
-        const weight = 10 - i;
-
-        if (num >= 5) {
-            bigs += weight;
-        } else {
-            smalls += weight;
-        }
-    }
-
-
-    /* ==========================================
-       ANTI-STREAK PATTERN
-    ========================================== */
-
-    const last3 = history
-        .slice(0, 3)
-        .map(x =>
-            parseInt(x.number) >= 5
-                ? "BIG"
-                : "SMALL"
-        );
-
-
-    if (
-        last3.length === 3 &&
-        last3[0] === last3[1] &&
-        last3[1] === last3[2]
-    ) {
-
-        return last3[0] === "BIG"
-            ? "SMALL"
-            : "BIG";
-    }
-
-
-    return bigs >= smalls
-        ? "BIG"
-        : "SMALL";
-}
-
-
-/* ==========================================
-   GENERATE TWO NUMBERS
-========================================== */
-
-function generateNumbers(prediction) {
-
-    let primaryPool =
-        prediction === "BIG"
-            ? BIG_POOL
-            : SMALL_POOL;
-
-    let secondaryPool =
-        prediction === "BIG"
-            ? SMALL_POOL
-            : BIG_POOL;
-
-
-    let num1 =
-        primaryPool[
-            Math.floor(
-                Math.random() * primaryPool.length
-            )
-        ];
-
-
-    let num2 =
-        secondaryPool[
-            Math.floor(
-                Math.random() * secondaryPool.length
-            )
-        ];
-
-
-    return [num1, num2].sort(
-        (a, b) => a - b
-    );
-}
-
-
-/* ==========================================
-   INITIALIZE ENGINE
-========================================== */
-
-async function initEngine() {
-
-    fetchData();
-
-    fetchTimer = setInterval(
-        fetchData,
-        3000
-    );
-}
-
-
-/* ==========================================
-   FETCH LIVE RESULTS
-========================================== */
-
-async function fetchData() {
-
-    try {
-
-        const requestedMode = activeMode;
-        const mode = MODES[requestedMode];
-
-        const res = await fetch(
-            `https://draw.ar-lottery01.com/WinGo/${mode.endpoint}/GetHistoryIssuePage.json`,
-            {
-                cache: "no-store"
-            }
-        );
-
-
-        const json = await res.json();
-
-        // Ignore a delayed response after the user changes mode.
-        if (requestedMode !== activeMode) {
-            return;
-        }
-
-
-        if (
-            !json ||
-            !json.data ||
-            !json.data.list ||
-            !json.data.list.length
-        ) {
-            return;
-        }
-
-
-        const list = json.data.list;
-
-        const latest = list[0];
-
-
-        const currentPeriod =
-            (
-                BigInt(latest.issueNumber)
-                +
-                1n
-            ).toString();
-
-
-        /* ==========================================
-           DETECT NEW PERIOD
-        ========================================== */
-
-        if (
-            window.lastProcessedPeriod !==
-            latest.issueNumber
-        ) {
-
-
-            /* ==========================================
-               CHECK PREVIOUS PREDICTION
-            ========================================== */
-
-            if (
-                window.lastProcessedPeriod &&
-                currentPrediction
-            ) {
-
-                const actualNum =
-                    parseInt(latest.number);
-
-
-                const actualSize =
-                    actualNum >= 5
-                        ? "BIG"
-                        : "SMALL";
-
-
-                const isWin =
-                    (
-                        currentPrediction ===
-                        actualSize
-                    )
-                    ||
-                    currentNumbers.includes(
-                        actualNum
-                    );
-
-
-                /* ==========================================
-                   WIN / LOSS
-                ========================================== */
-
-                if (isWin) {
-
-                    winsCount++;
-
-                    // WIN = RESET TO LEVEL 1
-                    currentLevel = 1;
-
-                } else {
-
-                    lossCount++;
-
-                    // LEVEL 1 LOSS -> LEVEL 2
-                    if (currentLevel === 1) {
-
-                        currentLevel = 2;
-
-                    } else {
-
-                        // LEVEL 2 LOSS -> RESET LEVEL 1
-                        currentLevel = 1;
-
-                    }
-                }
-
-
-                updateStats();
-
-
-                /* ==========================================
-                   HISTORY ROW
-                ========================================== */
-
-                const row = `
-                    <tr>
-
-                        <td>
-                            ${latest.issueNumber.slice(-4)}
-                        </td>
-
-                        <td>
-                            <span
-                                class="badge ${
-                                    currentPrediction === 'BIG'
-                                        ? 'badge-big'
-                                        : 'badge-small'
-                                }"
-                            >
-                                ${currentPrediction}
-                            </span>
-                        </td>
-
-                        <td>
-                            <b style="color:#fff;">
-                                ${actualNum}
-                            </b>
-                            (${actualSize})
-                        </td>
-
-                        <td
-                            class="${
-                                isWin
-                                    ? 'win'
-                                    : 'loss'
-                            }"
-                        >
-                            ${
-                                isWin
-                                    ? 'WIN 🐯'
-                                    : 'LOSS 🖤'
-                            }
-                        </td>
-
-                    </tr>
-                `;
-
-
-                document.getElementById(
-                    'logs'
-                ).innerHTML =
-                    row +
-                    document.getElementById(
-                        'logs'
-                    ).innerHTML;
-            }
-
-
-            /* ==========================================
-               CALCULATE NEXT PREDICTION
-            ========================================== */
-
-            const basePred =
-                calculateBasePrediction(list);
-
-
-            if (
-                currentLevel === 2 &&
-                currentPrediction
-            ) {
-
-                /*
-                    Level 2 recovery:
-                    flip previous size prediction.
-                */
-
-                currentPrediction =
-                    currentPrediction === "BIG"
-                        ? "SMALL"
-                        : "BIG";
-
-            } else {
-
-                currentPrediction =
-                    basePred;
-            }
-
-
-            currentNumbers =
-                generateNumbers(
-                    currentPrediction
-                );
-
-
-            window.lastProcessedPeriod =
-                latest.issueNumber;
-        }
-
-
-        /* ==========================================
-           UPDATE CURRENT PERIOD
-        ========================================== */
-
-        document.getElementById(
-            'pID'
-        ).innerText =
-            "NEXT PERIOD: " +
-            currentPeriod;
-
-
-        /* ==========================================
-           UPDATE BIG / SMALL
-        ========================================== */
-
-        document.getElementById(
-            'pRes'
-        ).innerText =
-            currentPrediction ||
-            "SYNCING...";
-
-
-        /* ==========================================
-           UPDATE NUMBERS
-        ========================================== */
-
-        document.getElementById(
-            'pOpps'
-        ).innerText =
-            "2-LEVEL NUMBERS: " +
-            (
-                currentNumbers.length
-                    ? currentNumbers.join(" | ")
-                    : "ANALYZING..."
-            );
-
-
-        /* ==========================================
-           LEVEL INDICATOR
-        ========================================== */
-
-        const lvlElement =
-            document.getElementById(
-                'levelInfo'
-            );
-
-
-        if (currentLevel === 1) {
-
-            lvlElement.innerText =
-                "LEVEL: 1 (PRIMARY)";
-
-            lvlElement.style.borderColor =
-                "var(--gold)";
-
-            lvlElement.style.color =
-                "var(--gold)";
-
-            lvlElement.style.background =
-                "rgba(255,234,0,0.20)";
-
-        } else {
-
-            lvlElement.innerText =
-                "LEVEL: 2 (RECOVERY)";
-
-            lvlElement.style.borderColor =
-                "var(--neon)";
-
-            lvlElement.style.color =
-                "var(--neon)";
-
-            lvlElement.style.background =
-                "rgba(0,255,65,0.12)";
-        }
-
-    } catch (e) {
-
-        console.log(
-            "MALAYALI HERE SERVER CONNECTION WAITING...",
-            e
-        );
-    }
-}
-
-
-/* ==========================================
-   UPDATE STATISTICS
-========================================== */
-
-function updateStats() {
-
-    document.getElementById(
-        'totalWins'
-    ).innerText =
-        winsCount;
-
-
-    document.getElementById(
-        'totalLosses'
-    ).innerText =
-        lossCount;
-
-
-    const total =
-        winsCount + lossCount;
-
-
-    const rate =
-        total > 0
-            ? Math.round(
-                (winsCount / total) * 100
-            )
-            : 100;
-
-
-    document.getElementById(
-        'winRate'
-    ).innerText =
-        rate + "%";
-}
-
-</script>
-
+    <main class="max-w-lg mx-auto px-4 pb-12 relative z-20">
+        <div id="view-home" class="space-y-5">
+            <div class="text-center pt-2 pb-1 space-y-3">
+                <div class="relative w-40 h-40 mx-auto logo-glow">
+                    <div class="absolute inset-0 rounded-full bg-gradient-to-tr from-yellow-500 via-amber-400 to-yellow-600 animate-pulse opacity-85 blur-lg"></div>
+                    <div class="relative w-full h-full rounded-full border-4 border-yellow-400 overflow-hidden bg-black shadow-2xl flex items-center justify-center p-1.5">
+                        <img src="https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=400&auto=format&fit=crop&q=80" alt="Malayali Here Logo" class="w-full h-full object-cover rounded-full">
+                        <div class="absolute bottom-2.5 bg-black/90 px-2.5 py-0.5 rounded-full border border-yellow-400 text-[10px] font-black text-yellow-400 shadow">@MALAYALI7</div>
+                    </div>
+                </div>
+                <div>
+                    <span class="text-[11px] font-black tracking-widest text-yellow-400 uppercase">⚡ MALAYALI HERE ⚡</span>
+                    <h1 class="text-2xl sm:text-3xl font-black tracking-tight mt-1 bg-gradient-to-r from-yellow-300 via-amber-400 to-yellow-500 bg-clip-text text-transparent">VIP HACKS DELIVERED INSTANTLY</h1>
+                </div>
+            </div>
+
+            <a href="https://t.me/MALAYALI7" target="_blank" class="flex items-center justify-between px-4 py-3 rounded-2xl bg-gradient-to-r from-yellow-500 via-amber-500 to-yellow-600 text-black font-extrabold shadow-lg">
+                <div class="flex items-center space-x-3">
+                    <span class="text-lg">🚀</span>
+                    <div class="flex flex-col text-left">
+                        <span id="setupBannerText" class="text-xs font-black leading-tight">Tap to Go Setup Channel</span>
+                        <span class="text-[10px] text-black/80 font-bold">Download Loader · Files · Setup Guide</span>
+                    </div>
+                </div>
+                <i class="fa-solid fa-arrow-right text-xs"></i>
+            </a>
+
+            <div class="glass-card rounded-[28px] p-5 sm:p-6 relative">
+                <div class="w-16 h-1.5 bg-gradient-to-r from-yellow-400 to-amber-500 rounded-full mx-auto mb-5 shadow-lg"></div>
+                <h2 class="text-lg font-black text-center mb-5 tracking-tight text-yellow-300">Purchase Your Key</h2>
+
+                <div class="space-y-4">
+                    <div>
+                        <label class="block text-xs font-black uppercase tracking-wider text-yellow-400/80 mb-1.5">Select Product / Brand</label>
+                        <div class="relative">
+                            <button onclick="toggleDropdown('productDropdown')" id="selectedProductBtn" class="w-full flex items-center justify-between bg-black/80 border border-yellow-500/40 rounded-2xl px-4 py-3.5 text-sm font-bold text-left">
+                                <span id="productBtnText">Loading Products...</span>
+                                <i class="fa-solid fa-chevron-down text-xs text-yellow-400"></i>
+                            </button>
+                            <div id="productDropdown" class="absolute top-full left-0 right-0 mt-2 custom-dropdown-menu p-2 z-40 hidden space-y-1"></div>
+                        </div>
+                        <p id="productSubHint" class="text-[11px] text-slate-400 mt-1.5 ml-1">Official Malayali VIP Loader & Setup Included</p>
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-black uppercase tracking-wider text-yellow-400/80 mb-1.5">Select Duration / Plan</label>
+                        <div class="relative">
+                            <button onclick="toggleDropdown('planDropdown')" id="selectedPlanBtn" class="w-full flex items-center justify-between bg-black/80 border border-yellow-500/40 rounded-2xl px-4 py-3.5 text-sm font-bold text-left">
+                                <span id="planBtnText">Choose Duration</span>
+                                <i class="fa-solid fa-chevron-down text-xs text-yellow-400"></i>
+                            </button>
+                            <div id="planDropdown" class="absolute top-full left-0 right-0 mt-2 custom-dropdown-menu p-2 z-40 hidden space-y-1"></div>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-3 pt-1">
+                        <div class="bg-black/60 border border-yellow-500/30 rounded-2xl p-3 flex items-center space-x-2.5">
+                            <span class="text-base">📦</span>
+                            <div>
+                                <div class="text-[9px] uppercase tracking-wider text-yellow-400/80 font-bold">Available Keys</div>
+                                <div id="stockCount" class="text-xs font-black text-emerald-400">0 Keys Ready</div>
+                            </div>
+                        </div>
+                        <div class="bg-black/60 border border-yellow-500/30 rounded-2xl p-3 flex flex-col justify-center">
+                            <div class="text-[9px] uppercase tracking-wider text-yellow-400/80 font-bold">Total</div>
+                            <div id="totalPrice" class="text-sm font-black text-yellow-400">₹ --</div>
+                        </div>
+                    </div>
+
+                    <button onclick="startSecureCheckout()" class="w-full btn-gold-gradient py-4 rounded-2xl flex items-center justify-center space-x-2 uppercase text-xs mt-2">
+                        <i class="fa-solid fa-shield-halved"></i>
+                        <span>Pay Securely</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <div id="view-contact" class="space-y-5 hidden">
+            <div class="glass-card rounded-[28px] p-6 space-y-4">
+                <h2 class="text-base font-black text-yellow-300">Contact Us</h2>
+                <form onsubmit="submitContact(event)" class="space-y-4">
+                    <input type="text" placeholder="Your Name" required class="w-full bg-black/80 border border-yellow-500/40 rounded-2xl px-4 py-3 text-sm">
+                    <textarea rows="4" placeholder="How can we help?" required class="w-full bg-black/80 border border-yellow-500/40 rounded-2xl px-4 py-3 text-sm resize-none"></textarea>
+                    <button type="submit" class="w-full btn-gold-gradient py-4 rounded-2xl uppercase text-xs">Send Message</button>
+                </form>
+            </div>
+        </div>
+
+        <div id="view-ai" class="space-y-4 hidden">
+            <div class="glass-card rounded-[28px] p-5 flex flex-col h-[520px]">
+                <div id="chatMessages" class="flex-1 overflow-y-auto py-4 space-y-3 text-xs"></div>
+                <div class="pt-3 border-t border-yellow-500/30 flex items-center space-x-2">
+                    <input type="text" id="chatInput" placeholder="Ask Luna..." onkeydown="if(event.key==='Enter') sendChatMessage()" class="flex-1 bg-black border border-yellow-500/40 rounded-2xl px-4 py-3 text-xs">
+                    <button onclick="sendChatMessage()" class="w-11 h-11 btn-gold-gradient rounded-2xl flex items-center justify-center"><i class="fa-solid fa-paper-plane text-xs"></i></button>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <footer class="max-w-lg mx-auto px-4 py-8 text-center text-[10px] text-yellow-500/80 font-bold uppercase tracking-widest">
+        <span id="footerBrand">© 2026 MALAYALI HERE</span> · Instant Digital Key Delivery (@MALAYALI7)
+    </footer>
+
+    <script src="js/config.js"></script>
+    <script src="js/app.js"></script>
 </body>
 </html>
