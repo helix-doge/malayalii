@@ -24,7 +24,9 @@ let productsData = [
 let selectedProduct = null;
 let selectedPlan = null;
 let timerInterval = null;
-const MERCHANT_UPI = "Malayali@upi"; // Replace with your merchant UPI ID
+let autoVerifyInterval = null;
+let currentOrderId = null;
+const MERCHANT_UPI = "Malayali@upi"; // Replace with your target UPI ID
 
 if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', initApp);
@@ -144,7 +146,7 @@ async function checkStockCount() {
             }
         }
     } catch (e) {
-        // Fallback silently
+        // Fallback
     }
     stockElement.innerText = "Available";
 }
@@ -175,35 +177,38 @@ document.addEventListener('click', (e) => {
     }
 });
 
-/* FAMPAY MODAL & PAYMENT LOGIC */
+/* CHECKOUT & AUTO-VERIFICATION SYSTEM */
 function payNow() {
     if (!selectedProduct || !selectedPlan) {
         alert('Please select a product and plan first!');
         return;
     }
 
-    const orderId = 'ORD' + Date.now() + Math.random().toString(36).substring(2, 6).toUpperCase();
+    currentOrderId = 'ORD' + Date.now() + Math.random().toString(36).substring(2, 6).toUpperCase();
     const amount = parseFloat(selectedPlan.price).toFixed(2);
     
-    document.getElementById('modalOrderId').innerText = `ORDER ID: ${orderId}`;
+    document.getElementById('modalOrderId').innerText = `ORDER ID: ${currentOrderId}`;
     document.getElementById('modalProdName').innerText = selectedProduct.name;
     document.getElementById('modalPlanName').innerText = `${selectedPlan.name} 💛`;
     document.getElementById('modalAmount').innerText = `₹ ${amount}`;
     document.getElementById('modalUpiId').innerText = `UPI ID: ${MERCHANT_UPI}`;
 
-    const upiUrl = `upi://pay?pa=${MERCHANT_UPI}&pn=Malayali%20Shop&am=${amount}&cu=INR&tn=${orderId}`;
+    const upiUrl = `upi://pay?pa=${MERCHANT_UPI}&pn=Malayali%20Shop&am=${amount}&cu=INR&tn=${currentOrderId}`;
     const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=${encodeURIComponent(upiUrl)}`;
     
     document.getElementById('qrCodeImg').src = qrUrl;
     document.getElementById('payDirectBtn').href = upiUrl;
 
     document.getElementById('paymentModal').classList.remove('hidden');
+    
     startCountdown(300);
+    startAutoVerification(currentOrderId);
 }
 
 function closePaymentModal() {
     document.getElementById('paymentModal').classList.add('hidden');
     if (timerInterval) clearInterval(timerInterval);
+    if (autoVerifyInterval) clearInterval(autoVerifyInterval);
 }
 
 function startCountdown(seconds) {
@@ -219,6 +224,7 @@ function startCountdown(seconds) {
 
         if (--remaining < 0) {
             clearInterval(timerInterval);
+            if (autoVerifyInterval) clearInterval(autoVerifyInterval);
             timerDisplay.innerText = "00 : 00";
             alert("Payment session expired. Please generate a new order.");
             closePaymentModal();
@@ -226,6 +232,80 @@ function startCountdown(seconds) {
     }, 1000);
 }
 
-function verifyPayment() {
-    alert("Checking transaction status on FamPay Gateway... No pending UTR match found yet.");
+// Polling auto-verifier
+function startAutoVerification(orderId) {
+    if (autoVerifyInterval) clearInterval(autoVerifyInterval);
+
+    autoVerifyInterval = setInterval(async () => {
+        await checkOrderAndDeliver(orderId, false);
+    }, 3000); // Check database every 3 seconds
+}
+
+async function verifyPaymentManually() {
+    if (!currentOrderId) return;
+    const verified = await checkOrderAndDeliver(currentOrderId, true);
+    if (!verified) {
+        alert("Payment verification in progress... No matching completed transaction found yet.");
+    }
+}
+
+async function checkOrderAndDeliver(orderId, isManualCheck = false) {
+    try {
+        if (typeof db !== 'undefined' && db) {
+            // Check order table status
+            const { data, error } = await db.from('orders')
+                .select('*')
+                .eq('order_id', orderId)
+                .eq('status', 'SUCCESS')
+                .single();
+
+            if (!error && data && data.key_code) {
+                fulfillOrder(data.key_code, orderId);
+                return true;
+            }
+        }
+    } catch (err) {
+        // Log error silently during polling
+    }
+
+    return false;
+}
+
+// Deliver Key & Show Screen
+function fulfillOrder(keyCode, orderId) {
+    closePaymentModal();
+
+    document.getElementById('deliveryKeyText').innerText = keyCode;
+    document.getElementById('deliveryProd').innerText = selectedProduct ? selectedProduct.name : "VIP Product";
+    document.getElementById('deliveryPlan').innerText = selectedPlan ? selectedPlan.name : "VIP Plan";
+    document.getElementById('deliveryOrder').innerText = orderId;
+
+    document.getElementById('keyDeliveryModal').classList.remove('hidden');
+
+    // Auto Copy Key to Clipboard
+    copyKeyToClipboard();
+}
+
+function copyKeyToClipboard() {
+    const keyText = document.getElementById('deliveryKeyText').innerText;
+    if (!keyText || keyText === '--') return;
+
+    navigator.clipboard.writeText(keyText).then(() => {
+        const copyBtnLabel = document.getElementById('copyBtnLabel');
+        const copyToast = document.getElementById('copyToast');
+
+        if (copyBtnLabel) copyBtnLabel.innerText = "COPIED!";
+        if (copyToast) copyToast.classList.remove('hidden');
+
+        setTimeout(() => {
+            if (copyBtnLabel) copyBtnLabel.innerText = "COPY";
+            if (copyToast) copyToast.classList.add('hidden');
+        }, 3000);
+    }).catch(() => {
+        console.warn("Auto-copy blocked by browser permissions.");
+    });
+}
+
+function closeKeyModal() {
+    document.getElementById('keyDeliveryModal').classList.add('hidden');
 }
