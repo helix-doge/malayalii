@@ -13,7 +13,6 @@ async function initApp() {
     checkAutoRedirectReturn();
 }
 
-/* FETCH PRODUCTS & PLANS DYNAMICALLY FROM SUPABASE */
 async function fetchDatabaseProducts() {
     const btnText = document.getElementById('productBtnText');
     if (btnText) btnText.innerText = "Loading Products...";
@@ -173,7 +172,6 @@ document.addEventListener('click', (e) => {
     }
 });
 
-/* FAMGATEWAY API AUTOMATED PAYMENT */
 async function initiateAutoPayment() {
     if (!selectedProduct || !selectedPlan) {
         alert('Please select a product and plan first!');
@@ -241,7 +239,6 @@ async function initiateAutoPayment() {
     }
 }
 
-/* AUTOMATIC VERIFICATION ON RETURN */
 async function checkAutoRedirectReturn() {
     const urlParams = new URLSearchParams(window.location.search);
     const verifyAuto = urlParams.get('verify_auto');
@@ -287,7 +284,7 @@ function copyKeyToClipboard() {
         if (copyToast) copyToast.classList.remove('hidden');
 
         setTimeout(() => {
-            if (copyBtnLabel) copyBtnLabel.innerText = "COPY";
+            if (copyBtnLabel) copyBtnLabel.innerText = "COPY KEY";
             if (copyToast) copyToast.classList.add('hidden');
         }, 3000);
     }).catch(() => {
