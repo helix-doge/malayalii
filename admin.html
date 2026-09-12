@@ -9,12 +9,12 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="css/style.css">
 </head>
-<body class="min-h-screen p-4 md:p-8">
+<body class="min-h-screen p-4 md:p-8 bg-black text-white">
 
     <div class="max-w-4xl mx-auto space-y-6">
         
-        <!-- Header -->
-        <div class="glass-card p-5 flex items-center justify-between mb-6">
+        <!-- Persistent Header -->
+        <div class="glass-card p-5 flex items-center justify-between border border-yellow-500/30 rounded-2xl bg-[#0a0a0a]">
             <div class="flex items-center space-x-3">
                 <div class="text-3xl">👑</div>
                 <div>
@@ -25,35 +25,39 @@
             <button onclick="logoutAdmin()" class="px-5 py-2 bg-red-500/10 text-red-400 border border-red-500/30 rounded-xl text-sm font-bold hover:bg-red-500/20 transition">Logout</button>
         </div>
 
-        <!-- VIEW 1: MAIN MENU GRID -->
-        <div id="admin-menu-view" class="space-y-6">
+        <!-- MAIN MENU GRID (View 1) -->
+        <div id="view-main-menu" class="space-y-6">
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                 
-                <div onclick="mockAction('FamPay Setup')" class="glass-card p-4 flex items-center space-x-4 cursor-pointer hover:bg-yellow-500/5 transition">
+                <!-- FamPay Button -->
+                <div onclick="openAdminSection('fampay')" class="glass-card p-4 flex items-center space-x-4 cursor-pointer hover:bg-yellow-500/10 border border-yellow-500/20 rounded-2xl transition">
                     <div class="text-2xl text-yellow-500 w-8 text-center"><i class="fa-solid fa-credit-card"></i></div>
                     <div>
                         <h2 class="text-sm font-black text-yellow-400">FamPay Gateway Setup (API Key)</h2>
-                        <p class="text-[10px] text-gray-400 font-mono mt-0.5">FAM_A5698AB66B3DAA...</p>
+                        <p class="text-[10px] text-gray-400 font-mono mt-0.5">Configure API Keys & Merchant IDs</p>
                     </div>
                 </div>
 
-                <div onclick="mockAction('Admin Management')" class="glass-card p-4 flex items-center space-x-4 cursor-pointer hover:bg-yellow-500/5 transition">
+                <!-- Admin Mgmt Button -->
+                <div onclick="openAdminSection('admins')" class="glass-card p-4 flex items-center space-x-4 cursor-pointer hover:bg-yellow-500/10 border border-yellow-500/20 rounded-2xl transition">
                     <div class="text-2xl text-blue-500 w-8 text-center"><i class="fa-solid fa-user-group"></i></div>
                     <div>
                         <h2 class="text-sm font-black text-yellow-400">Admin Management</h2>
-                        <p class="text-[10px] text-gray-400 mt-0.5">Roles & permissions</p>
+                        <p class="text-[10px] text-gray-400 mt-0.5">Manage admin roles & permissions</p>
                     </div>
                 </div>
 
-                <div onclick="mockAction('Check Income')" class="glass-card p-4 flex items-center space-x-4 cursor-pointer hover:bg-yellow-500/5 transition">
+                <!-- Check Income Button -->
+                <div onclick="openAdminSection('income')" class="glass-card p-4 flex items-center space-x-4 cursor-pointer hover:bg-yellow-500/10 border border-yellow-500/20 rounded-2xl transition">
                     <div class="text-2xl text-emerald-500 w-8 text-center"><i class="fa-solid fa-chart-column"></i></div>
                     <div>
                         <h2 class="text-sm font-black text-yellow-400">Check Income</h2>
-                        <p class="text-[10px] text-gray-400 mt-0.5">Revenue & sales stats</p>
+                        <p class="text-[10px] text-gray-400 mt-0.5">View revenue & total sales stats</p>
                     </div>
                 </div>
 
-                <div onclick="mockAction('Update Prices')" class="glass-card p-4 flex items-center space-x-4 cursor-pointer hover:bg-yellow-500/5 transition">
+                <!-- Update Prices Button -->
+                <div onclick="openAdminSection('keys')" class="glass-card p-4 flex items-center space-x-4 cursor-pointer hover:bg-yellow-500/10 border border-yellow-500/20 rounded-2xl transition">
                     <div class="text-2xl text-green-500 w-8 text-center"><i class="fa-solid fa-dollar-sign"></i></div>
                     <div>
                         <h2 class="text-sm font-black text-yellow-400">Update Prices & Durations</h2>
@@ -61,15 +65,17 @@
                     </div>
                 </div>
 
-                <div onclick="mockAction('Brand Maintenance')" class="glass-card p-4 flex items-center space-x-4 cursor-pointer hover:bg-yellow-500/5 transition">
+                <!-- Brand Maintenance Button -->
+                <div onclick="openAdminSection('brand')" class="glass-card p-4 flex items-center space-x-4 cursor-pointer hover:bg-yellow-500/10 border border-yellow-500/20 rounded-2xl transition">
                     <div class="text-2xl text-gray-400 w-8 text-center"><i class="fa-solid fa-screwdriver-wrench"></i></div>
                     <div>
                         <h2 class="text-sm font-black text-yellow-400">Brand Maintenance</h2>
-                        <p class="text-[10px] text-gray-400 mt-0.5">Customize name, brand, logo, UPI ID</p>
+                        <p class="text-[10px] text-gray-400 mt-0.5">Customize shop name, brand, logo, UPI ID</p>
                     </div>
                 </div>
 
-                <div onclick="mockAction('Tutorial Management')" class="glass-card p-4 flex items-center space-x-4 cursor-pointer hover:bg-yellow-500/5 transition">
+                <!-- Tutorial Mgmt Button -->
+                <div onclick="openAdminSection('tutorials')" class="glass-card p-4 flex items-center space-x-4 cursor-pointer hover:bg-yellow-500/10 border border-yellow-500/20 rounded-2xl transition">
                     <div class="text-2xl text-red-400 w-8 text-center"><i class="fa-solid fa-book"></i></div>
                     <div>
                         <h2 class="text-sm font-black text-yellow-400">Tutorial Management</h2>
@@ -77,16 +83,17 @@
                     </div>
                 </div>
 
-                <!-- THE ACTIVE BUTTON FOR KEYS -->
-                <div onclick="switchAdminView('keys')" class="glass-card p-4 flex items-center space-x-4 cursor-pointer hover:scale-[1.02] hover:border-yellow-400 transition transform">
+                <!-- Keys Stock Button -->
+                <div onclick="openAdminSection('keys')" class="glass-card p-4 flex items-center space-x-4 cursor-pointer hover:scale-[1.02] border-2 border-yellow-400 rounded-2xl transition bg-yellow-500/5">
                     <div class="text-2xl text-yellow-500 w-8 text-center"><i class="fa-solid fa-key"></i></div>
                     <div>
                         <h2 class="text-sm font-black text-yellow-400">Keys Stock & Manual Entry</h2>
-                        <p class="text-[10px] text-gray-400 mt-0.5">Add manual keys with custom durations</p>
+                        <p class="text-[10px] text-yellow-500/80 mt-0.5">Add manual keys & create products</p>
                     </div>
                 </div>
 
-                <div onclick="mockAction('Redeem Codes')" class="glass-card p-4 flex items-center space-x-4 cursor-pointer hover:bg-yellow-500/5 transition">
+                <!-- Redeem Codes Button -->
+                <div onclick="openAdminSection('redeem')" class="glass-card p-4 flex items-center space-x-4 cursor-pointer hover:bg-yellow-500/10 border border-yellow-500/20 rounded-2xl transition">
                     <div class="text-2xl text-orange-500 w-8 text-center"><i class="fa-solid fa-gift"></i></div>
                     <div>
                         <h2 class="text-sm font-black text-yellow-400">Redeem Codes</h2>
@@ -94,7 +101,8 @@
                     </div>
                 </div>
 
-                <div onclick="mockAction('Support Settings')" class="glass-card p-4 flex items-center space-x-4 cursor-pointer hover:bg-yellow-500/5 transition">
+                <!-- Support Settings Button -->
+                <div onclick="openAdminSection('support')" class="glass-card p-4 flex items-center space-x-4 cursor-pointer hover:bg-yellow-500/10 border border-yellow-500/20 rounded-2xl transition">
                     <div class="text-2xl text-red-500 w-8 text-center"><i class="fa-solid fa-life-ring"></i></div>
                     <div>
                         <h2 class="text-sm font-black text-yellow-400">Support Settings</h2>
@@ -102,7 +110,8 @@
                     </div>
                 </div>
 
-                <div onclick="mockAction('Paid Channel Settings')" class="glass-card p-4 flex items-center space-x-4 cursor-pointer hover:bg-yellow-500/5 transition">
+                <!-- Paid Channel Button -->
+                <div onclick="openAdminSection('channel')" class="glass-card p-4 flex items-center space-x-4 cursor-pointer hover:bg-yellow-500/10 border border-yellow-500/20 rounded-2xl transition">
                     <div class="text-2xl text-gray-500 w-8 text-center"><i class="fa-solid fa-link"></i></div>
                     <div>
                         <h2 class="text-sm font-black text-yellow-400">Paid Channel Settings</h2>
@@ -112,18 +121,19 @@
             </div>
             
             <div class="text-center mt-8">
-                <a href="index.html" class="text-yellow-500 font-bold hover:underline text-sm">← Back to shop</a>
+                <a href="index.html" class="text-yellow-500 font-bold hover:underline text-sm">← Back to Shop</a>
             </div>
         </div>
 
-
-        <!-- VIEW 2: KEYS MANAGER -->
-        <div id="admin-keys-view" class="hidden space-y-6">
-            <button onclick="switchAdminView('menu')" class="text-yellow-500 font-bold hover:underline text-sm mb-2"><i class="fa-solid fa-arrow-left"></i> Back to Main Menu</button>
+        <!-- KEYS & PRODUCTS INTERFACE (View 2) -->
+        <div id="view-keys-section" class="hidden space-y-6">
+            <button onclick="showMainMenu()" class="px-4 py-2 bg-yellow-500/10 border border-yellow-500/30 text-yellow-400 font-bold rounded-xl text-xs hover:bg-yellow-500/20 transition">
+                <i class="fa-solid fa-arrow-left mr-1"></i> Back to Admin Menu
+            </button>
             
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <!-- ADD APP (PRODUCT) -->
-                <div class="glass-card p-6 space-y-4">
+                <!-- Add Product Box -->
+                <div class="glass-card p-6 space-y-4 border border-yellow-500/30 rounded-2xl bg-[#0a0a0a]">
                     <h2 class="text-sm font-black text-yellow-400 uppercase tracking-wide border-b border-yellow-500/20 pb-2">+ Add New App (Product)</h2>
                     
                     <input type="text" id="appName" placeholder="App Name (e.g., Malayali VIP iOS)" class="w-full bg-[#111] border border-yellow-500/40 rounded-xl p-3 text-sm focus:outline-none focus:border-yellow-400 text-white">
@@ -134,29 +144,27 @@
                             <label class="text-xs font-bold text-yellow-500 uppercase">Pricing Plans</label>
                             <button onclick="addPlanRow()" class="text-xs text-yellow-400 font-bold hover:underline">+ Add Plan</button>
                         </div>
-                        <div id="plansContainer" class="space-y-2">
-                            <!-- Dynamic plan rows injected here -->
-                        </div>
+                        <div id="plansContainer" class="space-y-2"></div>
                     </div>
 
-                    <button onclick="saveApp()" class="w-full btn-gold py-3 rounded-xl text-xs font-black uppercase">Save Application</button>
+                    <button onclick="saveApp()" class="w-full bg-gradient-to-r from-yellow-500 to-amber-500 text-black py-3 rounded-xl text-xs font-black uppercase shadow-[0_0_15px_rgba(255,204,0,0.3)]">Save Application</button>
                 </div>
 
-                <!-- ADD KEYS -->
-                <div class="glass-card p-6 space-y-4">
+                <!-- Add Keys Box -->
+                <div class="glass-card p-6 space-y-4 border border-yellow-500/30 rounded-2xl bg-[#0a0a0a]">
                     <h2 class="text-sm font-black text-yellow-400 uppercase tracking-wide border-b border-yellow-500/20 pb-2">+ Add Keys for App</h2>
                     
-                    <textarea id="keyStrings" rows="4" placeholder="Enter Key Strings (One per line for bulk add)&#10;ABCD-1234&#10;EFGH-5678" class="w-full bg-[#111] border border-yellow-500/40 rounded-xl p-3 text-sm text-white focus:outline-none focus:border-yellow-400 resize-none"></textarea>
+                    <textarea id="keyStrings" rows="4" placeholder="Enter Key Strings (One per line for bulk add)&#10;KEY123-456&#10;KEY789-012" class="w-full bg-[#111] border border-yellow-500/40 rounded-xl p-3 text-sm text-white focus:outline-none focus:border-yellow-400 resize-none"></textarea>
                     
                     <select id="keyAppSelect" onchange="updateKeyPlanDropdown()" class="w-full bg-[#111] border border-yellow-500/40 rounded-xl p-3 text-sm text-white focus:outline-none"></select>
                     <select id="keyPlanSelect" class="w-full bg-[#111] border border-yellow-500/40 rounded-xl p-3 text-sm text-white focus:outline-none"></select>
                     
-                    <button onclick="saveKeys()" class="w-full btn-gold py-3 rounded-xl text-xs font-black uppercase">Save Keys</button>
+                    <button onclick="saveKeys()" class="w-full bg-gradient-to-r from-yellow-500 to-amber-500 text-black py-3 rounded-xl text-xs font-black uppercase shadow-[0_0_15px_rgba(255,204,0,0.3)]">Save Keys</button>
                 </div>
             </div>
 
-            <!-- KEY INVENTORY -->
-            <div class="glass-card p-6 space-y-4">
+            <!-- Keys Table -->
+            <div class="glass-card p-6 space-y-4 border border-yellow-500/30 rounded-2xl bg-[#0a0a0a]">
                 <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center border-b border-yellow-500/20 pb-3 gap-3">
                     <h2 class="text-sm font-black text-yellow-400 uppercase tracking-wide">Keys Inventory Management</h2>
                     
@@ -182,178 +190,20 @@
                                 <th class="px-4 py-3 text-right rounded-tr-lg">Actions</th>
                             </tr>
                         </thead>
-                        <tbody id="inventoryList" class="divide-y divide-yellow-500/10 text-white">
-                            <!-- Inventory rows injected here -->
-                        </tbody>
+                        <tbody id="inventoryList" class="divide-y divide-yellow-500/10 text-white"></tbody>
                     </table>
                 </div>
             </div>
         </div>
-    </div>
 
-    <script src="js/config.js"></script>
-    <script src="js/auth.js"></script>
-    <script src="js/admin.js"></script>
-</body>
-</html><!DOCTYPE html>
-<html lang="en" class="dark">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Admin Dashboard • VIP SHOP</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link rel="stylesheet" href="css/style.css">
-</head>
-<body class="min-h-screen p-4 md:p-8">
-
-    <div class="max-w-6xl mx-auto space-y-6">
-        
-        <!-- Header -->
-        <div class="glass-card p-5 flex items-center justify-between">
-            <div class="flex items-center space-x-3">
-                <div class="text-3xl">👑</div>
-                <div>
-                    <h1 class="text-xl font-black text-yellow-400">Admin Control Panel</h1>
-                    <span class="text-xs text-emerald-400 font-bold">● Active Session</span>
-                </div>
-            </div>
-            <button onclick="logoutAdmin()" class="px-5 py-2 bg-red-500/10 text-red-400 border border-red-500/30 rounded-xl text-sm font-bold hover:bg-red-500/20">Logout</button>
+        <!-- DYNAMIC SECTION CONTAINER (View 3 for other buttons) -->
+        <div id="view-generic-section" class="hidden space-y-6">
+            <button onclick="showMainMenu()" class="px-4 py-2 bg-yellow-500/10 border border-yellow-500/30 text-yellow-400 font-bold rounded-xl text-xs hover:bg-yellow-500/20 transition">
+                <i class="fa-solid fa-arrow-left mr-1"></i> Back to Admin Menu
+            </button>
+            <div id="generic-content" class="glass-card p-6 border border-yellow-500/30 rounded-2xl bg-[#0a0a0a]"></div>
         </div>
 
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-            
-            <!-- ADD APP (PRODUCT) -->
-            <div class="glass-card p-6 space-y-4 relative">
-                <h2 class="text-sm font-black text-yellow-400 uppercase tracking-wide border-b border-yellow-500/20 pb-2">+ Add New App (Product)</h2>
-                
-                <input type="text" id="appName" placeholder="App Name (e.g., Malayali VIP iOS)" class="w-full bg-[#111] border border-yellow-500/40 rounded-xl p-3 text-sm focus:outline-none focus:border-yellow-400">
-                <input type="text" id="appHint" placeholder="Subtitle (e.g., iOS Hack Update Link in Setup)" class="w-full bg-[#111] border border-yellow-500/40 rounded-xl p-3 text-sm focus:outline-none focus:border-yellow-400">
-                
-                <div class="bg-[#1a1a1a] p-4 rounded-xl border border-yellow-500/20 space-y-3">
-                    <div class="flex justify-between items-center">
-                        <label class="text-xs font-bold text-yellow-500 uppercase">Pricing Plans</label>
-                        <button onclick="addPlanRow()" class="text-xs text-yellow-400 font-bold hover:underline">+ Add Plan</button>
-                    </div>
-                    <div id="plansContainer" class="space-y-2">
-                        <!-- Dynamic plan rows injected here -->
-                    </div>
-                </div>
-
-                <button onclick="saveApp()" class="w-full btn-gold py-3 rounded-xl text-xs font-black uppercase">Save Application</button>
-            </div>
-
-            <!-- ADD KEYS -->
-            <div class="glass-card p-6 space-y-4 relative">
-                <h2 class="text-sm font-black text-yellow-400 uppercase tracking-wide border-b border-yellow-500/20 pb-2">+ Add Keys for App</h2>
-                
-                <textarea id="keyStrings" rows="3" placeholder="Enter Key Strings (One per line for bulk add)" class="w-full bg-[#111] border border-yellow-500/40 rounded-xl p-3 text-sm focus:outline-none focus:border-yellow-400 resize-none"></textarea>
-                
-                <select id="keyAppSelect" onchange="updateKeyPlanDropdown()" class="w-full bg-[#111] border border-yellow-500/40 rounded-xl p-3 text-sm text-white focus:outline-none"></select>
-                <select id="keyPlanSelect" class="w-full bg-[#111] border border-yellow-500/40 rounded-xl p-3 text-sm text-white focus:outline-none"></select>
-                
-                <button onclick="saveKeys()" class="w-full btn-gold py-3 rounded-xl text-xs font-black uppercase">Save Keys</button>
-            </div>
-        </div>
-
-        <!-- KEY INVENTORY & FILTER -->
-        <div class="glass-card p-6 space-y-4">
-            <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center border-b border-yellow-500/20 pb-3 gap-3">
-                <h2 class="text-sm font-black text-yellow-400 uppercase tracking-wide">Keys Inventory Management</h2>
-                
-                <div class="flex space-x-2 w-full sm:w-auto">
-                    <select id="filterApp" onchange="loadInventory()" class="bg-[#111] border border-yellow-500/40 rounded-lg px-3 py-1.5 text-xs text-white">
-                        <option value="All">All Apps</option>
-                    </select>
-                    <select id="filterStatus" onchange="loadInventory()" class="bg-[#111] border border-yellow-500/40 rounded-lg px-3 py-1.5 text-xs text-white">
-                        <option value="All">All Status</option>
-                        <option value="Live">Live</option>
-                        <option value="Sold">Sold</option>
-                    </select>
-                </div>
-            </div>
-
-            <div class="overflow-x-auto">
-                <table class="w-full text-left text-xs">
-                    <thead class="text-yellow-500 uppercase bg-[#1a1a1a]">
-                        <tr>
-                            <th class="px-4 py-3 rounded-tl-lg">Key String</th>
-                            <th class="px-4 py-3">App & Plan</th>
-                            <th class="px-4 py-3">Status</th>
-                            <th class="px-4 py-3 text-right rounded-tr-lg">Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody id="inventoryList" class="divide-y divide-yellow-500/10">
-                        <!-- Inventory rows injected here -->
-                    </tbody>
-                </table>
-            </div>
-        </div>
-
-    </div>
-
-    <script src="js/config.js"></script>
-    <script src="js/auth.js"></script>
-    <script src="js/admin.js"></script>
-</body>
-</html><!DOCTYPE html>
-<html lang="en" class="dark">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Admin Dashboard • VIP HACKS SHOP</title>
-    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link rel="stylesheet" href="css/style.css">
-</head>
-<body class="min-h-screen p-4 sm:p-6">
-
-    <div class="max-w-4xl mx-auto space-y-6">
-        <div class="glass-card rounded-[28px] p-5 sm:p-6 flex items-center justify-between">
-            <div>
-                <h1 class="text-lg font-black text-yellow-300">Admin Control Panel</h1>
-                <span class="text-xs text-emerald-400 font-bold">● Supabase Connected</span>
-            </div>
-            <button onclick="logoutAdmin()" class="px-4 py-2 bg-red-500/20 text-red-400 rounded-xl text-xs font-bold hover:bg-red-500/30">Logout</button>
-        </div>
-
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <!-- Add Product -->
-            <div class="glass-card rounded-[28px] p-5 space-y-3">
-                <h3 class="text-sm font-black text-yellow-300 uppercase">+ Create Product Category</h3>
-                <input type="text" id="newProdName" placeholder="Product Title (e.g., Malayali iOS VIP)" class="w-full bg-black border border-yellow-500/40 rounded-xl p-3 text-xs">
-                <input type="text" id="newProdHint" placeholder="Subtitle / Setup Info" class="w-full bg-black border border-yellow-500/40 rounded-xl p-3 text-xs">
-                <div class="grid grid-cols-2 gap-2">
-                    <input type="number" id="price5h" placeholder="5h Price (₹)" class="bg-black border border-yellow-500/40 rounded-xl p-2.5 text-xs">
-                    <input type="number" id="price1d" placeholder="1d Price (₹)" class="bg-black border border-yellow-500/40 rounded-xl p-2.5 text-xs">
-                    <input type="number" id="price7d" placeholder="7d Price (₹)" class="bg-black border border-yellow-500/40 rounded-xl p-2.5 text-xs">
-                    <input type="number" id="price30d" placeholder="30d Price (₹)" class="bg-black border border-yellow-500/40 rounded-xl p-2.5 text-xs">
-                </div>
-                <button onclick="createNewProduct()" class="w-full btn-gold-gradient py-3 rounded-xl text-xs uppercase">Save Product</button>
-            </div>
-
-            <!-- Add Key -->
-            <div class="glass-card rounded-[28px] p-5 space-y-3">
-                <h3 class="text-sm font-black text-yellow-300 uppercase">+ Add Manual Key</h3>
-                <input type="text" id="newKeyStr" placeholder="Key String (e.g. MALAYALI-VIP-8891)" class="w-full bg-black border border-yellow-500/40 rounded-xl p-3 text-xs">
-                <select id="keyProdSelect" class="w-full bg-black border border-yellow-500/40 rounded-xl p-3 text-xs"></select>
-                <select id="keyDurSelect" class="w-full bg-black border border-yellow-500/40 rounded-xl p-3 text-xs">
-                    <option value="5 Hour ⏱️">5 Hour ⏱️</option>
-                    <option value="1 Day 💛">1 Day 💛</option>
-                    <option value="7 Day 💎">7 Day 💎</option>
-                    <option value="30 Day / Month 🔥">30 Day / Month 🔥</option>
-                </select>
-                <button onclick="addKeyToDatabase()" class="w-full btn-gold-gradient py-3 rounded-xl text-xs uppercase">Save Key</button>
-            </div>
-        </div>
-
-        <!-- Inventory List -->
-        <div class="glass-card rounded-[28px] p-5 space-y-3">
-            <h3 class="text-sm font-black text-yellow-300 uppercase">Existing Keys Inventory</h3>
-            <div id="keyList" class="space-y-2 max-h-60 overflow-y-auto"></div>
-        </div>
     </div>
 
     <script src="js/config.js"></script>
