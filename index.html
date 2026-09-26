@@ -5,13 +5,19 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Malayali Here - VIP Store</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Supabase CDN -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script>
+        // Initialize Supabase Client (Replace with your actual keys from Supabase API settings)
+        const SUPABASE_URL = 'https://lkamcxruiqwqcgkfkfca.supabase.co';
+        const SUPABASE_ANON_KEY = 'sb_publishable_OeygUfbL1ykCKLOIj9VCbA_h0y4H77N';
+        const db = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+    </script>
 </head>
 <body class="bg-[#0a0a0a] text-white flex flex-col items-center min-h-screen p-4">
     
-    <!-- Top Header Bar (Matching Reference Screenshot) -->
+    <!-- Top Header Bar -->
     <div class="w-full max-w-md flex justify-between items-center mb-6">
-        <!-- VIP Shop Badge with Logo Image -->
         <div class="flex items-center gap-2 bg-[#121212] border border-yellow-500/40 rounded-full py-1.5 px-3.5 shadow-[0_0_15px_rgba(234,179,8,0.15)]">
             <img src="images/logo/logo.png" alt="Logo" class="w-5 h-5 rounded-full object-cover">
             <div class="flex flex-col">
@@ -20,7 +26,6 @@
             </div>
         </div>
 
-        <!-- Right Header Elements: Luna AI Pill & Menu Button -->
         <div class="flex items-center gap-2">
             <div class="flex items-center gap-2 bg-[#121212] border border-yellow-500/40 rounded-full py-1 px-3 shadow-[0_0_15px_rgba(234,179,8,0.15)]">
                 <div class="relative w-5 h-5 rounded-full overflow-hidden border border-yellow-500">
@@ -105,9 +110,9 @@
 
         <!-- Pay Button -->
         <button onclick="initiateAutoPayment()" class="w-full bg-gradient-to-r from-yellow-500 to-amber-400 hover:from-yellow-400 hover:to-amber-300 text-black font-black text-xs py-4 rounded-xl shadow-[0_0_20px_rgba(234,179,8,0.4)] transition flex items-center justify-center gap-2 cursor-pointer">
-            <span>🛡️</span> PAY VIA UPI
+            <span>🛡️</span> PAY VIA ONLINE GATEWAY
         </button>
-        <p class="text-center text-[10px] text-gray-500 mt-2.5">Powered by Malayalihere / Online banking</p>
+        <p class="text-center text-[10px] text-gray-500 mt-2.5">Powered by Malayalihere </p>
     </div>
 
     <!-- Badges Row -->
@@ -118,7 +123,7 @@
         </div>
         <div class="bg-[#121212] border border-yellow-500/30 rounded-2xl p-3.5 text-center shadow-[0_0_15px_rgba(234,179,8,0.08)]">
             <span class="text-yellow-400 block mb-1 text-sm">🛡️</span>
-            <span class="text-[10px] font-black tracking-wider text-gray-200">UPI</span>
+            <span class="text-[10px] font-black tracking-wider text-gray-200">FAMPAY UPI</span>
         </div>
         <div class="bg-[#121212] border border-yellow-500/30 rounded-2xl p-3.5 text-center shadow-[0_0_15px_rgba(234,179,8,0.08)]">
             <span class="text-yellow-400 block mb-1 text-sm">✅</span>
@@ -177,7 +182,7 @@
 
     <!-- Footer -->
     <footer class="text-center text-gray-500 text-[10px] pb-6 font-semibold tracking-wider">
-        © 2026 MALAYALI HERE · UPI GATEWAY INTEGRATION (ALL RIGHTS RESERVED)
+        © 2026 MALAYALI HERE ·
     </footer>
 
     <!-- Key Delivery Modal -->
@@ -208,6 +213,7 @@
         </div>
     </div>
 
+    <!-- App Logic Script -->
     <script src="js/app.js"></script>
 </body>
 </html>
