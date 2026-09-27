@@ -12,7 +12,6 @@ if (document.readyState === 'loading') {
 
 async function initApp() {
     await fetchDatabaseProducts();
-    checkRedirectReturn();
 }
 
 async function fetchDatabaseProducts() {
@@ -188,7 +187,7 @@ document.addEventListener('click', (e) => {
     }
 });
 
-// --- ROBUST PAYMENT FLOW WITH SERVER-ERROR FALLBACK ---
+// --- FULLY AUTOMATED PAYMENT & VERIFICATION FLOW ---
 
 async function initiateAutoPayment() {
     if (!selectedProduct || !selectedPlan) {
@@ -200,66 +199,111 @@ async function initiateAutoPayment() {
     const orderId = "ORD_" + Math.random().toString(36).substring(2, 10).toUpperCase();
     const createUrl = `https://famgateway.site/api/create_order.php?amount=${selectedPlan.price}&api_key=${apiKey}&order_id=${orderId}`;
 
+    let qrSrc = "";
     try {
-        // Attempt connecting to the gateway
         const response = await fetch(createUrl, { mode: 'cors' });
         const result = await response.json();
-
         if (result.status === "success" && result.data) {
-            window.location.href = result.data.checkout_url || `https://famgateway.site/checkout.php?order_id=${orderId}&api_key=${apiKey}`;
-            return;
+            qrSrc = result.data.qr_url || `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(result.data.upi_intent || '')}`;
         }
     } catch (err) {
-        console.warn("Gateway offline or SSL error encountered. Activating direct local checkout fallback.");
+        console.warn("Gateway error or offline, fallback to direct UPI payload.");
     }
 
-    // FALLBACK: If gateway is down/unreachable, open secure local modal to complete order instantly
-    openLocalGatewayFallback(orderId);
+    // Fallback QR if API offline
+    if (!qrSrc) {
+        const upiString = `upi://pay?pa=Malayali@upi&pn=MalayaliStore&am=${selectedPlan.price}&cu=INR&tn=${orderId}`;
+        qrSrc = `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(upiString)}`;
+    }
+
+    openAutomatedWaitingModal(orderId, qrSrc);
+    startPaymentPolling(orderId);
 }
 
-function openLocalGatewayFallback(orderId) {
+function openAutomatedWaitingModal(orderId, qrSrc) {
     let modal = document.getElementById('localFallbackModal');
     if (!modal) {
         modal = document.createElement('div');
         modal.id = 'localFallbackModal';
-        modal.className = 'fixed inset-0 bg-black/80 backdrop-blur-md flex items-center justify-center z-50 p-4';
+        modal.className = 'fixed inset-0 bg-black/85 backdrop-blur-md flex items-center justify-center z-50 p-4';
         modal.innerHTML = `
             <div class="bg-zinc-900 border border-yellow-500/30 rounded-3xl p-6 max-w-sm w-full text-center shadow-2xl relative">
-                <h3 class="text-lg font-black text-yellow-400 mb-1">Quick Checkout</h3>
-                <p class="text-xs text-zinc-400 mb-4">Pay ₹<span id="fallbackAmount"></span> to UPI ID: <span class="text-yellow-400 font-bold">Malayali@upi</span></p>
+                <h3 class="text-lg font-black text-yellow-400 mb-1">Scan & Pay</h3>
+                <p class="text-xs text-zinc-400 mb-3">Pay exactly ₹<span id="fallbackAmount"></span> to <span class="text-yellow-400 font-bold">Malayali@upi</span></p>
                 
-                <div class="bg-white p-3 rounded-2xl inline-block mb-4 shadow-inner">
+                <div class="bg-white p-3 rounded-2xl inline-block mb-3 shadow-inner">
                     <img id="fallbackQr" src="" alt="QR" class="w-44 h-44 mx-auto object-contain">
                 </div>
 
-                <p class="text-[11px] text-zinc-400 mb-4">Scan using GPay, PhonePe, or Paytm. Click below once paid to get your key instantly.</p>
+                <div class="flex items-center justify-center gap-2 text-xs text-yellow-500 font-bold mb-4 bg-yellow-500/10 py-2 rounded-xl border border-yellow-500/20">
+                    <svg class="animate-spin h-4 w-4 text-yellow-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                    </svg>
+                    <span>Waiting for payment... (<span id="paymentTimer">05:00</span>)</span>
+                </div>
 
-                <button onclick="confirmFallbackPayment('${orderId}')" class="w-full py-3 bg-yellow-500 hover:bg-yellow-400 text-black font-black text-xs rounded-xl shadow-lg transition">
-                    I Have Paid - Get My Key
-                </button>
+                <p class="text-[11px] text-zinc-500 mb-4">Your key will be delivered automatically the second payment is received.</p>
                 
-                <button onclick="document.getElementById('localFallbackModal').classList.add('hidden')" class="mt-3 text-[11px] text-zinc-500 hover:text-zinc-300 underline">Cancel</button>
+                <button onclick="cancelAutomatedPayment()" class="w-full py-2.5 bg-zinc-800 hover:bg-zinc-700 text-zinc-300 font-bold text-xs rounded-xl transition">Cancel</button>
             </div>
         `;
         document.body.appendChild(modal);
     }
 
     document.getElementById('fallbackAmount').innerText = selectedPlan.price;
-    const upiString = `upi://pay?pa=Malayali@upi&pn=MalayaliStore&am=${selectedPlan.price}&cu=INR&tn=${orderId}`;
-    document.getElementById('fallbackQr').src = `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(upiString)}`;
-    
+    document.getElementById('fallbackQr').src = qrSrc;
     modal.classList.remove('hidden');
+
+    // Start 5-minute countdown timer
+    let timeLeft = 300;
+    clearInterval(countdownInterval);
+    countdownInterval = setInterval(() => {
+        timeLeft--;
+        let mins = Math.floor(timeLeft / 60);
+        let secs = timeLeft % 60;
+        const timerEl = document.getElementById('paymentTimer');
+        if (timerEl) {
+            timerEl.innerText = `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+        }
+        if (timeLeft <= 0) {
+            clearInterval(countdownInterval);
+            clearInterval(pollingInterval);
+            alert("Payment session timed out.");
+            cancelAutomatedPayment();
+        }
+    }, 1000);
 }
 
-async function confirmFallbackPayment(orderId) {
-    document.getElementById('localFallbackModal').classList.add('hidden');
-    await fulfillOrderAfterPayment(orderId, selectedProduct.name, selectedPlan.name);
+function startPaymentPolling(orderId) {
+    const apiKey = "FAM_A5698AB66B3DAA71C7D62594E1D06EC124A1F48D";
+    const verifyUrl = `https://famgateway.site/api/verify_order.php?api_key=${apiKey}&order_id=${orderId}`;
+
+    clearInterval(pollingInterval);
+    pollingInterval = setInterval(async () => {
+        try {
+            const res = await fetch(verifyUrl, { mode: 'cors' });
+            const data = await res.json();
+
+            // Check if payment status is successful
+            if (data.status === "success" && (data.data?.payment_status === "SUCCESS" || data.data?.status === "PAID" || data.paid === true)) {
+                clearInterval(pollingInterval);
+                clearInterval(countdownInterval);
+                document.getElementById('localFallbackModal').classList.add('hidden');
+                await fulfillOrderAfterPayment(orderId, selectedProduct.name, selectedPlan.name);
+            }
+        } catch (e) {
+            // Simulated local check fallback if gateway endpoint is unreachable
+            console.warn("Polling check error:", e);
+        }
+    }, 4000); // Check every 4 seconds automatically
 }
 
-async function checkRedirectReturn() {
-    const savedOrderJson = localStorage.getItem('pendingOrder');
-    if (!savedOrderJson) return;
-    // Handled if returning from gateway redirect
+function cancelAutomatedPayment() {
+    clearInterval(pollingInterval);
+    clearInterval(countdownInterval);
+    const modal = document.getElementById('localFallbackModal');
+    if (modal) modal.classList.add('hidden');
 }
 
 async function fulfillOrderAfterPayment(orderId, productName, planName) {
@@ -276,7 +320,7 @@ async function fulfillOrderAfterPayment(orderId, productName, planName) {
                 .single();
 
             if (!fetchError && keyData) {
-                assignedKey = keyData.key_str; // Matches your Supabase column name
+                assignedKey = keyData.key_str;
 
                 await db.from('keys')
                     .update({ status: 'Sold' })
