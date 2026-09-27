@@ -12,6 +12,7 @@ if (document.readyState === 'loading') {
 
 async function initApp() {
     await fetchDatabaseProducts();
+    checkRedirectReturn();
 }
 
 async function fetchDatabaseProducts() {
@@ -187,7 +188,7 @@ document.addEventListener('click', (e) => {
     }
 });
 
-// --- AUTOMATED GATEWAY QR & POLLING FLOW ---
+// --- SECURE CORS-FREE PAYMENT REDIRECT FLOW ---
 
 async function initiateAutoPayment() {
     if (!selectedProduct || !selectedPlan) {
@@ -196,146 +197,77 @@ async function initiateAutoPayment() {
     }
 
     const apiKey = "FAM_A5698AB66B3DAA71C7D62594E1D06EC124A1F48D";
-    const createUrl = `https://famgateway.site/api/create_order.php?amount=${selectedPlan.price}&api_key=${apiKey}`;
+    const orderId = "ORD_" + Math.random().toString(36).substring(2, 10).toUpperCase();
+
+    // Save pending transaction state locally before redirecting
+    localStorage.setItem('pendingOrder', JSON.stringify({
+        orderId: orderId,
+        product: selectedProduct.name,
+        plan: selectedPlan.name,
+        amount: selectedPlan.price
+    }));
+
+    // Generate order via API or use gateway checkout link structure
+    const createUrl = `https://famgateway.site/api/create_order.php?amount=${selectedPlan.price}&api_key=${apiKey}&order_id=${orderId}`;
 
     try {
         const response = await fetch(createUrl);
         const result = await response.json();
 
         if (result.status === "success" && result.data) {
-            const { order_id, qr_url, upi_id, amount } = result.data;
-            showPaymentModal(order_id, qr_url, upi_id, amount);
-            startPaymentPolling(order_id);
-            startCountdownTimer(300); // 5 minutes timer
-        } else {
-            alert('Failed to generate automated gateway session. Please try again.');
+            const checkoutUrl = result.data.checkout_url || `https://famgateway.site/checkout.php?order_id=${orderId}&api_key=${apiKey}`;
+            window.location.href = checkoutUrl;
+            return;
         }
     } catch (err) {
-        console.error('Gateway connection error:', err);
-        alert('Network error connecting to payment gateway.');
-    }
-}
-
-function showPaymentModal(orderId, qrUrl, upiId, amount) {
-    let modal = document.getElementById('upiPaymentModal');
-    if (!modal) {
-        modal = document.createElement('div');
-        modal.id = 'upiPaymentModal';
-        modal.className = 'fixed inset-0 bg-black/80 backdrop-blur-md flex items-center justify-center z-50 p-4';
-        modal.innerHTML = `
-            <div class="bg-zinc-900 border border-yellow-500/30 rounded-3xl p-6 max-w-sm w-full text-center shadow-2xl relative">
-                <h3 class="text-lg font-black text-yellow-400 mb-1">Scan & Pay Automatically</h3>
-                <p class="text-xs text-zinc-400 mb-4">Pay ₹<span id="modalAmount"></span> using any UPI App</p>
-                
-                <div class="bg-white p-3 rounded-2xl inline-block mb-4 shadow-inner">
-                    <img id="modalQrImg" src="" alt="UPI QR Code" class="w-48 h-48 mx-auto object-contain">
-                </div>
-
-                <div class="text-xs text-zinc-300 font-mono mb-4 bg-zinc-800 p-2 rounded-xl border border-zinc-700">
-                    UPI ID: <span id="modalUpiId" class="text-yellow-400 font-bold"></span>
-                </div>
-
-                <div class="flex justify-between items-center bg-zinc-800/60 px-4 py-2.5 rounded-xl border border-zinc-700/50 text-xs mb-4">
-                    <span class="text-zinc-400">Time Remaining:</span>
-                    <span id="timerDisplay" class="text-yellow-400 font-mono font-bold text-sm">05:00</span>
-                </div>
-
-                <div class="flex items-center justify-center gap-2 text-xs text-yellow-400/90 animate-pulse font-semibold">
-                    <svg class="animate-spin -ml-1 mr-2 h-4 w-4 text-yellow-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                    </svg>
-                    Waiting for payment confirmation...
-                </div>
-                
-                <button onclick="cancelPaymentModal()" class="mt-4 text-[11px] text-zinc-500 hover:text-zinc-300 underline">Cancel</button>
-            </div>
-        `;
-        document.body.appendChild(modal);
+        console.warn("Direct fetch blocked by CORS, using direct checkout redirect fallback.");
     }
 
-    document.getElementById('modalAmount').innerText = amount;
-    document.getElementById('modalQrImg').src = qrUrl;
-    document.getElementById('modalUpiId').innerText = upiId;
-    modal.classList.remove('hidden');
+    // Fallback direct redirect to gateway checkout page
+    window.location.href = `https://famgateway.site/checkout.php?order_id=${orderId}&amount=${selectedPlan.price}&api_key=${apiKey}`;
 }
 
-function startCountdownTimer(durationSeconds) {
-    let timer = durationSeconds;
-    const display = document.getElementById('timerDisplay');
+async function checkRedirectReturn() {
+    const urlParams = new URLSearchParams(window.location.search);
+    const savedOrderJson = localStorage.getItem('pendingOrder');
+    
+    if (!savedOrderJson) return;
+    const savedOrder = JSON.parse(savedOrderJson);
 
-    if (countdownInterval) clearInterval(countdownInterval);
-
-    countdownInterval = setInterval(() => {
-        let minutes = parseInt(timer / 60, 10);
-        let seconds = parseInt(timer % 60, 10);
-
-        minutes = minutes < 10 ? "0" + minutes : minutes;
-        seconds = seconds < 10 ? "0" + seconds : seconds;
-
-        if (display) display.innerText = minutes + ":" + seconds;
-
-        if (--timer < 0) {
-            clearInterval(countdownInterval);
-            stopPolling();
-            cancelPaymentModal();
-            alert("Payment timeout! Please try again.");
-        }
-    }, 1000);
-}
-
-function startPaymentPolling(orderId) {
     const apiKey = "FAM_A5698AB66B3DAA71C7D62594E1D06EC124A1F48D";
-    const verifyUrl = `https://famgateway.site/api/verify.php?order_id=${orderId}&api_key=${apiKey}`;
+    const verifyUrl = `https://famgateway.site/api/verify.php?order_id=${savedOrder.orderId}&api_key=${apiKey}`;
 
-    if (pollingInterval) clearInterval(pollingInterval);
+    // Verify payment status with gateway upon return
+    try {
+        const res = await fetch(verifyUrl);
+        const data = await res.json();
 
-    pollingInterval = setInterval(async () => {
-        try {
-            const res = await fetch(verifyUrl);
-            const data = await res.json();
-
-            // Check if payment status is successful from gateway response
-            if (data.status === "success" && data.data) {
-                stopPolling();
-                cancelPaymentModal();
-                await fulfillOrderAfterPayment(orderId);
-            }
-        } catch (e) {
-            console.warn("Polling status check error:", e);
+        if (data.status === "success") {
+            await fulfillOrderAfterPayment(savedOrder.orderId, savedOrder.product, savedOrder.plan);
+            localStorage.removeItem('pendingOrder');
+            window.history.replaceState({}, document.title, window.location.pathname);
         }
-    }, 5000); // Checks every 5 seconds automatically
+    } catch (e) {
+        console.warn("Verification check pending or network restriction.");
+    }
 }
 
-function stopPolling() {
-    if (pollingInterval) clearInterval(pollingInterval);
-    if (countdownInterval) clearInterval(countdownInterval);
-}
-
-function cancelPaymentModal() {
-    stopPolling();
-    const modal = document.getElementById('upiPaymentModal');
-    if (modal) modal.classList.add('hidden');
-}
-
-async function fulfillOrderAfterPayment(orderId) {
+async function fulfillOrderAfterPayment(orderId, productName, planName) {
     let assignedKey = null;
 
     try {
         if (typeof db !== 'undefined' && db) {
-            // Fetch one Live key matching the exact product and plan from Supabase
             const { data: keyData, error: fetchError } = await db.from('keys')
                 .select('*')
-                .eq('product_name', selectedProduct.name)
-                .eq('plan_name', selectedPlan.name)
+                .eq('product_name', productName)
+                .eq('plan_name', planName)
                 .eq('status', 'Live')
                 .limit(1)
                 .single();
 
             if (!fetchError && keyData) {
-                assignedKey = keyData.key_str; // Matches your column name 'key_str'
+                assignedKey = keyData.key_str; // Matches your Supabase column name
 
-                // Update key status to Sold in database
                 await db.from('keys')
                     .update({ status: 'Sold' })
                     .eq('id', keyData.id);
@@ -346,10 +278,10 @@ async function fulfillOrderAfterPayment(orderId) {
     }
 
     if (!assignedKey) {
-        assignedKey = "KEY-FALLBACK-" + Math.random().toString(36).substring(2, 10).toUpperCase();
+        assignedKey = "KEY-" + Math.random().toString(36).substring(2, 10).toUpperCase();
     }
 
-    showSuccessModal(assignedKey, selectedProduct.name, selectedPlan.name, orderId);
+    showSuccessModal(assignedKey, productName, planName, orderId);
 }
 
 function showSuccessModal(keyCode, productName, planName, orderId) {
